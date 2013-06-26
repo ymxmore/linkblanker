@@ -14,7 +14,7 @@ var linkblanker;
 
 		var updateData = function() {
 			_data = {
-				"disabled-extension": Number(localStorage["disabled-extension"]),
+				"disabled-extension": Number(localStorage["disabled-extension"] || "0"),
 				"disabled-domain": JSON.parse(localStorage["disabled-domain"] || "[]"),
 				"disabled-page": JSON.parse(localStorage["disabled-page"] || "[]")
 			};

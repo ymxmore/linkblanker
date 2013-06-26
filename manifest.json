@@ -1,6 +1,6 @@
 {
 	"manifest_version": 2,
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"name": "Link Blanker",
 	"description": "Open link in new tab.",
 	"icons": {
@@ -12,7 +12,7 @@
 		"64": "images/icon64.png"
 	},
 	
-	"permissions": [ "http://*/*", "https://*/*", "background" ],
+	"permissions": [ "background", "tabs" ],
 	"background": {
 		"scripts": [
 			"javascripts/jquery-2.0.0.min.js",
