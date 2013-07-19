@@ -4,21 +4,49 @@ var linkblanker;
 	var LinkBlanker = function() {
 		var _this = this, _data;
 
+		this.manifest;
+
 		var initialize = function() {
 			updateData();
+
+			chrome.tabs.getAllInWindow(null, function(tabs) {
+				for (var i = 0; i < tabs.length; i++) {
+					_this.updateStatus(tabs[i], 1);
+				}
+			});
 
 			chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 				_this.updateStatus(tab);
 			});
+
+			chrome.extension.onConnect.addListener(function(port) {
+				port.onMessage.addListener(_this[port.name]);
+			});
+
+			loadManifest();
 		};
 
 		var updateData = function() {
 			_data = {
 				"disabled-extension": Number(localStorage["disabled-extension"] || "0"),
+				"disabled-on": Number(localStorage["disabled-on"] || "0"),
 				"disabled-domain": JSON.parse(localStorage["disabled-domain"] || "[]"),
 				"disabled-directory": JSON.parse(localStorage["disabled-directory"] || "[]"),
-				"disabled-page": JSON.parse(localStorage["disabled-page"] || "[]")
+				"disabled-page": JSON.parse(localStorage["disabled-page"] || "[]"),
+				"enabled-multiclick-close": Number(localStorage["enabled-multiclick-close"] || "0"),
 			};
+		};
+
+		var loadManifest = function() {
+			var url = chrome.extension.getURL('/manifest.json'),
+				xhr = new XMLHttpRequest();
+
+			xhr.onload = function(){
+				_this.manifest = JSON.parse(xhr.responseText);
+			};
+
+			xhr.open('GET', url, true);
+			xhr.send(null);
 		};
 
 		this.getData = function() {
@@ -26,19 +54,26 @@ var linkblanker;
 			return _data;
 		};
 
-		this.updateStatus = function(tab) {
-			if (!tab.url.match(/^chrome:\/\/extensions(.*)$/)) {
-				var enable = _this.enableFromUrl(tab.url);
-				chrome.tabs.sendRequest(tab.id, { enable: enable });
-				chrome.browserAction.setBadgeBackgroundColor({
-					color: enable ? [0,0,200,128] : [200,0,0,128],
-					tabId: tab.id
-				});
-				chrome.browserAction.setBadgeText({
-					text: enable ? "RUN" : "STOP",
-					tabId: tab.id
+		this.updateStatus = function(tab, reload) {
+			var enable = _this.enableFromUrl(tab.url);
+			reload = reload || 0;
+			
+			if (!reload) {
+				chrome.tabs.sendMessage(tab.id, { 
+					enable: enable, 
+					multiClickClose: _data["enabled-multiclick-close"] == 1 && _data["disabled-extension"] == 0 ? 1 : 0
 				});
 			}
+
+			chrome.browserAction.setBadgeBackgroundColor({
+				color: enable ? [0,0,200,128] : [200,0,0,128],
+				tabId: tab.id
+			});
+
+			chrome.browserAction.setBadgeText({
+				text: enable ? "RUN" : "STOP",
+				tabId: tab.id
+			});
 		};
 
 		this.currentEnable = function(callback) {
@@ -52,7 +87,11 @@ var linkblanker;
 		this.enableFromFullData = function(info) {
 			updateData();
 
-			var result = _data["disabled-extension"] == 0 && _data["disabled-domain"].indexOf(info.domain) == -1 && _data["disabled-page"].indexOf(info.url) == -1;
+			if (info.url.match(/^chrome:\/\/(.*)$/)) {
+				return 0;
+			}
+
+			var result = _data["disabled-extension"] == 0 && _data["disabled-on"] == 0 && _data["disabled-domain"].indexOf(info.domain) == -1 && _data["disabled-page"].indexOf(info.url) == -1;
 
 			if (result) {
 				for (var i = 0; i < _data["disabled-directory"].length; i++) {				
@@ -106,6 +145,43 @@ var linkblanker;
 			}
 			
 			return result;
+		};
+
+		this.notifyAllTabs = function() {
+			chrome.tabs.getAllInWindow(null, function(tabs) {
+				for (var i = 0; i < tabs.length; i++) {
+					linkblanker.updateStatus(tabs[i]);
+				}
+			});
+		};
+
+		this.removeTabs = function(message) {
+			var close = false;
+
+			chrome.tabs.getAllInWindow(null, function(tabs) {
+				tabs.sort(function(a, b) {
+					if (a.index < b.index) return message.align === "right" ? -1 : 1;
+					if (a.index > b.index) return message.align === "right" ? 1  : -1;
+					return 0;
+				});
+
+				var removeTabs = [];
+
+				for (var i = 0; i < tabs.length; i++) {
+					if (tabs[i].active) {
+						close = true;
+						continue;
+					}
+
+					if (close) {
+						removeTabs.push(tabs[i].id);
+					}
+				}
+
+				if (removeTabs.length > 0) {
+					chrome.tabs.remove(removeTabs);
+				}				
+			});
 		};
 
 		initialize();

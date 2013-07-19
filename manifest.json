@@ -1,6 +1,6 @@
 {
 	"manifest_version": 2,
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"name": "Link Blanker",
 	"description": "Open link in new tab.",
 	"icons": {
@@ -12,7 +12,13 @@
 		"64": "images/icon64.png"
 	},
 	
-	"permissions": [ "background", "tabs" ],
+	"permissions": [ 
+		"background", 
+		"tabs" 
+	],
+	"web_accessible_resources": [
+		"javascripts/jquery-2.0.3.min.map"
+	],
 	"background": {
 		"scripts": [
 			"javascripts/jquery-2.0.3.min.js",
@@ -33,5 +39,5 @@
 		},
 		"default_title": "Link Blanker",
 		"default_popup": "popup.html"
-	}	
+	}
 }
