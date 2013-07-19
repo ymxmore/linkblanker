@@ -156,7 +156,7 @@
 						self.attr("checked", "checked");
 					}
 
-					initializedCount++;
+					checkInitializeFinish();
 				} else {
 					linkblanker.currentData(function(result) {
 						var val  = preferenceValueFromId(id, result), 
@@ -175,11 +175,7 @@
 							} 
 						}
 
-						initializedCount++;
-
-						if (initializedCount == options.length - 1) {
-							toggleControls();
-						}
+						checkInitializeFinish();
 					});
 				}
 			} else {
@@ -187,9 +183,17 @@
 					self.attr("checked", "checked");
 				}
 
-				initializedCount++;
+				checkInitializeFinish();
 			}
 		});
+	};
+
+	var checkInitializeFinish = function() {
+		initializedCount++;
+
+		if (initializedCount == options.length - 1) {
+			toggleControls();
+		}
 	};
 
 	var checkboxOnChange = function() {

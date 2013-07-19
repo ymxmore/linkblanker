@@ -1,6 +1,6 @@
 {
 	"manifest_version": 2,
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"name": "Link Blanker",
 	"description": "Open link in new tab.",
 	"icons": {
@@ -17,7 +17,8 @@
 		"tabs" 
 	],
 	"web_accessible_resources": [
-		"javascripts/jquery-2.0.3.min.map"
+		"javascripts/jquery-2.0.3.min.map",
+		"images/close-action.png"
 	],
 	"background": {
 		"scripts": [
@@ -28,6 +29,7 @@
     "content_scripts": [
 		{
 			"matches": ["http://*/*", "https://*/*"],
+			"css": ["stylesheets/content-script.css"],
 			"js": ["javascripts/jquery-2.0.3.min.js", "javascripts/contentscript.js"],
 			"run_at": "document_end"
 		}

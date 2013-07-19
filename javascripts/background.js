@@ -2,7 +2,7 @@ var linkblanker;
 
 ;(function(background){
 	var LinkBlanker = function() {
-		var _this = this, _data;
+		var _this = this, _data, _port;
 
 		this.manifest;
 
@@ -20,7 +20,8 @@ var linkblanker;
 			});
 
 			chrome.extension.onConnect.addListener(function(port) {
-				port.onMessage.addListener(_this[port.name]);
+				_port = port;
+				_port.onMessage.addListener(_this[port.name]);
 			});
 
 			loadManifest();
@@ -60,6 +61,7 @@ var linkblanker;
 			
 			if (!reload) {
 				chrome.tabs.sendMessage(tab.id, { 
+					name: "updateStatus",
 					enable: enable, 
 					multiClickClose: _data["enabled-multiclick-close"] == 1 && _data["disabled-extension"] == 0 ? 1 : 0
 				});
@@ -156,8 +158,6 @@ var linkblanker;
 		};
 
 		this.removeTabs = function(message) {
-			var close = false;
-
 			chrome.tabs.getAllInWindow(null, function(tabs) {
 				tabs.sort(function(a, b) {
 					if (a.index < b.index) return message.align === "right" ? -1 : 1;
@@ -165,21 +165,27 @@ var linkblanker;
 					return 0;
 				});
 
-				var removeTabs = [];
+				var removeTabs = [],
+					activeTabId = -1;
 
 				for (var i = 0; i < tabs.length; i++) {
 					if (tabs[i].active) {
-						close = true;
+						activeTabId = tabs[i].id;
 						continue;
 					}
 
-					if (close) {
+					if (activeTabId > -1) {
 						removeTabs.push(tabs[i].id);
 					}
 				}
 
 				if (removeTabs.length > 0) {
 					chrome.tabs.remove(removeTabs);
+
+					message.name = "norifyRemoveTabs";
+					message.removeTabsLength = removeTabs.length;
+
+					chrome.tabs.sendMessage(activeTabId, message);
 				}				
 			});
 		};
