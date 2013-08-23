@@ -1,16 +1,16 @@
 @-webkit-keyframes anim-close-action {
-	0% { 
+	0% {
 		opacity: 0;
-		-webkit-transform: scale(0, 0); 
+		-webkit-transform: scale(0, 0);
 	}
-	15% { 
+	15% {
 		opacity: 1;
-		-webkit-transform: scale(1, 1); 
+		-webkit-transform: scale(1, 1);
 	}
 	85% {
 		opacity: 1
 	}
-	100% { 
+	100% {
 		opacity: 0;
 	}
 }
@@ -29,6 +29,7 @@
 }
 
 .linkblanker-message {
+	font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "Meiryo UI", "メイリオ", Meiryo, "ＭＳ Ｐゴシック", sans-serif;
 	width: inherit;
 	height: inherit;
 	display: table-cell;

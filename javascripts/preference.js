@@ -6,7 +6,8 @@
 		{ id: "disabled-domain",          group: 1, control: "radio",    value: 2, label: "現在表示中のドメインでは無効にする" },
 		{ id: "disabled-directory",       group: 1, control: "radio",    value: 3, label: "現在表示中のディレクトリ以下では無効にする" },
 		{ id: "disabled-page",            group: 1, control: "radio",    value: 4, label: "現在表示中のページでは無効にする" },
-		{ id: "enabled-multiclick-close", group: 2, control: "checkbox", label: "トリプルクリッククローズ機能" }
+		{ id: "enabled-background-open",  group: 2, control: "checkbox", listClass: "list-split", label: "バックグラウンドで開く" },
+		{ id: "enabled-multiclick-close", group: 3, control: "checkbox", label: "トリプルクリッククローズ機能" },
 	];
 
 	var moreLink = [
@@ -41,16 +42,17 @@
 
 				$("body").append(html.join(""));
 				return;
-			} 
+			}
 
 			var openList = [], closeList = [];
 
 			for (var i = 1; i < options.length; i++) {
 				switch (options[i].group) {
 				case 1:
+				case 2:
 					openList.push(getListHtml(i));
 					break;
-				case 2:
+				case 3:
 					closeList.push(getListHtml(i));
 					break;
 				}
@@ -92,24 +94,10 @@
 
 	var getListHtml = function(optionsIndex) {
 		if (options[optionsIndex].control === "checkbox") {
-			if (options[optionsIndex].id === "disabled-multiclick-close") {
-				return [
-					'<li><label data-group="',
-					options[optionsIndex].group,
-					'"><input id="',
-					options[optionsIndex].id,
-					'" type="checkbox" data-group="',
-					options[optionsIndex].group,
-					'" name="',
-					options[optionsIndex].id,
-					'" /><span>',
-					options[optionsIndex].label,
-					'</span></label></li>'
-				].join("");
-			} 
-
 			return [
-				'<li><label data-group="',
+				'<li ',
+				options[optionsIndex].listClass ? 'class="' + options[optionsIndex].listClass + '"' : '',
+				'><label data-group="',
 				options[optionsIndex].group,
 				'"><input id="',
 				options[optionsIndex].id,
@@ -123,7 +111,9 @@
 			].join("");
 		} else {
 			return [
-				'<li><label data-group="',
+				'<li ',
+				options[optionsIndex].listClass ? 'class="' + options[optionsIndex].listClass + '"' : '',
+				'><label data-group="',
 				options[optionsIndex].group,
 				'" data-value="',
 				options[optionsIndex].value,
@@ -139,7 +129,7 @@
 				options[optionsIndex].label,
 				'</span></label></li>'
 			].join("");
-		}		
+		}
 	};
 
 	var setInitialData = function() {
@@ -159,11 +149,11 @@
 					checkInitializeFinish();
 				} else {
 					linkblanker.currentData(function(result) {
-						var val  = preferenceValueFromId(id, result), 
+						var val  = preferenceValueFromId(id, result),
 							data = linkblanker.getData();
 
 						if (id === "disabled-directory") {
-							for (var i = 0; i < data[id].length; i++) {				
+							for (var i = 0; i < data[id].length; i++) {
 								if (val.match(new RegExp("^" + data[id][i] + ".*$"))) {
 									self.attr("checked", "checked");
 									break;
@@ -172,7 +162,7 @@
 						} else {
 							if (data[id].indexOf(val) > -1) {
 								self.attr("checked", "checked");
-							} 
+							}
 						}
 
 						checkInitializeFinish();
@@ -207,7 +197,7 @@
 			localStorage[id] = checked ? 1 : 0;
 		} else if (value >= 2) {
 			linkblanker.currentData(function(result) {
-				var val   = preferenceValueFromId(id, result), 
+				var val   = preferenceValueFromId(id, result),
 					data  = linkblanker.getData(),
 					index = data[id].indexOf(val);
 
@@ -218,9 +208,9 @@
 				} else {
 					if (index > -1) {
 						data[id].splice(index, 1);
-					}					
+					}
 				}
-				
+
 				localStorage[id] = JSON.stringify(data[id]);
 			});
 		}
@@ -240,7 +230,7 @@
 
 		var groups = $.unique(options.map(function(x) {
 			return x.group;
-		}));
+		})).sort();
 
 		for (var i = 0; i < groups.length; i++) {
 			$('input[data-group="' + groups[i] + '"]').each(function(j, val) {
@@ -249,10 +239,21 @@
 				switch (groups[i]) {
 				case 0:
 					if (self.is(":checked")) {
-						$('[data-group="1"], [data-group="2"]').attr("disabled", "disabled");
+						$('[data-group="1"], [data-group="2"], [data-group="3"]').attr("disabled", "disabled");
 					} else {
-						$('[data-group="1"], [data-group="2"]').removeAttr("disabled");
+						$('[data-group="1"], [data-group="2"], [data-group="3"]').removeAttr("disabled");
 					}
+
+					break;
+				case 1:
+					if (!$('input[data-group="0"]').is(":checked") && self.val() == 0) {
+						if (self.is(":checked")) {
+							$('[data-group="2"]').removeAttr("disabled");
+						} else {
+							$('[data-group="2"]').attr("disabled", "disabled");
+						}
+					}
+
 					break;
 				}
 

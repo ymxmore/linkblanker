@@ -34,6 +34,7 @@ var linkblanker;
 				"disabled-domain": JSON.parse(localStorage["disabled-domain"] || "[]"),
 				"disabled-directory": JSON.parse(localStorage["disabled-directory"] || "[]"),
 				"disabled-page": JSON.parse(localStorage["disabled-page"] || "[]"),
+				"enabled-background-open": Number(localStorage["enabled-background-open"] || "0"),
 				"enabled-multiclick-close": Number(localStorage["enabled-multiclick-close"] || "0"),
 			};
 		};
@@ -58,11 +59,12 @@ var linkblanker;
 		this.updateStatus = function(tab, reload) {
 			var enable = _this.enableFromUrl(tab.url);
 			reload = reload || 0;
-			
+
 			if (!reload) {
-				chrome.tabs.sendMessage(tab.id, { 
+				chrome.tabs.sendMessage(tab.id, {
 					name: "updateStatus",
-					enable: enable, 
+					enable: enable,
+					isBackground: _data["enabled-background-open"] == 1 && _data["disabled-extension"] == 0 ? 1 : 0,
 					multiClickClose: _data["enabled-multiclick-close"] == 1 && _data["disabled-extension"] == 0 ? 1 : 0
 				});
 			}
@@ -96,7 +98,7 @@ var linkblanker;
 			var result = _data["disabled-extension"] == 0 && _data["disabled-on"] == 0 && _data["disabled-domain"].indexOf(info.domain) == -1 && _data["disabled-page"].indexOf(info.url) == -1;
 
 			if (result) {
-				for (var i = 0; i < _data["disabled-directory"].length; i++) {				
+				for (var i = 0; i < _data["disabled-directory"].length; i++) {
 					if (info.url.match(new RegExp("^" + _data["disabled-directory"][i] + ".*$"))) {
 						result = false;
 						break;
@@ -133,7 +135,7 @@ var linkblanker;
 			if (sp) {
 				if (sp.length > 2) {
 					result.domain = sp[2];
-				} 
+				}
 
 				if (sp.length > 4) {
 					sp.splice(sp.length - 1, 1);
@@ -143,9 +145,9 @@ var linkblanker;
 			}
 
 			if (callback) {
-				callback(result);	
+				callback(result);
 			}
-			
+
 			return result;
 		};
 
@@ -186,8 +188,17 @@ var linkblanker;
 					message.removeTabsLength = removeTabs.length;
 
 					chrome.tabs.sendMessage(activeTabId, message);
-				}				
+				}
 			});
+		};
+
+		this.openTab = function(params) {
+			if (params) {
+				chrome.tabs.getSelected(null, function(tab) {
+					params.index = tab.index + 1;
+					chrome.tabs.create(params);
+				});
+			}
 		};
 
 		initialize();
