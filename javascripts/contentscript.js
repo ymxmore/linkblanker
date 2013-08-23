@@ -100,7 +100,6 @@
 	};
 
 	var windowClick = function(e) {
-		console.log(e);
 		var originalEvent = e.originalEvent;
 
 		if (ports.removeTabs && originalEvent.target.nodeName.toLowerCase() !== "a" && originalEvent.detail == 3) {

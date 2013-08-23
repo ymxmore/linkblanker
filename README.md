@@ -1,4 +1,4 @@
-Link Blanker v1.0.5
+Link Blanker
 ===============
 
 Overview
