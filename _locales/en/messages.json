@@ -37,5 +37,14 @@
 	},
 	"message_cannot_use":{
 		"message":"It is not available in this page"
+	},
+	"message_drop_tabs":{
+		"message":"Dropped {REMOVE_TAB_ALIGN} {REMOVE_TAB_LENGTH} tabs."
+	},
+	"title_right":{
+		"message":"right side"
+	},
+	"title_left":{
+		"message":"left side"
 	}
 }

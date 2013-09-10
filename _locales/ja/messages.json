@@ -37,10 +37,19 @@
 	},
 	"message_cannot_use":{
 		"message":"このページでは無効です。"
+	},
+	"message_drop_tabs":{
+		"message":"{REMOVE_TAB_ALIGN}側の{REMOVE_TAB_LENGTH}コのタブを<br />落としました。"
+	},
+	"title_right":{
+		"message":"右"
+	},
+	"title_left":{
+		"message":"左"
 	}
 
 
 }
 
 
-//' + chrome.i18n.getMessage("message_cannot_use") + '
+//' + chrome.i18n.getMessage("message_drop_tabs") + '

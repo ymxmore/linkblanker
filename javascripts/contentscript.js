@@ -4,7 +4,7 @@
 		isBackground,
 		ports = {},
 		overlayHtml = '<div id="linkblanker-overlay"></div>',
-		closeActionHtml = '<div class="linkblanker-close-action"><div class="linkblanker-message">{REMOVE_TAB_ALIGN}側の{REMOVE_TAB_LENGTH}コのタブを<br />落としました。<p class="linkblanker-from">By Link Blanker</p></div></div>';
+		closeActionHtml = '<div class="linkblanker-close-action"><div class="linkblanker-message">' + chrome.i18n.getMessage("message_drop_tabs") + '<p class="linkblanker-from">By Link Blanker</p></div></div>';
 
 	var initialize = function() {
 		postInitialize("openTab");
@@ -48,7 +48,7 @@
 			left = viewport.right - 500;
 		}
 
-		$(closeActionHtml.replace("{REMOVE_TAB_ALIGN}", message.align === "left" ? "左" : "右").replace("{REMOVE_TAB_LENGTH}", message.removeTabsLength)).css({
+		$(closeActionHtml.replace("{REMOVE_TAB_ALIGN}", message.align === "left" ? chrome.i18n.getMessage("title_left") : chrome.i18n.getMessage("title_right")).replace("{REMOVE_TAB_LENGTH}", message.removeTabsLength)).css({
 			top:  top + "px",
 			left: left + "px",
 			"background-image": "url('" + chrome.extension.getURL('/images/close-action.png') + "')"
