@@ -1,19 +1,19 @@
 ;(function($){
 	var options = [
-		{ id: "disabled-extension",       group: 0, control: "checkbox", label: "一時停止" },
-		{ id: "disabled-off",             group: 1, control: "radio",    value: 0, label: "有効&nbsp;(強制的に新しいタブで開く)" },
-		{ id: "disabled-on",              group: 1, control: "radio",    value: 1, label: "無効&nbsp;(ページ標準の振る舞い)" },
-		{ id: "disabled-domain",          group: 1, control: "radio",    value: 2, label: "現在表示中のドメインでは無効にする" },
-		{ id: "disabled-directory",       group: 1, control: "radio",    value: 3, label: "現在表示中のディレクトリ以下では無効にする" },
-		{ id: "disabled-page",            group: 1, control: "radio",    value: 4, label: "現在表示中のページでは無効にする" },
-		{ id: "enabled-background-open",  group: 2, control: "checkbox", listClass: "list-split", label: "バックグラウンドで開く" },
-		{ id: "enabled-multiclick-close", group: 3, control: "checkbox", label: "トリプルクリッククローズ機能" },
+		{ id: "disabled-extension",       group: 0, control: "checkbox", label: chrome.i18n.getMessage("title_pause") },
+		{ id: "disabled-off",             group: 1, control: "radio",    value: 0, label: chrome.i18n.getMessage("title_disabled_off") },
+		{ id: "disabled-on",              group: 1, control: "radio",    value: 1, label: chrome.i18n.getMessage("title_disabled_on") },
+		{ id: "disabled-domain",          group: 1, control: "radio",    value: 2, label: chrome.i18n.getMessage("title_disabled_domain") },
+		{ id: "disabled-directory",       group: 1, control: "radio",    value: 3, label: chrome.i18n.getMessage("title_disabled_directory") },
+		{ id: "disabled-page",            group: 1, control: "radio",    value: 4, label: chrome.i18n.getMessage("title_disabled_page") },
+		{ id: "enabled-background-open",  group: 2, control: "checkbox", listClass: "list-split", label: chrome.i18n.getMessage("title_background_open") },
+		{ id: "enabled-multiclick-close", group: 3, control: "checkbox", label: chrome.i18n.getMessage("title_multiclick_close") },
 	];
 
 	var moreLink = [
 		'<h2 class="preference-header">Links</h2>',
 		'<ul class="preference-list">',
-		'<li><a href="http://www.aozora-create.com/service/linkblanker" title="Link Blanker" target="_blank">機能・使い方・ヘルプ等はこちら</a></li>',
+		'<li><a href="http://www.aozora-create.com/service/linkblanker" title="Link Blanker" target="_blank">' + chrome.i18n.getMessage("title_link_help") + '</a></li>',
 		'</ul>',
 	].join("");
 
@@ -35,7 +35,7 @@
 				html = [
 					'<div id="wrapper">',
 					getLogoHtml(),
-					'<h2 class="preference-header-disabled">このページでは無効です。</h2>',
+					'<h2 class="preference-header-disabled">' + chrome.i18n.getMessage("message_cannot_use") + '</h2>',
 					moreLink,
 					'</div>'
 				];
@@ -61,15 +61,15 @@
 			html = [
 				'<div id="wrapper">',
 				getLogoHtml(),
-				'<h2 class="preference-header">全体設定</h2>',
+				'<h2 class="preference-header">' + chrome.i18n.getMessage("title_whole_setting") + '</h2>',
 				'<ul class="preference-list">',
 				getListHtml(0),
 				'</ul>',
-				'<h2 class="preference-header">Open設定</h2>',
+				'<h2 class="preference-header">' + chrome.i18n.getMessage("title_open_settings") + '</h2>',
 				'<ul class="preference-list">',
 				openList.join(""),
 				'</ul>',
-				'<h2 class="preference-header">Close設定</h2>',
+				'<h2 class="preference-header">' + chrome.i18n.getMessage("title_close_settings") + '</h2>',
 				'<ul class="preference-list">',
 				closeList.join(""),
 				'</ul>',

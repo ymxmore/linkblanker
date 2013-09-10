@@ -1,0 +1,46 @@
+{
+	"title_pause":{
+		"message":"一時停止"
+	},
+	"title_disabled_off":{
+		"message":"有効&nbsp;(強制的に新しいタブで開く)"
+	},
+	"title_disabled_on":{
+		"message":"無効&nbsp;(ページ標準の振る舞い)"
+	},
+	"title_disabled_domain":{
+		"message":"現在表示中のドメインでは無効にする"
+	},
+	"title_disabled_directory":{
+		"message":"現在表示中のディレクトリ以下では無効にする"
+	},
+	"title_disabled_page":{
+		"message":"現在表示中のページでは無効にする"
+	},
+	"title_background_open":{
+		"message":"バックグラウンドで開く"
+	},
+	"title_multiclick_close":{
+		"message":"トリプルクリッククローズ機能"
+	},
+	"title_open_settings":{
+		"message":"Open設定"
+	},
+	"title_close_settings":{
+		"message":"Close設定"
+	},
+	"title_whole_setting":{
+		"message":"全体設定"
+	},
+	"title_link_help":{
+		"message":"機能・使い方・ヘルプ等はこちら"
+	},
+	"message_cannot_use":{
+		"message":"このページでは無効です。"
+	}
+
+
+}
+
+
+//' + chrome.i18n.getMessage("message_cannot_use") + '
