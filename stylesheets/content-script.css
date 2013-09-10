@@ -29,7 +29,7 @@
 }
 
 .linkblanker-message {
-	font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "Meiryo UI", "メイリオ", Meiryo, "ＭＳ Ｐゴシック", sans-serif;
+	font-family: Helvetica, arial, freesans, clean, sans-serif;;
 	width: inherit;
 	height: inherit;
 	display: table-cell;

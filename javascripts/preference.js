@@ -31,7 +31,7 @@
 		linkblanker.currentData(function(result) {
 			var html;
 
-			if (result.url.match(/^chrome:\/\/extensions(.*)$/)) {
+			if (result.url.match(/^chrome:\/\/(.*)$/)) {
 				html = [
 					'<div id="wrapper">',
 					getLogoHtml(),
