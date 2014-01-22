@@ -5,13 +5,18 @@
 <title>Link Blanker</title>
 <style type="text/css">
 html, body {
-	width: 400px;
+	min-width: 300px;
 	color: #4f4f4f;
-	background-color: #F6FCFF;
+	background-color: #f6fcff;
 	font-family: Helvetica, arial, freesans, clean, sans-serif;
 	font-size: 12px;
 	line-height: 1.4em;
 	margin: 0;
+}
+
+body {
+	border: 2px solid #fefefe;
+	border-radius: 4px;
 }
 
 h1, h2 {
@@ -26,6 +31,7 @@ ul {
 
 li {
 	list-style-type: none;
+	white-space: nowrap;
 	padding: 3px;
 }
 
@@ -94,7 +100,7 @@ label[data-group="0"] {
 </style>
 </head>
 <body>
-<script type="text/javascript" src="./javascripts/jquery-2.0.3.min.js"></script>
-<script type="text/javascript" src="./javascripts/preference.js"></script>
+<script type="text/javascript" src="/javascripts/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="/javascripts/preference.js"></script>
 </body>
 </html>

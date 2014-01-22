@@ -9,7 +9,7 @@
 	var initialize = function() {
 		postInitialize("openTab");
 		postInitialize("removeTabs");
-		setInterval(bindEvent, 100);
+		bindEvent();
 	};
 
 	var postInitialize = function(key) {
@@ -79,6 +79,8 @@
 				} else {
 					multiClickClose = false;
 				}
+
+				bindEvent();
 			} else if (response.name === "norifyRemoveTabs") {
 				norifyRemoveTabs(response);
 			}
