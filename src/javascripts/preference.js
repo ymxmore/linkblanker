@@ -233,36 +233,7 @@
 		})).sort();
 
 		for (var i = 0; i < groups.length; i++) {
-			$('input[data-group="' + groups[i] + '"]').each(function(j, val) {
-				var self = $(this);
-
-				switch (groups[i]) {
-				case 0:
-					if (self.is(":checked")) {
-						$('[data-group="1"], [data-group="2"], [data-group="3"]').attr("disabled", "disabled");
-					} else {
-						$('[data-group="1"], [data-group="2"], [data-group="3"]').removeAttr("disabled");
-					}
-
-					break;
-				case 1:
-					if (!$('input[data-group="0"]').is(":checked") && self.val() == 0) {
-						if (self.is(":checked")) {
-							$('[data-group="2"]').removeAttr("disabled");
-						} else {
-							$('[data-group="2"]').attr("disabled", "disabled");
-						}
-					}
-
-					break;
-				}
-
-				if (self.is(":checked")) {
-					self.parents("label").addClass("checked");
-				} else {
-					self.parents("label").removeClass("checked");
-				}
-			});
+			toggleControlByGroup(groups[i]);
 		}
 
 		$('input[data-group="1"]').each(function(i, val) {
@@ -274,13 +245,46 @@
 		isToggleControls = true;
 	};
 
+	var toggleControlByGroup = function(group) {
+		$('input[data-group="' + group + '"]').each(function(j, val) {
+			var self = $(this);
+
+			switch (group) {
+			case 0:
+				if (self.is(":checked")) {
+					$('[data-group="1"], [data-group="2"], [data-group="3"]').attr("disabled", "disabled");
+				} else {
+					$('[data-group="1"], [data-group="2"], [data-group="3"]').removeAttr("disabled");
+				}
+
+				break;
+			case 1:
+				if (!$('input[data-group="0"]').is(":checked") && self.val() === 0) {
+					if (self.is(":checked")) {
+						$('[data-group="2"]').removeAttr("disabled");
+					} else {
+						$('[data-group="2"]').attr("disabled", "disabled");
+					}
+				}
+
+				break;
+			}
+
+			if (self.is(":checked")) {
+				self.parents("label").addClass("checked");
+			} else {
+				self.parents("label").removeClass("checked");
+			}
+		});
+	};
+
 	var preferenceValueFromId = function(id, result) {
 		if (id === "disabled-domain") {
-			return result["domain"];
+			return result.domain;
 		} else if (id === "disabled-directory") {
-			return result["directory"];
+			return result.directory;
 		} else {
-			return result["url"];
+			return result.url;
 		}
 	};
 

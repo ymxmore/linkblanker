@@ -1,15 +1,15 @@
 {
 	"manifest_version": 2,
-	"version": "1.0.8",
+	"version": "2.0.0",
 	"name": "Link Blanker",
 	"description": "Open link in new tab.",
 	"icons": {
-		"128": "images/icon.png",
-		"16": "images/icon16.png",
-		"19": "images/icon19.png",
-		"32": "images/icon32.png",
-		"48": "images/icon48.png",
-		"64": "images/icon64.png"
+		"128": "dest/images/icon.png",
+		"16": "dest/images/icon16.png",
+		"19": "dest/images/icon19.png",
+		"32": "dest/images/icon32.png",
+		"48": "dest/images/icon48.png",
+		"64": "dest/images/icon64.png"
 	},
 
 	"permissions": [
@@ -17,30 +17,30 @@
 		"tabs"
 	],
 	"web_accessible_resources": [
-		"javascripts/jquery-2.0.3.min.map",
-		"images/close-action.png"
+		"vendor/jquery-2.0.3.min.map",
+		"dest/images/close-action.png"
 	],
 	"background": {
 		"scripts": [
-			"javascripts/jquery-2.0.3.min.js",
-			"javascripts/background.js"
+			"vendor/jquery-2.0.3.min.js",
+			"dest/javascripts/background.min.js"
 		]
 	},
     "content_scripts": [
 		{
 			"matches": ["http://*/*", "https://*/*"],
-			"css": ["stylesheets/content-script.css"],
-			"js": ["javascripts/jquery-2.0.3.min.js", "javascripts/contentscript.js"],
-			"run_at": "document_end"
+			"css": ["dest/stylesheets/content-script.css"],
+			"js": ["vendor/jquery-2.0.3.min.js", "dest/javascripts/contentscript.min.js"],
+			"run_at": "document_start"
 		}
 	],
 	"browser_action": {
 		"default_icon": {
-			"19": "images/icon19.png",
-			"32": "images/icon32.png"
+			"19": "dest/images/icon19.png",
+			"32": "dest/images/icon32.png"
 		},
 		"default_title": "Link Blanker",
-		"default_popup": "popup.html"
+		"default_popup": "dest/html/popup.html"
 	},
 	"default_locale":"en"
 }

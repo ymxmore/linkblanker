@@ -4,7 +4,7 @@ var linkblanker;
 	var LinkBlanker = function() {
 		var _this = this, _data, _port;
 
-		this.manifest;
+		this.manifest = null;
 
 		var initialize = function() {
 			updateData();
@@ -64,8 +64,8 @@ var linkblanker;
 				chrome.tabs.sendMessage(tab.id, {
 					name: "updateStatus",
 					enable: enable,
-					isBackground: _data["enabled-background-open"] == 1 && _data["disabled-extension"] == 0 ? 1 : 0,
-					multiClickClose: _data["enabled-multiclick-close"] == 1 && _data["disabled-extension"] == 0 ? 1 : 0
+					isBackground: _data["enabled-background-open"] === 1 && _data["disabled-extension"] === 0 ? 1 : 0,
+					multiClickClose: _data["enabled-multiclick-close"] === 1 && _data["disabled-extension"] === 0 ? 1 : 0
 				});
 			}
 
@@ -95,7 +95,7 @@ var linkblanker;
 				return 0;
 			}
 
-			var result = _data["disabled-extension"] == 0 && _data["disabled-on"] == 0 && _data["disabled-domain"].indexOf(info.domain) == -1 && _data["disabled-page"].indexOf(info.url) == -1;
+			var result = _data["disabled-extension"] === 0 && _data["disabled-on"] === 0 && _data["disabled-domain"].indexOf(info.domain) === -1 && _data["disabled-page"].indexOf(info.url) == -1;
 
 			if (result) {
 				for (var i = 0; i < _data["disabled-directory"].length; i++) {
@@ -128,7 +128,7 @@ var linkblanker;
 				domain: "",
 				directory: "",
 				url: url
-			}
+			};
 
 			var sp = result.url.split('/');
 

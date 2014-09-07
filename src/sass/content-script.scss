@@ -1,4 +1,4 @@
-@-webkit-keyframes anim-close-action {
+@-webkit-keyframes linkblanker-anim-close-action {
 	0% {
 		opacity: 0;
 		-webkit-transform: scale(0, 0);
@@ -22,7 +22,7 @@
 	background-position: 0 0;
 	background-attachment: scroll;
 	background-repeat: no-repeat;
-	-webkit-animation: anim-close-action 1000ms ease-in-out;
+	-webkit-animation: linkblanker-anim-close-action 1000ms ease-in-out;
 	-webkit-transform-origin: 50% 50%;
 	-webkit-animation-fill-mode: forwards;
 	z-index: 999999

@@ -1,4 +1,77 @@
 ;(function($){
+	var methods = {
+		window: {
+			on: function(){
+				return this.each(function(i, val) {
+					$(val).linkblanker("window.off").on("click", windowClick);
+				});
+			},
+			off: function(){
+				return this.each(function(i, val) {
+					$(val).off("click", windowClick);
+				});
+			}
+		},
+		anchor: {
+			on: function(){
+				return this.each(function(i, val) {
+					$(val).linkblanker("anchor.off").on("click", "a", anchorClick);
+				});
+			},
+			off: function(){
+				return this.each(function(i, val) {
+					$(val).off("click", "a", anchorClick);
+				});
+			}
+		}
+	};
+
+	$.fn.linkblanker = function(method) {
+		var _method = null;
+
+		$.each(method.split("."), function(i, val) {
+			if (_method && _method[val]) {
+				_method = _method[val];
+			} else if (methods[val]) {
+				_method = $.extend(true, {}, methods)[val];
+			}
+		});
+
+		if (_method) {
+			return _method.apply( this, Array.prototype.slice.call( arguments, 1 ));
+		}
+
+		return this;
+	};
+
+	chrome.extension.onMessage.addListener(function(response, sender) {
+		if ("name" in response) {
+			if (response.name === "updateStatus") {
+				if ("enable" in response && response.enable) {
+					if (!enable) {
+						enable = true;
+					}
+				} else {
+					enable = false;
+				}
+
+				isBackground = ("isBackground" in response) ? response.isBackground : 0;
+
+				if ("multiClickClose" in response && response.multiClickClose) {
+					if (!multiClickClose) {
+						multiClickClose = true;
+					}
+				} else {
+					multiClickClose = false;
+				}
+
+				bindEvent();
+			} else if (response.name === "norifyRemoveTabs") {
+				norifyRemoveTabs(response);
+			}
+		}
+	});
+
 	var enable,
 		multiClickClose,
 		isBackground,
@@ -51,7 +124,7 @@
 		$(closeActionHtml.replace("{REMOVE_TAB_ALIGN}", message.align === "left" ? chrome.i18n.getMessage("title_left") : chrome.i18n.getMessage("title_right")).replace("{REMOVE_TAB_LENGTH}", message.removeTabsLength)).css({
 			top:  top + "px",
 			left: left + "px",
-			"background-image": "url('" + chrome.extension.getURL('/images/close-action.png') + "')"
+			"background-image": "url('" + chrome.extension.getURL('/dest/images/close-action.png') + "')"
 		}).appendTo($("body"));
 
 		setTimeout(function() {
@@ -59,46 +132,15 @@
 		}, 1100);
 	};
 
-	chrome.extension.onMessage.addListener(function(response, sender) {
-		if ("name" in response) {
-			if (response.name === "updateStatus") {
-				if ("enable" in response && response.enable) {
-					if (!enable) {
-						enable = true;
-					}
-				} else {
-					enable = false;
-				}
-
-				isBackground = ("isBackground" in response) ? response.isBackground : 0;
-
-				if ("multiClickClose" in response && response.multiClickClose) {
-					if (!multiClickClose) {
-						multiClickClose = true;
-					}
-				} else {
-					multiClickClose = false;
-				}
-
-				bindEvent();
-			} else if (response.name === "norifyRemoveTabs") {
-				norifyRemoveTabs(response);
-			}
-		}
-	});
-
 	var bindEvent = function() {
-		if (enable) {
-			$("a").off("click", anchorClick).on("click", anchorClick);
-		} else {
-			$("a").off("click", anchorClick);
-		}
+		var target = $('iframe').map(function() {
+			return $(this.contentWindow.document);
+		}).add($(document));
 
-		if (multiClickClose) {
-			$(window).off("click", windowClick).on("click", windowClick);
-		} else {
-			$(window).off("click", windowClick);
-		}
+		target.linkblanker("anchor." + (enable ? 'on' : 'off'));
+		$(window).linkblanker("window." + (multiClickClose ? 'on' : 'off'));
+
+
 	};
 
 	var windowClick = function(e) {

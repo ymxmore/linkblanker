@@ -16,6 +16,17 @@ Web Site
 ----------
 <http://www.aozora-create.com/service/linkblanker>
 
+Change log
+----------
+
+### Ver 2.0.0
+
+* 遷移しないリンクに対して別タブで開く動作を抑制。
+
+### Ver 1.0.0
+
+* 初回リリース。
+
 License
 ----------
 See the file [LICENSE](./LICENSE "LICENSE").
