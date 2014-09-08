@@ -26,8 +26,8 @@ module.exports = function (grunt) {
         gittag: {
             append: {
                 options: {
-                    tag: manifest.version,
-                    message: "v" + manifest.version
+                    tag: "v" + manifest.version,
+                    message: "version " + manifest.version
                 }
             }
         },
