@@ -1,13 +1,14 @@
 ;(function($){
 	var options = [
-		{ id: "disabled-extension",       group: 0, control: "checkbox", label: chrome.i18n.getMessage("title_pause") },
-		{ id: "disabled-off",             group: 1, control: "radio",    value: 0, label: chrome.i18n.getMessage("title_disabled_off") },
-		{ id: "disabled-on",              group: 1, control: "radio",    value: 1, label: chrome.i18n.getMessage("title_disabled_on") },
-		{ id: "disabled-domain",          group: 1, control: "radio",    value: 2, label: chrome.i18n.getMessage("title_disabled_domain") },
-		{ id: "disabled-directory",       group: 1, control: "radio",    value: 3, label: chrome.i18n.getMessage("title_disabled_directory") },
-		{ id: "disabled-page",            group: 1, control: "radio",    value: 4, label: chrome.i18n.getMessage("title_disabled_page") },
-		{ id: "enabled-background-open",  group: 2, control: "checkbox", listClass: "list-split", label: chrome.i18n.getMessage("title_background_open") },
-		{ id: "enabled-multiclick-close", group: 3, control: "checkbox", label: chrome.i18n.getMessage("title_multiclick_close") },
+		{ id: "disabled-extension",          group: 0, control: "checkbox", label: chrome.i18n.getMessage("title_pause") },
+		{ id: "disabled-off",                group: 1, control: "radio",    value: 0, label: chrome.i18n.getMessage("title_disabled_off") },
+		{ id: "disabled-on",                 group: 1, control: "radio",    value: 1, label: chrome.i18n.getMessage("title_disabled_on") },
+		{ id: "disabled-domain",             group: 1, control: "radio",    value: 2, label: chrome.i18n.getMessage("title_disabled_domain") },
+		{ id: "disabled-directory",          group: 1, control: "radio",    value: 3, label: chrome.i18n.getMessage("title_disabled_directory") },
+		{ id: "disabled-page",               group: 1, control: "radio",    value: 4, label: chrome.i18n.getMessage("title_disabled_page") },
+		{ id: "enabled-background-open",     group: 2, control: "checkbox", listClass: "list-split", label: chrome.i18n.getMessage("title_background_open") },
+		{ id: "enabled-multiclick-close",    group: 3, control: "checkbox", label: chrome.i18n.getMessage("title_multiclick_close") },
+		{ id: "shortcut-key-toggle-enabled", group: 4, control: "text",     label: chrome.i18n.getMessage("title_enable_toggle_key"), placeholder: "Enter the shortcut key" },
 	];
 
 	var moreLink = [
@@ -16,6 +17,127 @@
 		'<li><a href="http://www.aozora-create.com/service/linkblanker" title="Link Blanker" target="_blank">' + chrome.i18n.getMessage("title_link_help") + '</a></li>',
 		'</ul>',
 	].join("");
+
+
+	var keyMappings = {
+        "3": "cancel",
+        "8": "backspace",
+        "9": "tab",
+        "12": "clear",
+        "13": "enter",
+        "16": "shift",
+        "17": "ctrl",
+        "18": "alt",
+        "19": "pause",
+        "20": "capslock",
+        "27": "escape",
+        "28": "maekouho",
+        "29": "muhenkan",
+        "32": "space",
+        "33": "pageup",
+        "34": "pagedown",
+        "35": "end",
+        "36": "home",
+        "37": "left",
+        "38": "up",
+        "39": "right",
+        "40": "down",
+        "41": "select",
+        "42": "printscreen",
+        "43": "execute",
+        "44": "snapshot",
+        "45": "insert",
+        "46": "delete",
+        "47": "help",
+
+        "48": "0",
+        "49": "1",
+        "50": "2",
+        "51": "3",
+        "52": "4",
+        "53": "5",
+        "54": "6",
+        "55": "7",
+        "56": "8",
+        "57": "9",
+
+        "65": "A",
+        "66": "B",
+        "67": "C",
+        "68": "D",
+        "69": "E",
+        "70": "F",
+        "71": "G",
+        "72": "H",
+        "73": "I",
+        "74": "J",
+        "75": "K",
+        "76": "L",
+        "77": "M",
+        "78": "N",
+        "79": "O",
+        "80": "P",
+        "81": "Q",
+        "82": "R",
+        "83": "S",
+        "84": "T",
+        "85": "U",
+        "86": "V",
+        "87": "W",
+        "88": "X",
+        "89": "Y",
+        "90": "Z",
+
+        "91": "command",
+        "92": "command",
+        "93": "command",
+        "145": "scrolllock",
+        "186": "colon",
+        "187": "semicolon",
+        "188": "comma",
+        "189": "hyphen",
+        "190": "period",
+        "191": "slash",
+        "192": "at",
+        "219": "openbracket",
+        "220": "yen",
+        "226": "backslash",
+        "221": "closebracket",
+        "222": "caret",
+        "242": "katakana",
+        "243": "zenkaku",
+        "244": "hankaku",
+
+        "96": "0(num)",
+        "97": "1(num)",
+        "98": "2(num)",
+        "99": "3(num)",
+        "100": "4(num)",
+        "101": "5(num)",
+        "102": "6(num)",
+        "103": "7(num)",
+        "104": "8(num)",
+        "105": "9(num)",
+        "106": "multiply(num)",
+        "107": "add(num)",
+        "108": "enter(num)",
+        "109": "subtract(num)",
+        "110": "decimal(num)",
+        "111": "devide(num)",
+        "144": "lock(num)",
+        "112": "f1",
+        "113": "f2",
+        "114": "f3",
+        "115": "f4",
+        "116": "f5",
+        "117": "f6",
+        "118": "f7",
+        "119": "f8",
+        "120": "f9",
+        "121": "f10",
+        "122": "f11",
+        "123": "f12",
+    };
 
 	var linkblanker = chrome.extension.getBackgroundPage().linkblanker;
 
@@ -44,7 +166,7 @@
 				return;
 			}
 
-			var openList = [], closeList = [];
+			var openList = [], closeList = [], shortCutList = [];
 
 			for (var i = 1; i < options.length; i++) {
 				switch (options[i].group) {
@@ -54,6 +176,9 @@
 					break;
 				case 3:
 					closeList.push(getListHtml(i));
+					break;
+				case 4:
+					shortCutList.push(getListHtml(i));
 					break;
 				}
 			}
@@ -73,15 +198,60 @@
 				'<ul class="preference-list">',
 				closeList.join(""),
 				'</ul>',
+				'<h2 class="preference-header">' + chrome.i18n.getMessage("title_shortcut_key") + '</h2>',
+				'<ul class="preference-list">',
+				shortCutList.join(""),
+				'</ul>',
 				moreLink,
 				'</div>'
 			];
 
 			$("body").append(html.join(""));
-			$("input[type=checkbox], input[type=radio]").change(checkboxOnChange);
+			$("input[type=checkbox], input[type=radio]").change(onChange);
+
+			$('[id^=shortcut-key-]').on("keydown", function(e) {
+				var self = $(this);
+
+				if (e.keyCode === 46 || e.keyCode === 8){
+					self.val("").data("value", "");
+				} else {
+					if (self.data("restore")) {
+						self.val("").data("value", "");
+					}
+
+					self.data("restore", false);
+
+					var keyMap = getKeyMapping(self.data("value"));
+
+					if (keyMappings[e.keyCode]) {
+						keyMap.keyNames.push(keyMappings[e.keyCode]);
+						keyMap.keyCodes.push(e.keyCode);
+
+						self.val(keyMap.keyNames.join(' + '));
+						self.data("value", keyMap.keyCodes.join(','));
+					}
+				}
+
+				return false;
+			}).on("keyup", function(e) {
+				var self = $(this);
+				self.data("restore", true);
+				onChange.apply(this, []);
+			}).data("restore", true);
 
 			setInitialData();
 		});
+	};
+
+	var getKeyMapping = function(keyCode) {
+		keyCode = keyCode || "";
+
+		var keyCodes = $.grep(keyCode.split(','), function(val){return val !== "";});
+		var keyNames = $.map(keyCodes, function(val) {
+			return keyMappings[val];
+		});
+
+		return { keyCodes: keyCodes, keyNames: keyNames };
 	};
 
 	var getLogoHtml = function() {
@@ -108,6 +278,24 @@
 				'" /><span>',
 				options[optionsIndex].label,
 				'</span></label></li>'
+			].join("");
+		} else if (options[optionsIndex].control === "text") {
+			return [
+				'<li ',
+				options[optionsIndex].listClass ? 'class="' + options[optionsIndex].listClass + '"' : '',
+				'><label data-group="',
+				options[optionsIndex].group,
+				'"><p>',
+				options[optionsIndex].label,
+				'</p><input id="',
+				options[optionsIndex].id,
+				'" type="text" data-group="',
+				options[optionsIndex].group,
+				'" name="',
+				options[optionsIndex].id,
+				'" class="indent"',
+				options[optionsIndex].placeholder ? ' placeholder="' + options[optionsIndex].placeholder + '"' : '',
+				' /></label></li>'
 			].join("");
 		} else {
 			return [
@@ -144,6 +332,16 @@
 				if (type === "checkbox" || id === "disabled-on") {
 					if (localStorage[id] == 1) {
 						self.attr("checked", "checked");
+					}
+
+					checkInitializeFinish();
+				} else if (type === "text") {
+					if (id.indexOf("shortcut-key-") > -1) {
+						var keyMap = getKeyMapping(localStorage[id]);
+						self.val(keyMap.keyNames.join(' + '));
+						self.data("value", keyMap.keyCodes.join(','));
+					} else {
+						self.val(localStorage[id]);
 					}
 
 					checkInitializeFinish();
@@ -186,7 +384,7 @@
 		}
 	};
 
-	var checkboxOnChange = function() {
+	var onChange = function() {
 		var self    = $(this),
 			id      = this.id,
 			type    = this.type,
@@ -195,6 +393,8 @@
 
 		if (type === "checkbox" || id === "disabled-on") {
 			localStorage[id] = checked ? 1 : 0;
+		} else if (type === "text") {
+			localStorage[id] = self.data("value") || value;
 		} else if (value >= 2) {
 			linkblanker.currentData(function(result) {
 				var val   = preferenceValueFromId(id, result),
@@ -271,9 +471,9 @@
 			}
 
 			if (self.is(":checked")) {
-				self.parents("label").addClass("checked");
+				self.parents("label").addClass("active");
 			} else {
-				self.parents("label").removeClass("checked");
+				self.parents("label").removeClass("active");
 			}
 		});
 	};

@@ -46,5 +46,11 @@
 	},
 	"title_left":{
 		"message":"left side"
+	},
+	"title_shortcut_key": {
+		"message": "Shortcut key"
+	},
+	"title_enable_toggle_key":{
+		"message": "Switching pause"
 	}
 }

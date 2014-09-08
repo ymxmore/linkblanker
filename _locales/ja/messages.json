@@ -46,10 +46,11 @@
 	},
 	"title_left":{
 		"message":"左"
+	},
+	"title_shortcut_key": {
+		"message": "ショートカットキー"
+	},
+	"title_enable_toggle_key":{
+		"message":"一時停止切替"
 	}
-
-
 }
-
-
-//' + chrome.i18n.getMessage("message_drop_tabs") + '

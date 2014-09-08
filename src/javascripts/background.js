@@ -20,8 +20,7 @@ var linkblanker;
 			});
 
 			chrome.extension.onConnect.addListener(function(port) {
-				_port = port;
-				_port.onMessage.addListener(_this[port.name]);
+				port.onMessage.addListener(_this[port.name]);
 			});
 
 			loadManifest();
@@ -36,6 +35,7 @@ var linkblanker;
 				"disabled-page": JSON.parse(localStorage["disabled-page"] || "[]"),
 				"enabled-background-open": Number(localStorage["enabled-background-open"] || "0"),
 				"enabled-multiclick-close": Number(localStorage["enabled-multiclick-close"] || "0"),
+				"shortcut-key-toggle-enabled": localStorage["shortcut-key-toggle-enabled"] || "",
 			};
 		};
 
@@ -65,7 +65,8 @@ var linkblanker;
 					name: "updateStatus",
 					enable: enable,
 					isBackground: _data["enabled-background-open"] === 1 && _data["disabled-extension"] === 0 ? 1 : 0,
-					multiClickClose: _data["enabled-multiclick-close"] === 1 && _data["disabled-extension"] === 0 ? 1 : 0
+					multiClickClose: _data["enabled-multiclick-close"] === 1 && _data["disabled-extension"] === 0 ? 1 : 0,
+					shortcutKeyTobbleEnabled: _data["shortcut-key-toggle-enabled"]
 				});
 			}
 
@@ -199,6 +200,11 @@ var linkblanker;
 					chrome.tabs.create(params);
 				});
 			}
+		};
+
+		this.toggleEnabled = function() {
+			localStorage["disabled-extension"] = (_this.getData()["disabled-extension"] === 0) ? 1 : 0;
+			_this.notifyAllTabs();
 		};
 
 		initialize();

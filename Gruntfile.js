@@ -1,6 +1,48 @@
 module.exports = function (grunt) {
+	require('load-grunt-tasks')(grunt);
+
+	var manifest = grunt.file.readJSON("manifest.json");
+
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+		'chrome-extension': {
+            options: {
+                name: "link-blanker-" + manifest.version,
+                version: manifest.version,
+                id: "lkafdfakakndhpcpccjnclopfncckhfn",
+                chrome: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                clean: true,
+                buildDir: 'build',
+                resources: [
+                    "_locales/**",
+                    "dest/**",
+                    "vendor/**",
+                    "LICENSE",
+                    "manifest.json",
+                    "README.md"
+                ]
+            }
+        },
+        gittag: {
+            append: {
+                options: {
+                    tag: manifest.version,
+                    message: "v" + manifest.version
+                }
+            }
+        },
+        gitpush: {
+            tag: {
+                options: {
+                    tags: true
+                }
+            },
+            master: {
+                options: {
+                    branch: "master"
+                }
+            }
+        },
 		uglify: {
 	    	options: {
 				banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
@@ -34,6 +76,7 @@ module.exports = function (grunt) {
 					config: 'config.rb',
 					environment: 'production',
 					force: true,
+					cssDir: 'dest/stylesheets'
 				}
 			}
 		},
@@ -99,16 +142,12 @@ module.exports = function (grunt) {
 	        	}]
 			}
 		},
-	    qunit: {
-    		files: ['test/**/*.html']
-		},
 	    jshint: {
 			files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js']
 		},
 		watch: {
 			javascripts: {
 		    	files: ['<%= jshint.files %>'],
-		    	// tasks: ['jshint', 'qunit']
 		    	tasks: ['jshint', 'copy:javascripts']
 	    	},
 	    	sass: {
@@ -127,6 +166,8 @@ module.exports = function (grunt) {
 	});
 
 	grunt.registerTask('default', ['init', 'watch']);
+	grunt.registerTask('test',    ['jshint']);
+	grunt.registerTask('build',   ['jshint', 'clean', 'compass:production','uglify:production', 'image', 'htmlmin', 'chrome-extension']);
 
 	grunt.registerTask('init', function() {
 		grunt.task.run('clean');
@@ -135,13 +176,4 @@ module.exports = function (grunt) {
 			grunt.task.run(grunt.config.data.watch[target].tasks);
 		}
 	});
-
-	grunt.registerTask('test',    ['jshint', 'qunit']);
-	grunt.registerTask('build',   ['jshint', 'clean', 'compass:production','uglify:production', 'image', 'htmlmin']);
-
-	for (var task in grunt.file.readJSON('package.json').devDependencies) {
-		if (task.substring(0, 6) == 'grunt-') {
-	    	grunt.loadNpmTasks(task);
-		}
-	}
 };
