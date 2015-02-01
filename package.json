@@ -21,7 +21,9 @@
     "url": "https://github.com/ym-aozora/linkblanker/issues"
   },
   "devDependencies": {
+    "flux": "^2.0.0",
     "grunt": "^0.4.5",
+    "grunt-browserify": "^3.3.0",
     "grunt-chrome-compile": "^0.2.2",
     "grunt-contrib-clean": "^0.4.1",
     "grunt-contrib-compass": "^1.0.0",
@@ -35,6 +37,10 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-git": "^0.2.14",
     "grunt-image": "^0.8.3",
-    "load-grunt-tasks": "^0.6.0"
+    "keymirror": "~0.1.0",
+    "load-grunt-tasks": "^0.6.0",
+    "object-assign": "^1.0.0",
+    "react": "^0.12.0",
+    "reactify": "^0.15.2"
   }
 }

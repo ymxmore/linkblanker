@@ -3,10 +3,10 @@
 		"message":"一時停止"
 	},
 	"title_disabled_off":{
-		"message":"有効&nbsp;(強制的に新しいタブで開く)"
+		"message":"有効"
 	},
 	"title_disabled_on":{
-		"message":"無効&nbsp;(ページ標準の振る舞い)"
+		"message":"無効"
 	},
 	"title_disabled_domain":{
 		"message":"現在表示中のドメインでは無効にする"

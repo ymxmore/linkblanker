@@ -1,6 +1,6 @@
 {
 	"manifest_version": 2,
-	"version": "2.0.0",
+	"version": "2.1.0",
 	"name": "Link Blanker",
 	"description": "Open link in new tab.",
 	"icons": {
@@ -22,15 +22,14 @@
 	],
 	"background": {
 		"scripts": [
-			"vendor/jquery-2.0.3.min.js",
-			"dest/javascripts/background.min.js"
+			"dest/javascripts/bundle-background.min.js"
 		]
 	},
     "content_scripts": [
 		{
 			"matches": ["http://*/*", "https://*/*"],
 			"css": ["dest/stylesheets/content-script.css"],
-			"js": ["vendor/jquery-2.0.3.min.js", "dest/javascripts/contentscript.min.js"],
+			"js": ["vendor/jquery-2.0.3.min.js", "dest/javascripts/bundle-contentscript.min.js"],
 			"run_at": "document_start"
 		}
 	],

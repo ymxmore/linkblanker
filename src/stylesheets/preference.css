@@ -1,1 +1,137 @@
-html,body{min-width:300px;min-height:300px;color:#4f4f4f;background-color:#f6fcff;font-family:Helvetica, arial, freesans, clean, sans-serif;font-size:12px;line-height:1.4em;margin:0}body{border:2px solid #fefefe;border-radius:4px}h1,h2{margin:0;padding:0}ul{padding:0;margin:0}li{list-style-type:none;white-space:nowrap;padding:3px}p{padding:0;margin:.5em 0}input,textarea,select{outline:none}#wrapper{margin:2px;padding:0 6px 6px 6px}#extension-name{width:100%;height:60px;background:url("../images/icon48.png") 0 6px scroll no-repeat,url("../images/logo.png") 55px 0 scroll no-repeat;position:relative}#version-name{font-weight:bold;font-size:1.1em;display:inline-block;position:absolute;bottom:0;left:58px}.preference-header,.preference-header-disabled{font-size:1.1em;padding:12px 0 5px 0;margin:0 0 5px 0}.preference-header{border-bottom:1px dashed #cfcfcf}.preference-header-disabled{color:#eb4848;text-align:center}a,.active{color:#5357ff}.list-split{margin-top:10px;padding-top:10px;border-top:1px dashed #cfcfcf}.indent{margin-left:1em}input[type="checkbox"],input[type="radio"]{margin:0 6px 0 0}input[type="text"]{padding:.3em .5em;line-height:1.2;color:#555;border-radius:3px;border:1px solid #999;width:85%}label[disabled],input[disabled]{cursor:not-allowed;color:#cfcece !important}label[data-group="0"]{font-weight:bold}input[id^=shortcut-key-]:focus{border:1px solid #5357ff}
+/* line 1, ../sass/preference.scss */
+html, body {
+  min-width: 300px;
+  min-height: 300px;
+  color: #4f4f4f;
+  background-color: #f6fcff;
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 12px;
+  line-height: 1.4em;
+  margin: 0;
+}
+
+/* line 12, ../sass/preference.scss */
+body {
+  border: 2px solid #fefefe;
+  border-radius: 4px;
+}
+
+/* line 17, ../sass/preference.scss */
+h1, h2 {
+  margin: 0;
+  padding: 0;
+}
+
+/* line 22, ../sass/preference.scss */
+ul {
+  padding: 0;
+  margin: 0;
+}
+
+/* line 27, ../sass/preference.scss */
+li {
+  list-style-type: none;
+  white-space: nowrap;
+  padding: 3px;
+}
+
+/* line 33, ../sass/preference.scss */
+p {
+  padding: 0;
+  margin: .5em 0;
+}
+
+/* line 38, ../sass/preference.scss */
+input, textarea, select {
+  outline: none;
+}
+
+/* line 42, ../sass/preference.scss */
+#wrapper {
+  margin: 2px;
+  padding: 0 6px 6px 6px;
+}
+
+/* line 47, ../sass/preference.scss */
+#extension-name {
+  width: 100%;
+  height: 60px;
+  background: url("../images/icon48.png") 0 6px scroll no-repeat, url("../images/logo.png") 55px 0 scroll no-repeat;
+  position: relative;
+}
+
+/* line 54, ../sass/preference.scss */
+#version-name {
+  font-weight: bold;
+  font-size: 1.1em;
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  left: 58px;
+}
+
+/* line 63, ../sass/preference.scss */
+.preference-header, .preference-header-disabled {
+  font-size: 1.1em;
+  padding: 12px 0 5px 0;
+  margin: 0 0 5px 0;
+}
+
+/* line 69, ../sass/preference.scss */
+.preference-header {
+  border-bottom: 1px dashed #cfcfcf;
+}
+
+/* line 73, ../sass/preference.scss */
+.preference-header-disabled {
+  color: #eb4848;
+  text-align: center;
+}
+
+/* line 78, ../sass/preference.scss */
+a, .active {
+  color: #5357ff;
+}
+
+/* line 82, ../sass/preference.scss */
+.list-split {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #cfcfcf;
+}
+
+/* line 88, ../sass/preference.scss */
+.indent {
+  margin-left: 1em;
+}
+
+/* line 92, ../sass/preference.scss */
+input[type="checkbox"], input[type="radio"] {
+  margin: 0 6px 0 0;
+}
+
+/* line 96, ../sass/preference.scss */
+input[type="text"] {
+  padding: .3em .5em;
+  line-height: 1.2;
+  color: #555;
+  border-radius: 3px;
+  border: 1px solid #999;
+  width: 85%;
+}
+
+/* line 105, ../sass/preference.scss */
+label[disabled], input[disabled] {
+  cursor: not-allowed;
+  color: #cfcece !important;
+}
+
+/* line 110, ../sass/preference.scss */
+label[data-group="0"] {
+  font-weight: bold;
+}
+
+/* line 114, ../sass/preference.scss */
+input[id^=shortcut-key-]:focus {
+  border: 1px solid #5357ff;
+}
