@@ -75,20 +75,20 @@ LinkBlanker.prototype.setData = function (key, value) {
         case 'disabled-domain':
         case 'disabled-directory':
         case 'disabled-page':
-            var item  = self.preferenceValueFromId(k, result);
-            var index = all[k].indexOf(item);
+          var item  = self.preferenceValueFromId(k, result);
+          var index = all[k].indexOf(item);
 
-            if (v) {
-              if (-1 === index) {
-                all[k].push(item);
-              }
-            } else {
-              if (index > -1) {
-                all[k].splice(index, 1);
-              }
+          if (v) {
+            if (-1 === index) {
+              all[k].push(item);
             }
+          } else {
+            if (index > -1) {
+              all[k].splice(index, 1);
+            }
+          }
 
-            localStorage[k] = JSON.stringify(all[k]);
+          localStorage[k] = JSON.stringify(all[k]);
           break;
         case 'shortcut-key-toggle-enabled':
           localStorage[k] = v;

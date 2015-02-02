@@ -16,6 +16,7 @@
 		"background",
 		"tabs"
 	],
+
 	"web_accessible_resources": [
 		"vendor/jquery-2.0.3.min.map",
 		"dest/images/close-action.png"

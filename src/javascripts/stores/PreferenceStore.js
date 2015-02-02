@@ -7,14 +7,14 @@ var Events = LinkBlankerConstants.Events;
 var Types = LinkBlankerConstants.Types;
 var assign = require('object-assign');
 
+var disableds = ['disabled-domain', 'disabled-directory', 'disabled-page'];
+
 var PreferenceStore = assign({}, EventEmitter.prototype, {
 
   getAll: function (callback) {
     var data = LinkBlanker.getData();
 
     LinkBlanker.currentData(function (result) {
-      var pageEnabled = true;
-
       Object.keys(data).forEach(function (k) {
         var v = data[k];
 
@@ -39,21 +39,28 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
               data[k] = (v.indexOf(item) > -1);
             }
 
-            if (pageEnabled && data[k]) {
-              pageEnabled = false;
-            }
-
             break;
-          case 'shortcut-key-toggle-enabled':
-            data[k] = v;
+          case 'disabled-extension':
+          case 'enabled-background-open':
+          case 'enabled-multiclick-close':
+            data[k] = Boolean(v);
             break;
           default:
-            data[k] = Boolean(v);
+            data[k] = v;
             break;
         }
       });
 
-      data['disabled-off'] = pageEnabled;
+      // build virtual fileld
+      data['disabled-state'] = 'disabled-off';
+
+      disableds.forEach(function (value) {
+        if (data[value]) {
+          data['disabled-state'] = value;
+        }
+
+        delete data[value];
+      });
 
       if (callback) {
         callback(data);
@@ -83,6 +90,15 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
 AppDispatcher.register(function (action) {
   switch(action.type) {
     case Types.SAVE:
+      if (action.data['disabled-state']) {
+        disableds.forEach(function (value) {
+          action.data[value] = (value === action.data['disabled-state']) ? true : false;
+        });
+
+        // delete virtual fileld
+        delete action.data['disabled-state'];
+      }
+
       LinkBlanker.setData(action.data);
       PreferenceStore.emitChange();
       break;

@@ -4,6 +4,16 @@ var React = window.React = require('react');
 var PreferenceActions = require('../actions/PreferenceActions');
 var PreferenceStore = require('../stores/PreferenceStore');
 
+var MaterialUi = require('material-ui');
+
+var InjectTapEventPlugin = require('react-tap-event-plugin');
+
+// Needed for onTouchTap
+// Can go away when react 1.0 release
+// Check this repo:
+// https://github.com/zilverline/react-tap-event-plugin
+InjectTapEventPlugin();
+
 var keyMappings = {
   3:  'cancel',
   8:  'backspace',
@@ -128,10 +138,7 @@ var Preference = React.createClass({
   getInitialState: function () {
     return {
       'disabled-extension': false,
-      'disabled-off': true,
-      'disabled-domain': false,
-      'disabled-directory': false,
-      'disabled-page': false,
+      'disabled-state': 'disabled-off',
       'enabled-background-open': false,
       'enabled-multiclick-close': false,
       'shortcut-key-toggle-enabled': ''
@@ -169,21 +176,15 @@ var Preference = React.createClass({
   handleChange: function (event) {
     var state = {};
 
-    switch (event.target.id) {
-      case 'disabled-off':
-      case 'disabled-domain':
-      case 'disabled-directory':
-      case 'disabled-page':
-        state = {
-          'disabled-off': false,
-          'disabled-domain': false,
-          'disabled-directory': false,
-          'disabled-page': false
-        };
+    switch (event.target.name) {
+      case 'disabled-state':
+        state[event.target.name] = event.target.value;
+        this.setState(state);
+        break;
       case 'disabled-extension':
       case 'enabled-background-open':
       case 'enabled-multiclick-close':
-        state[event.target.id] = event.target.checked;
+        state[event.target.name] = event.target.checked;
         this.setState(state);
         break;
       case 'shortcut-key-toggle-enabled':
@@ -199,7 +200,7 @@ var Preference = React.createClass({
   },
 
   handleKeyDown: function (event) {
-    switch (event.target.id) {
+    switch (event.target.name) {
       case 'shortcut-key-toggle-enabled':
         var state = { 'shortcut-key-toggle-enabled': '' };
         var props = {
@@ -237,7 +238,7 @@ var Preference = React.createClass({
   },
 
   handleKeyUp: function (event) {
-    switch (event.target.id) {
+    switch (event.target.name) {
       case 'shortcut-key-toggle-enabled':
         this.setProps({
           'shortcut-key-toggle-enabled': {
@@ -252,88 +253,87 @@ var Preference = React.createClass({
   },
 
   render: function () {
+
     return (
       <div id="wrapper">
         <header id="extension-name">
-          <span id="version-name">Version {LinkBlanker.manifest.version}</span>
+          <span id="version-name">
+            Version {LinkBlanker.manifest.version}
+          </span>
         </header>
         <section>
-          <h2 className="preference-header">{chrome.i18n.getMessage('title_whole_setting')}</h2>
-          <ul className="preference-list">
-            <li>
-              <label>
-                <input id="disabled-extension" type="checkbox" data-group="0" name="disabled-extension" checked={this.state['disabled-extension']} onChange={this.handleChange} />
-                <span>{chrome.i18n.getMessage("title_pause")}</span>
-              </label>
-            </li>
-          </ul>
+          <h3 className="preference-header">
+            {chrome.i18n.getMessage('title_whole_setting')}
+          </h3>
+          <MaterialUi.Toggle
+            name="disabled-extension"
+            label={chrome.i18n.getMessage('title_pause')}
+            checked={this.state['disabled-extension']}
+            onToggle={this.handleChange} />
         </section>
         <section>
-          <h2 className="preference-header">{chrome.i18n.getMessage('title_open_settings')}</h2>
-          <ul className="preference-list">
-            <li>
-              <label>
-                <input id="disabled-off" type="radio" data-group="1" name="disabled-1" value="1" checked={this.state['disabled-off']} onChange={this.handleChange} />
-                <span>{chrome.i18n.getMessage("title_disabled_off")}</span>
-              </label>
-            </li>
-            <li>
-              <label>
-                <input id="disabled-domain" type="radio" data-group="1" name="disabled-1" value="2" checked={this.state['disabled-domain']} onChange={this.handleChange} />
-                <span>{chrome.i18n.getMessage("title_disabled_domain")}</span>
-              </label>
-            </li>
-            <li>
-              <label>
-                <input id="disabled-directory" type="radio" data-group="1" name="disabled-1" value="3" checked={this.state['disabled-directory']} onChange={this.handleChange} />
-                <span>{chrome.i18n.getMessage("title_disabled_directory")}</span>
-              </label>
-            </li>
-            <li>
-              <label>
-                <input id="disabled-page" type="radio" data-group="1" name="disabled-1" value="4" checked={this.state['disabled-page']} onChange={this.handleChange} />
-                <span>{chrome.i18n.getMessage("title_disabled_page")}</span>
-              </label>
-            </li>
-            <li className="list-split">
-              <label>
-                <input id="enabled-background-open" type="checkbox" data-group="2" name="enabled-background-open" checked={this.state['enabled-background-open']} onChange={this.handleChange} />
-                <span>{chrome.i18n.getMessage("title_background_open")}</span>
-              </label>
-            </li>
-          </ul>
+          <h3 className="preference-header">
+            {chrome.i18n.getMessage('title_open_settings')}
+          </h3>
+
+          <MaterialUi.RadioButtonGroup
+            name="disabled-state"
+            valueSelected={this.state['disabled-state']}
+            onChange={this.handleChange}>
+
+            <MaterialUi.RadioButton
+              value="disabled-off"
+              label={chrome.i18n.getMessage('title_disabled_off')}
+              defaultChecked={true} />
+            <MaterialUi.RadioButton
+              value="disabled-domain"
+              label={chrome.i18n.getMessage('title_disabled_domain')} />
+            <MaterialUi.RadioButton
+              value="disabled-directory"
+              label={chrome.i18n.getMessage('title_disabled_directory')} />
+            <MaterialUi.RadioButton
+              value="disabled-page"
+              label={chrome.i18n.getMessage('title_disabled_page')} />
+
+          </MaterialUi.RadioButtonGroup>
+
+          <MaterialUi.Toggle
+            name="enabled-background-open"
+            label={chrome.i18n.getMessage('title_background_open')}
+            checked={this.state['enabled-background-open']}
+            onToggle={this.handleChange} />
         </section>
         <section>
-          <h2 className="preference-header">{chrome.i18n.getMessage('title_close_settings')}</h2>
-          <ul className="preference-list">
-            <li>
-              <label>
-                <input id="enabled-multiclick-close" type="checkbox" data-group="3" name="enabled-multiclick-close" checked={this.state['enabled-multiclick-close']} onChange={this.handleChange} />
-                <span>{chrome.i18n.getMessage("title_multiclick_close")}</span>
-              </label>
-            </li>
-          </ul>
+          <h3 className="preference-header">
+            {chrome.i18n.getMessage('title_close_settings')}
+          </h3>
+
+          <MaterialUi.Toggle
+            name="enabled-multiclick-close"
+            label={chrome.i18n.getMessage('title_multiclick_close')}
+            checked={this.state['enabled-multiclick-close']}
+            onToggle={this.handleChange} />
         </section>
         <section>
-          <h2 className="preference-header">{chrome.i18n.getMessage('title_shortcut_key')}</h2>
-          <ul className="preference-list">
-            <li>
-              <label>
-                <p>{chrome.i18n.getMessage("title_enable_toggle_key")}</p>
-                <input id="shortcut-key-toggle-enabled" type="text" data-group="4" name="shortcut-key-toggle-enabled" className="indent" placeholder="Enter the shortcut key" value={this.state['shortcut-key-toggle-enabled']} onChange={this.handleChange} onKeyDown={this.handleKeyDown} onKeyUp={this.handleKeyUp} />
-              </label>
-            </li>
-          </ul>
+          <h3 className="preference-header">
+            {chrome.i18n.getMessage('title_shortcut_key')}
+          </h3>
+
+          <MaterialUi.TextField
+            name="shortcut-key-toggle-enabled"
+            hintText="Enter the shortcut key"
+            floatingLabelText={chrome.i18n.getMessage('title_enable_toggle_key')}
+            value={this.state['shortcut-key-toggle-enabled']}
+            onChange={this.handleChange}
+            onKeyDown={this.handleKeyDown}
+            onKeyUp={this.handleKeyUp} />
+
         </section>
         <footer>
-          <h2 className="preference-header">Links</h2>
-          <ul className="preference-list">
-            <li>
-              <a href="http://www.aozora-create.com/service/linkblanker" title="Link Blanker" target="_blank">
-                {chrome.i18n.getMessage("title_link_help")}
-              </a>
-            </li>
-          </ul>
+          <h3 className="preference-header">Links</h3>
+          <a href="http://www.aozora-create.com/service/linkblanker" title="Link Blanker" target="_blank">
+            {chrome.i18n.getMessage('title_link_help')}
+          </a>
         </footer>
       </div>
     );
@@ -344,8 +344,6 @@ React.render(
     <Preference />,
     document.getElementById('preference')
 );
-
-// console.log(chrome.extension.getBackgroundPage());
 
 function getKeyMapping (keyCode) {
   keyCode = keyCode || '';
@@ -365,21 +363,21 @@ function getKeyMapping (keyCode) {
 
 // ;(function ($){
 // 	var options = [
-// 		{ id: "disabled-extension",          group: 0, control: "checkbox", label: chrome.i18n.getMessage("title_pause") },
-// 		{ id: "disabled-off",                group: 1, control: "radio",    value: 0, label: chrome.i18n.getMessage("title_disabled_off") },
-// 		{ id: "disabled-on",                 group: 1, control: "radio",    value: 1, label: chrome.i18n.getMessage("title_disabled_on") },
-// 		{ id: "disabled-domain",             group: 1, control: "radio",    value: 2, label: chrome.i18n.getMessage("title_disabled_domain") },
-// 		{ id: "disabled-directory",          group: 1, control: "radio",    value: 3, label: chrome.i18n.getMessage("title_disabled_directory") },
-// 		{ id: "disabled-page",               group: 1, control: "radio",    value: 4, label: chrome.i18n.getMessage("title_disabled_page") },
-// 		{ id: "enabled-background-open",     group: 2, control: "checkbox", listClass: "list-split", label: chrome.i18n.getMessage("title_background_open") },
-// 		{ id: "enabled-multiclick-close",    group: 3, control: "checkbox", label: chrome.i18n.getMessage("title_multiclick_close") },
-// 		{ id: "shortcut-key-toggle-enabled", group: 4, control: "text",     label: chrome.i18n.getMessage("title_enable_toggle_key"), placeholder: "Enter the shortcut key" },
+// 		{ id: "disabled-extension",          group: 0, control: "checkbox", label: chrome.i18n.getMessage('title_pause') },
+// 		{ id: "disabled-off",                group: 1, control: "radio",    value: 0, label: chrome.i18n.getMessage('title_disabled_off') },
+// 		{ id: "disabled-on",                 group: 1, control: "radio",    value: 1, label: chrome.i18n.getMessage('title_disabled_on') },
+// 		{ id: "disabled-domain",             group: 1, control: "radio",    value: 2, label: chrome.i18n.getMessage('title_disabled_domain') },
+// 		{ id: "disabled-directory",          group: 1, control: "radio",    value: 3, label: chrome.i18n.getMessage('title_disabled_directory') },
+// 		{ id: "disabled-page",               group: 1, control: "radio",    value: 4, label: chrome.i18n.getMessage('title_disabled_page') },
+// 		{ id: "enabled-background-open",     group: 2, control: "checkbox", listClass: "list-split", label: chrome.i18n.getMessage('title_background_open') },
+// 		{ id: "enabled-multiclick-close",    group: 3, control: "checkbox", label: chrome.i18n.getMessage('title_multiclick_close') },
+// 		{ id: "shortcut-key-toggle-enabled", group: 4, control: "text",     label: chrome.i18n.getMessage('title_enable_toggle_key'), placeholder: "Enter the shortcut key" },
 // 	];
 
 // 	var moreLink = [
 // 		'<h2 class="preference-header">Links</h2>',
 // 		'<ul class="preference-list">',
-// 		'<li><a href="http://www.aozora-create.com/service/linkblanker" title="Link Blanker" target="_blank">' + chrome.i18n.getMessage("title_link_help") + '</a></li>',
+// 		'<li><a href="http://www.aozora-create.com/service/linkblanker" title="Link Blanker" target="_blank">' + chrome.i18n.getMessage('title_link_help') + '</a></li>',
 // 		'</ul>',
 // 	].join("");
 
@@ -522,7 +520,7 @@ function getKeyMapping (keyCode) {
 // 				html = [
 // 					'<div id="wrapper">',
 // 					getLogoHtml(),
-// 					'<h2 class="preference-header-disabled">' + chrome.i18n.getMessage("message_cannot_use") + '</h2>',
+// 					'<h2 class="preference-header-disabled">' + chrome.i18n.getMessage('message_cannot_use') + '</h2>',
 // 					moreLink,
 // 					'</div>'
 // 				];
@@ -551,19 +549,19 @@ function getKeyMapping (keyCode) {
 // 			html = [
 // 				'<div id="wrapper">',
 // 				getLogoHtml(),
-// 				'<h2 class="preference-header">' + chrome.i18n.getMessage("title_whole_setting") + '</h2>',
+// 				'<h2 class="preference-header">' + chrome.i18n.getMessage('title_whole_setting') + '</h2>',
 // 				'<ul class="preference-list">',
 // 				getListHtml(0),
 // 				'</ul>',
-// 				'<h2 class="preference-header">' + chrome.i18n.getMessage("title_open_settings") + '</h2>',
+// 				'<h2 class="preference-header">' + chrome.i18n.getMessage('title_open_settings') + '</h2>',
 // 				'<ul class="preference-list">',
 // 				openList.join(""),
 // 				'</ul>',
-// 				'<h2 class="preference-header">' + chrome.i18n.getMessage("title_close_settings") + '</h2>',
+// 				'<h2 class="preference-header">' + chrome.i18n.getMessage('title_close_settings') + '</h2>',
 // 				'<ul class="preference-list">',
 // 				closeList.join(""),
 // 				'</ul>',
-// 				'<h2 class="preference-header">' + chrome.i18n.getMessage("title_shortcut_key") + '</h2>',
+// 				'<h2 class="preference-header">' + chrome.i18n.getMessage('title_shortcut_key') + '</h2>',
 // 				'<ul class="preference-list">',
 // 				shortCutList.join(""),
 // 				'</ul>',

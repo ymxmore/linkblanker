@@ -103,6 +103,15 @@ module.exports = function (grunt) {
 				}
 			}
 		},
+
+    less: {
+      development: {
+        files: {
+          'src/stylesheets/preference.css': ['src/less/preference.less']
+        }
+      }
+    },
+
     image: {
     	dynamic: {
       	files: [{
@@ -192,6 +201,10 @@ module.exports = function (grunt) {
     		files: ['src/sass/*.scss'],
 	    	tasks: ['compass:development', 'copy:stylesheets']
     	},
+      less: {
+        files: ['src/less/*.less'],
+        tasks: ['less:development', 'copy:stylesheets']
+      },
     	image: {
     		files: ['src/images/*'],
 	    	tasks: ['copy:image']
