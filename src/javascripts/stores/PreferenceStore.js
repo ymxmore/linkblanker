@@ -40,9 +40,10 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
             }
 
             break;
-          case 'disabled-extension':
+          case 'enabled-extension':
           case 'enabled-background-open':
           case 'enabled-multiclick-close':
+          case 'disabled-same-domain':
             data[k] = Boolean(v);
             break;
           default:
@@ -52,6 +53,7 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
       });
 
       // build virtual fileld
+      data['system-enabled-state'] = Boolean(LinkBlanker.enableFromUrl(result.url));
       data['disabled-state'] = 'disabled-off';
 
       disableds.forEach(function (value) {
@@ -99,8 +101,10 @@ AppDispatcher.register(function (action) {
         delete action.data['disabled-state'];
       }
 
-      LinkBlanker.setData(action.data);
-      PreferenceStore.emitChange();
+      LinkBlanker.setData(action.data, function () {
+        PreferenceStore.emitChange();
+      });
+
       break;
   }
 });

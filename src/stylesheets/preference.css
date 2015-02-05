@@ -2762,7 +2762,7 @@ body {
 }
 html {
   -webkit-font-smoothing: antialiased;
-  color: rgba(0, 0, 0, 0.87);
+  color: #616161;
   font-family: 'Roboto', sans-serif;
   background-color: #ffffff;
 }
@@ -2844,6 +2844,7 @@ hr {
   letter-spacing: 0;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 .mui-font-style-title {
   font-size: 20px;
@@ -2853,6 +2854,7 @@ hr {
   letter-spacing: 0;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 .mui-font-style-subhead-2 {
   font-size: 15px;
@@ -2862,6 +2864,7 @@ hr {
   letter-spacing: 0;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 .mui-font-style-subhead-1 {
   font-size: 15px;
@@ -2874,6 +2877,7 @@ hr {
   padding-top: 3px;
   margin-bottom: 13px;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 .mui-font-style-body-2 {
   font-size: 13px;
@@ -2883,6 +2887,7 @@ hr {
   letter-spacing: 0;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 .mui-font-style-body-1 {
   font-size: 13px;
@@ -2892,6 +2897,7 @@ hr {
   letter-spacing: 0;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 .mui-font-style-caption {
   font-size: 12px;
@@ -2910,6 +2916,7 @@ hr {
   letter-spacing: 0;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 .mui-font-style-button {
   font-size: 14px;
@@ -2920,6 +2927,7 @@ hr {
   text-transform: uppercase;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 /* General HTML Typography */
 body {
@@ -2951,6 +2959,7 @@ h3 {
   letter-spacing: 0;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 h4 {
   font-size: 20px;
@@ -2960,6 +2969,7 @@ h4 {
   letter-spacing: 0;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 h5 {
   font-size: 15px;
@@ -2972,6 +2982,7 @@ h5 {
   padding-top: 3px;
   margin-bottom: 13px;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 h6 {
   font-size: 13px;
@@ -2981,6 +2992,7 @@ h6 {
   letter-spacing: 0;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 p {
   font-size: 13px;
@@ -2990,6 +3002,7 @@ p {
   letter-spacing: 0;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 hr {
   margin-top: 0;
@@ -3083,6 +3096,7 @@ hr {
   letter-spacing: 0;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
   color: rgba(255, 255, 255, 0.87);
   padding-top: 0;
   line-height: 64px;
@@ -3113,6 +3127,7 @@ hr {
   letter-spacing: 0;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
 }
 .mui-checkbox .mui-checkbox-icon {
   height: 18px;
@@ -3133,7 +3148,7 @@ hr {
   position: absolute;
 }
 .mui-checkbox .mui-checkbox-icon .mui-checkbox-box * {
-  fill: rgba(0, 0, 0, 0.87);
+  fill: #616161;
   transition: all 2s cubic-bezier(0.23, 1, 0.32, 1) 200ms;
 }
 .mui-checkbox.mui-is-switched .mui-checkbox-icon .mui-checkbox-check {
@@ -3148,7 +3163,7 @@ hr {
 }
 .mui-checkbox.mui-is-disabled .mui-checkbox-icon .mui-checkbox-check *,
 .mui-checkbox.mui-is-disabled .mui-checkbox-icon .mui-checkbox-box * {
-  fill: rgba(0, 0, 0, 0.3);
+  fill: rgba(97, 97, 97, 0.3);
 }
 .mui-checkbox.mui-is-required .mui-checkbox-icon .mui-checkbox-box * {
   fill: #00bcd4;
@@ -3158,7 +3173,7 @@ hr {
 }
 .mui-date-picker-calendar .mui-date-picker-calendar-week-title {
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.5);
+  color: rgba(97, 97, 97, 0.5);
   line-height: 12px;
   padding: 0 14px;
 }
@@ -3307,7 +3322,7 @@ hr {
 }
 .mui-date-picker-dialog {
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.87);
+  color: #616161;
 }
 .mui-date-picker-dialog .mui-date-picker-dialog-window.mui-dialog-window-contents {
   width: 280px;
@@ -3537,12 +3552,14 @@ hr {
   letter-spacing: 0;
   text-transform: uppercase;
   font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  color: #424242;
   border-radius: 2px;
   user-select: none;
   position: relative;
   overflow: hidden;
   background-color: #ffffff;
-  color: rgba(0, 0, 0, 0.87);
+  color: #616161;
   line-height: 36px;
   min-width: 88px;
   padding: 0 16px;
@@ -3563,7 +3580,7 @@ hr {
   background-color: #e6e6e6;
 }
 .mui-flat-button.mui-is-disabled {
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(97, 97, 97, 0.3);
 }
 .mui-flat-button.mui-is-disabled:hover {
   background-color: inherit;
@@ -3615,7 +3632,7 @@ hr {
   background-color: #e6e6e6;
 }
 .mui-floating-action-button .mui-floating-action-button-container.mui-is-disabled .mui-floating-action-button-icon {
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(97, 97, 97, 0.3);
 }
 .mui-floating-action-button .mui-floating-action-button-container.mui-is-disabled:hover {
   background-color: #e6e6e6;
@@ -3684,7 +3701,7 @@ hr {
   margin-top: 52px;
 }
 .mui-icon-button.mui-is-disabled {
-  color: rgba(191, 191, 191, 0.87);
+  color: #ffffff;
 }
 .mui-dark-theme .mui-touch-ripple .mui-ripple-circle-inner {
   background-color: rgba(255, 255, 255, 0.3);
@@ -3731,7 +3748,7 @@ hr {
 .mui-input input[type='email'],
 .mui-input textarea[type='email'] {
   display: block;
-  width: 320px;
+  width: 100%;
 }
 .mui-input input:focus,
 .mui-input textarea:focus,
@@ -3824,13 +3841,13 @@ hr {
   opacity: 0.25;
   height: 19px;
   top: -3px;
-  width: 160px;
+  width: 50%;
   z-index: -1;
 }
 .mui-input .mui-input-bar {
   position: relative;
   display: block;
-  width: 320px;
+  width: 100%;
 }
 .mui-input .mui-input-bar::before,
 .mui-input .mui-input-bar::after {
@@ -3932,7 +3949,7 @@ hr {
 .mui-left-nav .mui-left-nav-menu .mui-menu a.mui-menu-item {
   display: block;
   text-decoration: none;
-  color: rgba(0, 0, 0, 0.87);
+  color: #616161;
 }
 .mui-left-nav.mui-closed .mui-left-nav-menu {
   transform: translate3d(-266px, 0, 0);
@@ -4109,7 +4126,7 @@ hr {
   transform: scale(1);
 }
 .mui-radio-button .mui-radio-button-icon .mui-radio-button-target * {
-  fill: rgba(0, 0, 0, 0.87);
+  fill: #616161;
   transition: all 2s cubic-bezier(0.23, 1, 0.32, 1) 200ms;
 }
 .mui-radio-button.mui-is-switched .mui-radio-button-icon .mui-radio-button-fill {
@@ -4126,7 +4143,7 @@ hr {
 }
 .mui-radio-button.mui-is-disabled .mui-radio-button-icon .mui-radio-button-fill *,
 .mui-radio-button.mui-is-disabled .mui-radio-button-icon .mui-radio-button-target * {
-  fill: rgba(0, 0, 0, 0.3);
+  fill: rgba(97, 97, 97, 0.3);
 }
 .mui-radio-button.mui-is-required .mui-radio-button-icon .mui-radio-button-target * {
   fill: #00bcd4;
@@ -4156,7 +4173,7 @@ hr {
   background-color: #e6e6e6;
 }
 .mui-raised-button .mui-raised-button-container.mui-is-disabled .mui-raised-button-label {
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(97, 97, 97, 0.3);
 }
 .mui-raised-button .mui-raised-button-container.mui-is-disabled:hover {
   background-color: #e6e6e6;
@@ -4176,11 +4193,13 @@ hr {
   letter-spacing: 0;
   text-transform: uppercase;
   font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  color: #424242;
   margin: 0;
   padding: 0 16px;
   user-select: none;
   line-height: 36px;
-  color: rgba(0, 0, 0, 0.87);
+  color: #616161;
 }
 .mui-raised-button:hover .mui-raised-button-container {
   background-color: #e6e6e6;
@@ -4451,6 +4470,7 @@ hr {
   letter-spacing: 0;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
+  color: #424242;
   margin: 0;
   height: 56px;
   line-height: 48px;
@@ -4490,7 +4510,7 @@ hr {
   user-select: none;
 }
 .mui-svg-icon * {
-  fill: rgba(0, 0, 0, 0.87);
+  fill: #616161;
 }
 .mui-table {
   padding: 0 24px;
@@ -4567,7 +4587,7 @@ hr {
 .mui-text-field .mui-text-field-floating-label {
   position: absolute;
   line-height: 48px;
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(97, 97, 97, 0.3);
   opacity: 1;
   transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
@@ -4587,7 +4607,7 @@ hr {
   border: none;
   outline: none;
   background-color: rgba(0, 0, 0, 0);
-  color: rgba(0, 0, 0, 0.87);
+  color: #616161;
 }
 .mui-text-field .mui-text-field-textarea {
   margin-top: 12px;
@@ -4613,7 +4633,7 @@ hr {
   opacity: 0;
 }
 .mui-text-field.mui-is-disabled .mui-text-field-input {
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(97, 97, 97, 0.3);
 }
 .mui-text-field.mui-is-disabled .mui-text-field-underline {
   border: none;
@@ -4624,7 +4644,7 @@ hr {
   content: '..............................................................................................................................................................................................................................................................................................................................................................';
   position: absolute;
   top: 23px;
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(97, 97, 97, 0.3);
 }
 .mui-text-field.mui-is-focused .mui-text-field-focus-underline {
   transform: scaleX(1);
@@ -4649,10 +4669,10 @@ hr {
   transform: scale(0.75) translate3d(0, -18px, 0);
 }
 .mui-text-field.mui-has-floating-labels.mui-has-value .mui-text-field-floating-label {
-  color: rgba(0, 0, 0, 0.5);
+  color: rgba(97, 97, 97, 0.5);
 }
 .mui-text-field.mui-has-floating-labels.mui-is-disabled .mui-text-field-hint {
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(97, 97, 97, 0.3);
 }
 .mui-text-field.mui-has-floating-labels.mui-is-focused .mui-text-field-hint {
   opacity: 1;
@@ -4912,8 +4932,64 @@ hr {
 .mui-transition-slide-in.mui-is-down .mui-transition-slide-in-leave-active {
   transform: translate3d(0, 100%, 0);
 }
+.mui-text-dark-black {
+  color: #424242;
+}
+.mui-text-field {
+  width: 100%;
+}
+.mui-switch-wrap .mui-switch-label {
+  line-height: 28px;
+}
 html,
 body {
-  min-width: 500px;
-  min-height: 500px;
+  min-width: 380px;
+  line-height: 2em;
+  font-family: Helvetica, 'Hiragino Kaku Gothic Pro', sans-serif;
+}
+h4 {
+  border-bottom: 1px solid #e0e0e0;
+  line-height: 36px;
+}
+a {
+  color: #ff4081;
+}
+a:visited {
+  color: #00838f;
+}
+#wrapper {
+  padding: 10px;
+}
+#extension-name {
+  width: 100%;
+  height: 64px;
+  background: url("../images/logo.svgz") 60px 0 scroll no-repeat;
+  position: relative;
+}
+#extension-name .icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 48px;
+}
+#version-name {
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  left: 60px;
+}
+.preference-list li {
+  list-style-type: none;
+  display: block;
+  padding: 0 0 .3em 0;
+  margin: 0 0 .6em 0;
+}
+.preference-list .support {
+  padding: 0;
+  margin: 0;
+}
+.preference-list .split {
+  border-top: 1px solid #e0e0e0;
+  padding-top: .9em;
 }

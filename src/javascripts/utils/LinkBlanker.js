@@ -3,6 +3,14 @@
  */
 module.exports = LinkBlanker;
 
+/**
+ * LinkBlanker active instance.
+ */
+var _this;
+
+/**
+ * Constructor
+ */
 function LinkBlanker (chrome) {
   this.chrome = chrome;
   this.manifest = {};
@@ -11,63 +19,76 @@ function LinkBlanker (chrome) {
 }
 
 function initialize () {
-  var self = this;
+  _this = this;
 
-  self.chrome.tabs.getAllInWindow(null, function(tabs) {
+  _this.chrome.tabs.getAllInWindow(null, function(tabs) {
     for (var i = 0; i < tabs.length; i++) {
-      self.updateStatus(tabs[i], 1);
+      _this.updateStatus(tabs[i], 1);
     }
   });
 
-  self.chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    self.updateStatus(tab);
+  _this.chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    _this.updateStatus(tab);
   });
 
-  self.chrome.extension.onConnect.addListener(function(port) {
-    port.onMessage.addListener(self.reciveMessages[port.name]);
+  _this.chrome.extension.onConnect.addListener(function(port) {
+    port.onMessage.addListener(_this.reciveMessages[port.name]);
   });
+
+  dataMigration();
 
   loadManifest.apply(self);
 }
 
 function loadManifest () {
-  var self = this;
-
-  var url = self.chrome.extension.getURL('/manifest.json'),
+  var url = _this.chrome.extension.getURL('/manifest.json'),
     xhr = new XMLHttpRequest();
 
   xhr.onload = function(){
-    self.manifest = JSON.parse(xhr.responseText);
+    _this.manifest = JSON.parse(xhr.responseText);
   };
 
   xhr.open('GET', url, true);
   xhr.send(null);
 }
 
+function dataMigration () {
+  // 反転する
+  if ('disabled-extension' in localStorage) {
+    var value = Number(localStorage['disabled-extension'] || '0');
+    localStorage['enabled-extension'] = (0 === value) ? 1 : 0;
+    delete localStorage['disabled-extension'];
+  }
+}
+
 LinkBlanker.prototype.getData = function () {
   return {
-    'disabled-extension': Number(localStorage['disabled-extension'] || '0'),
+    'enabled-extension': Number(localStorage['enabled-extension'] || '0'),
     'disabled-domain': JSON.parse(localStorage['disabled-domain'] || '[]'),
     'disabled-directory': JSON.parse(localStorage['disabled-directory'] || '[]'),
     'disabled-page': JSON.parse(localStorage['disabled-page'] || '[]'),
     'enabled-background-open': Number(localStorage['enabled-background-open'] || '0'),
     'enabled-multiclick-close': Number(localStorage['enabled-multiclick-close'] || '0'),
     'shortcut-key-toggle-enabled': localStorage['shortcut-key-toggle-enabled'] || '',
+    'disabled-same-domain': Number(localStorage['disabled-same-domain'] || '0'),
   };
 };
 
-LinkBlanker.prototype.setData = function (key, value) {
-  var self = this;
-  var all  = self.getData();
+LinkBlanker.prototype.setData = function (key, value, callback) {
+  var all  = _this.getData();
   var data = {};
 
   if ('object' === typeof key) {
     data = key;
-  } else {
+  } else if ('function' !== typeof value) {
     data[key] = value;
   }
 
-  self.currentData(function(result) {
+  if (!callback && 'function' === typeof value) {
+    callback = value;
+  }
+
+  _this.currentData(function(result) {
     Object.keys(data).forEach(function (k) {
       var v = data[k];
 
@@ -75,7 +96,7 @@ LinkBlanker.prototype.setData = function (key, value) {
         case 'disabled-domain':
         case 'disabled-directory':
         case 'disabled-page':
-          var item  = self.preferenceValueFromId(k, result);
+          var item  = _this.preferenceValueFromId(k, result);
           var index = all[k].indexOf(item);
 
           if (v) {
@@ -93,15 +114,20 @@ LinkBlanker.prototype.setData = function (key, value) {
         case 'shortcut-key-toggle-enabled':
           localStorage[k] = v;
           break;
-        case 'disabled-extension':
+        case 'enabled-extension':
         case 'enabled-background-open':
         case 'enabled-multiclick-close':
+        case 'disabled-same-domain':
           localStorage[k] = v ? 1 : 0;
           break;
       }
     });
 
-    self.notifyAllTabs();
+    if (callback) {
+      callback();
+    }
+
+    _this.notifyAllTabs();
   });
 };
 
@@ -125,29 +151,32 @@ LinkBlanker.prototype.updateStatus = function (tab, reload) {
     this.chrome.tabs.sendMessage(tab.id, {
       name: 'updateStatus',
       enable: enable,
-      isBackground: 1 === data['enabled-background-open'] && 0 === data['disabled-extension'] ? 1 : 0,
-      multiClickClose: 1 === data['enabled-multiclick-close'] && 0 === data['disabled-extension'] ? 1 : 0,
+      isBackground: 1 === data['enabled-background-open'] && 1 === data['enabled-extension'] ? 1 : 0,
+      multiClickClose: 1 === data['enabled-multiclick-close'] && 1 === data['enabled-extension'] ? 1 : 0,
       shortcutKeyTobbleEnabled: data['shortcut-key-toggle-enabled']
     });
   }
 
   this.chrome.browserAction.setBadgeBackgroundColor({
-    color: enable ? [0,0,200,128] : [200,0,0,128],
+    color: enable ? [48,201,221,128] : [0,0,0,64],
     tabId: tab.id
   });
 
   this.chrome.browserAction.setBadgeText({
-    text: enable ? 'RUN' : 'STOP',
+    text: enable ? ' ON ' : 'OFF',
+    tabId: tab.id
+  });
+
+  this.chrome.browserAction.setIcon({
+    path: 'dest/images/icon32' + (enable ? '' : '-disabled') + '.png',
     tabId: tab.id
   });
 };
 
 LinkBlanker.prototype.currentEnable = function (callback) {
-  var self = this;
-
   if (callback) {
-    self.currentData(function (result) {
-      callback(self.enableFromFullData(result));
+    _this.currentData(function (result) {
+      callback(_this.enableFromFullData(result));
     });
   }
 };
@@ -160,7 +189,7 @@ LinkBlanker.prototype.enableFromFullData = function (info) {
   }
 
   var result =
-     0 === data['disabled-extension'] &&
+     1 === data['enabled-extension'] &&
     -1 === data['disabled-domain'].indexOf(info.domain) &&
     -1 === data['disabled-page'].indexOf(info.url);
 
@@ -181,25 +210,23 @@ LinkBlanker.prototype.enableFromUrl = function (url) {
 };
 
 LinkBlanker.prototype.currentData = function (callback) {
-  var self = this;
-
   if (callback) {
-    self.chrome.tabs.getSelected(null, function (tab) {
-      self.parseData(tab.url, callback);
+    _this.chrome.tabs.getSelected(null, function (tab) {
+      _this.parseData(tab.url, callback);
     });
   }
 };
 
 LinkBlanker.prototype.parseData = function (url, callback) {
-  url = encodeURI(url);
-
   var result = {
     domain: '',
     directory: '',
     url: url
   };
 
-  var sp = result.url.split('/');
+  var tmpUrl = encodeURI(url);
+
+  var sp = tmpUrl.split('/');
 
   if (sp) {
     if (sp.length > 2) {
@@ -221,20 +248,16 @@ LinkBlanker.prototype.parseData = function (url, callback) {
 };
 
 LinkBlanker.prototype.notifyAllTabs = function () {
-  var self = this;
-
-  self.chrome.tabs.getAllInWindow(null, function (tabs) {
+  _this.chrome.tabs.getAllInWindow(null, function (tabs) {
     for (var i = 0; i < tabs.length; i++) {
-      self.updateStatus(tabs[i]);
+      _this.updateStatus(tabs[i]);
     }
   });
 };
 
 LinkBlanker.prototype.reciveMessages = {
   removeTabs: function (message) {
-    var self = this;
-
-    self.chrome.tabs.getAllInWindow(null, function (tabs) {
+    _this.chrome.tabs.getAllInWindow(null, function (tabs) {
       tabs.sort(function (a, b) {
         if (a.index < b.index) return 'right' === message.align ? -1 : 1;
         if (a.index > b.index) return 'right' === message.align ? 1  : -1;
@@ -256,28 +279,26 @@ LinkBlanker.prototype.reciveMessages = {
       }
 
       if (removeTabs.length > 0) {
-        self.chrome.tabs.remove(removeTabs);
+        _this.chrome.tabs.remove(removeTabs);
 
         message.name = 'norifyRemoveTabs';
         message.removeTabsLength = removeTabs.length;
 
-        self.chrome.tabs.sendMessage(activeTabId, message);
+        _this.chrome.tabs.sendMessage(activeTabId, message);
       }
     });
   },
 
   openTab: function (params) {
-    var self = this;
-
     if (params) {
-      self.chrome.tabs.getSelected(null, function (tab) {
+      _this.chrome.tabs.getSelected(null, function (tab) {
         params.index = tab.index + 1;
-        self.chrome.tabs.create(params);
+        _this.chrome.tabs.create(params);
       });
     }
   },
 
   toggleEnabled: function () {
-    this.setData('disabled-extension', (0 === this.getData()['disabled-extension']) ? 1 : 0);
+    _this.setData('enabled-extension', (0 === _this.getData()['enabled-extension']) ? 1 : 0);
   }
 };
