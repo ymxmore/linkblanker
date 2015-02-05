@@ -1,19 +1,27 @@
 @-webkit-keyframes linkblanker-anim-close-action {
+  /* line 2, ../sass/content-script.scss */
   0% {
     opacity: 0;
     -webkit-transform: scale(0, 0);
   }
+
+  /* line 6, ../sass/content-script.scss */
   15% {
     opacity: 1;
     -webkit-transform: scale(1, 1);
   }
+
+  /* line 10, ../sass/content-script.scss */
   85% {
     opacity: 1;
   }
+
+  /* line 13, ../sass/content-script.scss */
   100% {
     opacity: 0;
   }
 }
+
 /* line 18, ../sass/content-script.scss */
 .linkblanker-close-action {
   position: absolute;

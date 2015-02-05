@@ -32,7 +32,7 @@ function initialize () {
   });
 
   _this.chrome.extension.onConnect.addListener(function(port) {
-    port.onMessage.addListener(_this.reciveMessages[port.name]);
+    port.onMessage.addListener(_this.receiveMessages[port.name]);
   });
 
   dataMigration();
@@ -144,13 +144,13 @@ LinkBlanker.prototype.preferenceValueFromId = function (id, result) {
 LinkBlanker.prototype.updateStatus = function (tab, reload) {
   reload = reload || 0;
 
-  var enable = this.enableFromUrl(tab.url);
+  var enabled = this.enableFromUrl(tab.url);
   var data = this.getData();
 
   if (!reload) {
     this.chrome.tabs.sendMessage(tab.id, {
       name: 'updateStatus',
-      enable: enable,
+      enabled: enabled,
       isBackground: 1 === data['enabled-background-open'] && 1 === data['enabled-extension'] ? 1 : 0,
       multiClickClose: 1 === data['enabled-multiclick-close'] && 1 === data['enabled-extension'] ? 1 : 0,
       shortcutKeyTobbleEnabled: data['shortcut-key-toggle-enabled']
@@ -158,17 +158,17 @@ LinkBlanker.prototype.updateStatus = function (tab, reload) {
   }
 
   this.chrome.browserAction.setBadgeBackgroundColor({
-    color: enable ? [48,201,221,128] : [0,0,0,64],
+    color: enabled ? [48,201,221,128] : [0,0,0,64],
     tabId: tab.id
   });
 
   this.chrome.browserAction.setBadgeText({
-    text: enable ? ' ON ' : 'OFF',
+    text: enabled ? ' ON ' : 'OFF',
     tabId: tab.id
   });
 
   this.chrome.browserAction.setIcon({
-    path: 'dest/images/icon32' + (enable ? '' : '-disabled') + '.png',
+    path: 'dest/images/icon32' + (enabled ? '' : '-disabled') + '.png',
     tabId: tab.id
   });
 };
@@ -255,7 +255,7 @@ LinkBlanker.prototype.notifyAllTabs = function () {
   });
 };
 
-LinkBlanker.prototype.reciveMessages = {
+LinkBlanker.prototype.receiveMessages = {
   removeTabs: function (message) {
     _this.chrome.tabs.getAllInWindow(null, function (tabs) {
       tabs.sort(function (a, b) {
