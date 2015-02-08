@@ -1,6 +1,9 @@
+@import "compass/reset/utilities";
+
 #linkblanker-canvas {
-	position: absolute;
-	box-sizeing: border-box;
+	@include global-reset;
+	position: fixed;
+	box-sizing: border-box;
 	z-index: 99999;
 	background-color:rgba(0,0,0,.8);
 	opacity: 0;
@@ -16,28 +19,11 @@
 	}
 }
 
-@-webkit-keyframes linkblanker-anim-show {
-	0% {
-		opacity: 0;
-	}
-	100% {
-		opacity: 1;
-	}
-}
-
-@-webkit-keyframes linkblanker-anim-hide {
-	0% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-	}
-}
-
 #linkblanker-notify {
+	@include global-reset;
 	$padding: 6px;
-	box-sizeing: border-box;
-	position: absolute;
+	box-sizing: border-box;
+	position: fixed;
 	top: 6px;
 	right: 6px;
 	min-height: 48px + ($padding * 2);
@@ -63,6 +49,8 @@
 			vertical-align: middle;
 			color: #494949;
 			font-family: Helvetica, arial, freesans, clean, sans-serif;
+			font-size: 12px;
+			line-height: 1.5em;
 		}
 	}
 
