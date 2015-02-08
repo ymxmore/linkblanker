@@ -1,56 +1,65 @@
 {
-	"title_pause":{
-		"message":"Pause"
+	"title_operating_state": {
+		"message": "Operating state"
 	},
-	"title_disabled_off":{
-		"message":"Available&nbsp;(Open in the new tab forcibly)"
+	"operating": {
+		"message": "Run"
 	},
-	"title_disabled_on":{
-		"message":"Unavailable&nbsp;(Behavior of the standard)"
+	"pause": {
+		"message": "Stop"
 	},
-	"title_disabled_domain":{
-		"message":"Invalidate this function at the domain of currently displayed page"
+	"title_disabled_off": {
+		"message": "Normal"
 	},
-	"title_disabled_directory":{
-		"message":"Invalidate this function in the directory of currently displayed page"
+	"title_disabled_on": {
+		"message": "Unavailable"
 	},
-	"title_disabled_page":{
-		"message":"Invalidate this function at the currently displayed page"
+	"title_disabled_domain": {
+		"message": "Invalidate this function at the domain of currently displayed page"
 	},
-	"title_background_open":{
-		"message":"Open in the background"
+	"title_disabled_directory": {
+		"message": "Invalidate this function in the directory of currently displayed page"
 	},
-	"title_multiclick_close":{
-		"message":"Close tabs by triple-click"
+	"title_disabled_page": {
+		"message": "Invalidate this function at the currently displayed page"
 	},
-	"title_open_settings":{
-		"message":"Open Settings"
+	"title_background_open": {
+		"message": "Open in the background"
 	},
-	"title_close_settings":{
-		"message":"Close Settings"
+	"title_multiclick_close": {
+		"message": "Close tabs by triple-click"
 	},
-	"title_whole_setting":{
-		"message":"Whole Setting"
+	"title_open_settings": {
+		"message": "Disable setting"
 	},
-	"title_link_help":{
-		"message":"click here for how to,help,etc.."
+	"title_close_settings": {
+		"message": "Close Settings"
 	},
-	"message_cannot_use":{
-		"message":"It is not available in this page"
+	"title_whole_setting": {
+		"message": "Operation setting"
 	},
-	"message_drop_tabs":{
-		"message":"Dropped {REMOVE_TAB_ALIGN} <br /> {REMOVE_TAB_LENGTH} tabs."
+	"title_link_help": {
+		"message": "click here for how to,help,etc.."
 	},
-	"title_right":{
-		"message":"right side"
+	"message_cannot_use": {
+		"message": "It is not available in this page"
 	},
-	"title_left":{
-		"message":"left side"
+	"message_drop_tabs": {
+		"message": "Dropped {REMOVE_TAB_ALIGN} <br /> {REMOVE_TAB_LENGTH} tabs."
+	},
+	"title_right": {
+		"message": "right side"
+	},
+	"title_left": {
+		"message": "left side"
 	},
 	"title_shortcut_key": {
 		"message": "Shortcut key"
 	},
-	"title_enable_toggle_key":{
-		"message": "Switching pause"
+	"title_enable_toggle_key": {
+		"message": "Exchange key"
+	},
+	"title_disabled_same_domain": {
+		"message": "In the case of the same domain, a link invalidates it"
 	}
 }

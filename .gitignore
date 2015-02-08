@@ -3,3 +3,5 @@
 node_modules/
 build/
 dest/
+src/javascripts/bundle-*
+src/stylesheets/
