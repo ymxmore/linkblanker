@@ -56,15 +56,18 @@ module.exports = function (grunt) {
           'src/javascripts/bundle-contentscript.js': ['src/javascripts/apps/contentscript.js']
         }
       },
-      // production: {
-      //   options: {
-      //     debug: false,
-      //     transform: ['reactify']
-      //   },
-      //   files: {
-      //     'src/javascripts/preference.js': 'dest/javascripts/bundle-preference.js'
-      //   }
-      // }
+      production: {
+        // debug: false,
+        options: {
+          debug: false,
+          transform: ['reactify']
+        },
+        files: {
+          'src/javascripts/bundle-background.js': ['src/javascripts/apps/background.js'],
+          'src/javascripts/bundle-preference.js': ['src/javascripts/apps/preference.js'],
+          'src/javascripts/bundle-contentscript.js': ['src/javascripts/apps/contentscript.js']
+        }
+      },
     },
 		uglify: {
 	    options: {
@@ -79,7 +82,7 @@ module.exports = function (grunt) {
         ext: '.min.js'
     	},
     	production: {
-        src: 'src/javascripts/**/*.js',
+        src: 'src/javascripts/*.js',
         dest: 'dest/javascripts/',
         expand: true,
         flatten: true,
@@ -109,13 +112,21 @@ module.exports = function (grunt) {
         files: {
           'src/stylesheets/preference.css': ['src/less/preference.less']
         }
+      },
+      production: {
+        options: {
+          compress: true
+        },
+        files: {
+          'dest/stylesheets/preference.css': ['src/less/preference.less']
+        }
       }
     },
 
     image: {
     	dynamic: {
       	files: [{
-      		src: ['src/images/**/*.{png,jpg,gif,svg}'],
+      		src: ['src/images/**/*.{png,jpg,gif,svg,svgz}'],
       		dest: 'dest/images/',
       		expand: true,
       		flatten: true
@@ -193,7 +204,7 @@ module.exports = function (grunt) {
 	    	files: [
           'Gruntfile.js',
           'src/**/*.js',
-          'test/**/*.js',
+          'test/**/*.js'
         ],
 	    	tasks: ['jshint', 'browserify:development', 'copy:javascripts']
     	},
@@ -218,7 +229,7 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('default', ['init', 'watch']);
 	grunt.registerTask('test',    ['jshint']);
-	grunt.registerTask('build',   ['jshint', 'clean', 'compass:production', 'browserify:production', 'uglify:production', 'image', 'htmlmin', 'chrome-extension']);
+	grunt.registerTask('build',   ['jshint', 'clean', 'compass:production', 'less:production', 'browserify:production', 'uglify:production', 'image', 'htmlmin', 'chrome-extension']);
 
 	grunt.registerTask('init', function() {
 		grunt.task.run('clean');

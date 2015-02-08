@@ -63,7 +63,7 @@ function dataMigration () {
 
 LinkBlanker.prototype.getData = function () {
   return {
-    'enabled-extension': Number(localStorage['enabled-extension'] || '0'),
+    'enabled-extension': Number(localStorage['enabled-extension'] || '1'),
     'disabled-domain': JSON.parse(localStorage['disabled-domain'] || '[]'),
     'disabled-directory': JSON.parse(localStorage['disabled-directory'] || '[]'),
     'disabled-page': JSON.parse(localStorage['disabled-page'] || '[]'),
@@ -150,10 +150,12 @@ LinkBlanker.prototype.updateStatus = function (tab, reload) {
   if (!reload) {
     this.chrome.tabs.sendMessage(tab.id, {
       name: 'updateStatus',
+      parse: this.parseData(tab.url),
       enabled: enabled,
       isBackground: 1 === data['enabled-background-open'] && 1 === data['enabled-extension'] ? 1 : 0,
-      multiClickClose: 1 === data['enabled-multiclick-close'] && 1 === data['enabled-extension'] ? 1 : 0,
-      shortcutKeyTobbleEnabled: data['shortcut-key-toggle-enabled']
+      multiClickClose: data['enabled-multiclick-close'],
+      shortcutKeyTobbleEnabled: data['shortcut-key-toggle-enabled'],
+      disabledSameDomain: data['disabled-same-domain']
     });
   }
 
