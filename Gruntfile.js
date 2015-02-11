@@ -1,11 +1,11 @@
 module.exports = function (grunt) {
-	require('load-grunt-tasks')(grunt);
+  require('load-grunt-tasks')(grunt);
 
-	var manifest = grunt.file.readJSON("manifest.json");
+  var manifest = grunt.file.readJSON("manifest.json");
 
-	grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
-		'chrome-extension': {
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
+    'chrome-extension': {
       options: {
         name: "link-blanker-" + manifest.version,
         version: manifest.version,
@@ -45,7 +45,6 @@ module.exports = function (grunt) {
     },
     browserify: {
       development: {
-        // debug: true,
         options: {
           debug: true,
           transform: ['reactify']
@@ -57,7 +56,6 @@ module.exports = function (grunt) {
         }
       },
       production: {
-        // debug: false,
         options: {
           debug: false,
           transform: ['reactify']
@@ -69,44 +67,43 @@ module.exports = function (grunt) {
         }
       },
     },
-		uglify: {
-	    options: {
-				banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
-			},
-			development: {
+    uglify: {
+      options: {
+        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+      },
+      development: {
         src: 'src/javascripts/**/*.js',
         dest: 'dest/javascripts/',
         expand: true,
         flatten: true,
         beautify: true,
         ext: '.min.js'
-    	},
-    	production: {
+      },
+      production: {
         src: 'src/javascripts/*.js',
         dest: 'dest/javascripts/',
         expand: true,
         flatten: true,
         ext: '.min.js'
-    	}
+      }
     },
-		compass: {
-			development: {
-				options: {
-					config: 'config.rb',
-					environment: 'development',
-					force: true
-				}
-			},
-			production: {
-				options: {
-					config: 'config.rb',
-					environment: 'production',
-					force: true,
-					cssDir: 'dest/stylesheets'
-				}
-			}
-		},
-
+    compass: {
+      development: {
+        options: {
+          config: 'config.rb',
+          environment: 'development',
+          force: true
+        }
+      },
+      production: {
+        options: {
+          config: 'config.rb',
+          environment: 'production',
+          force: true,
+          cssDir: 'dest/stylesheets'
+        }
+      }
+    },
     less: {
       development: {
         files: {
@@ -122,16 +119,15 @@ module.exports = function (grunt) {
         }
       }
     },
-
     image: {
-    	dynamic: {
-      	files: [{
-      		src: ['src/images/**/*.{png,jpg,gif,svg,svgz}'],
-      		dest: 'dest/images/',
-      		expand: true,
-      		flatten: true
-      	}]
-    	}
+      dynamic: {
+        files: [{
+          src: ['src/images/**/*.{png,jpg,gif,svg,svgz}'],
+          dest: 'dest/images/',
+          expand: true,
+          flatten: true
+        }]
+      }
     },
     htmlmin: {
       all: {
@@ -154,42 +150,42 @@ module.exports = function (grunt) {
       'build/'
     ],
     copy: {
-			javascripts: {
+      javascripts: {
         files: [{
-        	cwd: 'src/',
-        	src: ['javascripts/**/*.js'],
-        	dest: 'dest/',
-        	expand: true,
-        	ext: '.min.js'
+          cwd: 'src/',
+          src: ['javascripts/**/*.js'],
+          dest: 'dest/',
+          expand: true,
+          ext: '.min.js'
         }]
-			},
-			stylesheets: {
+      },
+      stylesheets: {
         files: [{
-        	cwd: 'src/',
-        	src: ['stylesheets/**'],
-        	dest: 'dest/',
-        	expand: true
+          cwd: 'src/',
+          src: ['stylesheets/**'],
+          dest: 'dest/',
+          expand: true
         }]
-			},
-			image: {
+      },
+      image: {
         files: [{
-        	cwd: 'src/',
-        	src: ['images/**'],
-        	dest: 'dest/',
-        	expand: true
+          cwd: 'src/',
+          src: ['images/**'],
+          dest: 'dest/',
+          expand: true
         }]
-			},
-			html: {
+      },
+      html: {
         files: [{
-        	cwd: 'src/',
-        	src: ['html/**'],
-        	dest: 'dest/',
-        	expand: true
+          cwd: 'src/',
+          src: ['html/**'],
+          dest: 'dest/',
+          expand: true
         }]
-			}
-		},
+      }
+    },
     jshint: {
-			files: [
+      files: [
         'Gruntfile.js',
         'src/**/*.js',
         'test/**/*.js',
@@ -198,44 +194,44 @@ module.exports = function (grunt) {
         '!src/javascripts/apps/**/*.js',
         '!src/javascripts/components/**/*.js'
       ]
-		},
-		watch: {
-			javascripts: {
-	    	files: [
+    },
+    watch: {
+      javascripts: {
+        files: [
           'Gruntfile.js',
           'src/**/*.js',
           'test/**/*.js'
         ],
-	    	tasks: ['jshint', 'browserify:development', 'copy:javascripts']
-    	},
-    	sass: {
-    		files: ['src/sass/*.scss'],
-	    	tasks: ['compass:development', 'copy:stylesheets']
-    	},
+        tasks: ['jshint', 'browserify:development', 'copy:javascripts']
+      },
+      sass: {
+        files: ['src/sass/*.scss'],
+        tasks: ['compass:development', 'copy:stylesheets']
+      },
       less: {
         files: ['src/less/*.less'],
         tasks: ['less:development', 'copy:stylesheets']
       },
-    	image: {
-    		files: ['src/images/*'],
-	    	tasks: ['copy:image']
-    	},
-    	html: {
-    		files: ['src/html/*'],
-	    	tasks: ['copy:html']
-    	}
+      image: {
+        files: ['src/images/*'],
+        tasks: ['copy:image']
+      },
+      html: {
+        files: ['src/html/*'],
+        tasks: ['copy:html']
+      }
     }
-	});
+  });
 
-	grunt.registerTask('default', ['init', 'watch']);
-	grunt.registerTask('test',    ['jshint']);
-	grunt.registerTask('build',   ['jshint', 'clean', 'compass:production', 'less:production', 'browserify:production', 'uglify:production', 'image', 'htmlmin', 'chrome-extension']);
+  grunt.registerTask('default', ['init', 'watch']);
+  grunt.registerTask('test',    ['jshint']);
+  grunt.registerTask('build',   ['jshint', 'clean', 'compass:production', 'less:production', 'browserify:production', 'uglify:production', 'image', 'htmlmin', 'chrome-extension']);
 
-	grunt.registerTask('init', function() {
-		grunt.task.run('clean');
+  grunt.registerTask('init', function() {
+    grunt.task.run('clean');
 
-		for (var target in grunt.config.data.watch) {
-			grunt.task.run(grunt.config.data.watch[target].tasks);
-		}
-	});
+    for (var target in grunt.config.data.watch) {
+      grunt.task.run(grunt.config.data.watch[target].tasks);
+    }
+  });
 };

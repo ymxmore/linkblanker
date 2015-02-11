@@ -23,7 +23,7 @@
 			"dest/javascripts/bundle-background.min.js"
 		]
 	},
-    "content_scripts": [
+	"content_scripts": [
 		{
 			"matches": ["http://*/*", "https://*/*"],
 			"css": ["dest/stylesheets/contentscript.css"],

@@ -29,8 +29,8 @@ function initialize () {
 
   chrome.extension.onMessage.addListener(function(response, sender) {
     if ('name' in response &&
-        response.name in _this.receiveMessages &&
-        'function' === typeof _this.receiveMessages[response.name]) {
+      response.name in _this.receiveMessages &&
+      'function' === typeof _this.receiveMessages[response.name]) {
       // call receiver
       _this.receiveMessages[response.name].apply(_this, [ response ]);
     }
@@ -285,21 +285,11 @@ Agent.prototype.getCloseActionMetaInfo = function (info) {
 Agent.prototype.getNotify = function (info, length){
   var notify = _this.window.document.createElement('div');
   var div = _this.window.document.createElement('div');
-  var text = _this.window.document.createTextNode(
-    chrome.i18n.getMessage('message_drop_tabs')
-      .replace(
-        "{REMOVE_TAB_ALIGN}",
-        info.align === "left" ?
-          chrome.i18n.getMessage('title_left') :
-          chrome.i18n.getMessage('title_right')
-      )
-      .replace("{REMOVE_TAB_LENGTH}", info.removeTabsLength)
-  );
 
   div.innerHTML = '<p>' + chrome.i18n.getMessage('message_drop_tabs')
     .replace(
       "{REMOVE_TAB_ALIGN}",
-      info.align === "left" ?
+      'left' === info.align ?
         chrome.i18n.getMessage('title_left') :
         chrome.i18n.getMessage('title_right')
     )
