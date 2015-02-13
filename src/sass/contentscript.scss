@@ -4,7 +4,7 @@
 	@include global-reset;
 	position: absolute;
 	box-sizing: border-box;
-	z-index: 99999;
+	z-index: 2999999999;
 	background-color:rgba(0,0,0,.8);
 	opacity: 0;
 	-webkit-transition: opacity 0.3s;
@@ -27,7 +27,7 @@
 	top: 6px;
 	right: 6px;
 	min-height: 48px + ($padding * 2);
-	z-index: 99999;
+	z-index: 2999999999;
 	opacity: 0;
 	padding: $padding $padding $padding ($padding * 2 + 48px);
 	border-radius: 10px;

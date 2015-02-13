@@ -77,6 +77,7 @@ Agent.prototype.events = {
 
     if (target) {
       if (_this.enabled &&
+        !e.defaultPrevented &&
         _this.ports.openTab &&
         target.href &&
         !target.onclick &&
