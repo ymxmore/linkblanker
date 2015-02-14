@@ -45,7 +45,7 @@
 		"message": "It is not available in this page"
 	},
 	"message_drop_tabs": {
-		"message": "Dropped {REMOVE_TAB_ALIGN} <br /> {REMOVE_TAB_LENGTH} tabs."
+		"message": "Dropped {REMOVE_TAB_ALIGN} {REMOVE_TAB_LENGTH} tabs."
 	},
 	"title_right": {
 		"message": "right side"
@@ -61,5 +61,11 @@
 	},
 	"title_disabled_same_domain": {
 		"message": "In the case of the same domain, a link invalidates it"
+	},
+	"undo": {
+		"message": "Undo"
+	},
+	"notify_remove": {
+		"message": "Remove notify"
 	}
 }

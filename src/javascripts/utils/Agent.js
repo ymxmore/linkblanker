@@ -36,7 +36,7 @@ function initialize () {
     }
   });
 
-  _this.portInitialize('openTab', 'removeTabs', 'toggleEnabled');
+  _this.portInitialize('openTab', 'undoRemoveTabs', 'removeTabs', 'toggleEnabled');
   _this.bindEvents();
 }
 
@@ -140,7 +140,10 @@ Agent.prototype.events = {
 
       if (exist) {
         _this.keys = [];
-        _this.ports.toggleEnabled.postMessage();
+
+        if (_this.ports.toggleEnabled) {
+          _this.ports.toggleEnabled.postMessage();
+        }
       }
     }
   },
@@ -186,6 +189,13 @@ Agent.prototype.receiveMessages = {
 
   norifyRemoveTabs: function (response) {
     var _document = _this.window.document;
+
+    var oldNotify = _document.getElementById('linkblanker-notify');
+
+    if (oldNotify) {
+      oldNotify.hide(0);
+    }
+
     var canvas = _this.getCanvas(response);
 
     _this.window.document.body.appendChild(canvas);
@@ -207,7 +217,7 @@ Agent.prototype.receiveMessages = {
           if (notify) {
             notify.hide();
           }
-        }, 2000);
+        }, 10000);
 
         setTimeout(function () {
           canvas.parentNode.removeChild(canvas);
@@ -285,40 +295,63 @@ Agent.prototype.getCloseActionMetaInfo = function (info) {
 
 Agent.prototype.getNotify = function (info, length){
   var notify = _this.window.document.createElement('div');
-  var div = _this.window.document.createElement('div');
 
-  div.innerHTML = '<p>' + chrome.i18n.getMessage('message_drop_tabs')
-    .replace(
-      "{REMOVE_TAB_ALIGN}",
-      'left' === info.align ?
-        chrome.i18n.getMessage('title_left') :
-        chrome.i18n.getMessage('title_right')
-    )
-    .replace("{REMOVE_TAB_LENGTH}", info.removeTabsLength) + '</p>';
-
-  notify.appendChild(div);
+  notify.innerHTML = [
+    '<img class="linkblanker-icon" src="' + chrome.extension.getURL('dest/images/icon48.png') + '" />',
+    '<p class="linkblanker-message">',
+    chrome.i18n.getMessage('message_drop_tabs')
+      .replace(
+        "{REMOVE_TAB_ALIGN}",
+        'left' === info.align ?
+          chrome.i18n.getMessage('title_left') :
+          chrome.i18n.getMessage('title_right')
+      )
+      .replace("{REMOVE_TAB_LENGTH}", info.removeTabsLength),
+    '</p>',
+    '<ul class="linkblanker-linkbox">',
+      '<li>',
+        '<a class="linkblanker-undo" href="#">',
+          chrome.i18n.getMessage('undo'),
+        '</a>',
+      '</li>',
+      '<li>',
+        '<a class="linkblanker-notify-remove" href="#">',
+          chrome.i18n.getMessage('notify_remove'),
+        '</a>',
+      '</li>',
+    '</ul>',
+  ].join('');
 
   notify.setAttribute('id', 'linkblanker-notify');
-  notify.setAttribute('style', "background-image:url('" + chrome.extension.getURL('dest/images/icon48.png') + "');");
 
   notify.show = function () {
     notify.setAttribute('class', 'show');
   };
 
-  notify.hide = function () {
+  notify.hide = function (time) {
     if (notify) {
-      notify.removeEventListener('mouseover', notify.hide);
+      notify.getElementsByClassName('linkblanker-notify-remove')[0].removeEventListener('click', notify.hide);
       notify.setAttribute('class', 'hide');
 
       setTimeout(function () {
         if (notify) {
           notify.parentNode.removeChild(notify);
         }
-      }, 1000);
+      }, 'undefine' === time ? 500 : time);
     }
   };
 
-  notify.addEventListener('mouseover', notify.hide);
+  notify.undo = function () {
+    notify.getElementsByClassName('linkblanker-undo')[0].removeEventListener('click', notify.undo);
+    notify.hide();
+
+    if (_this.ports.undoRemoveTabs) {
+      _this.ports.undoRemoveTabs.postMessage();
+    }
+  };
+
+  notify.getElementsByClassName('linkblanker-undo')[0].addEventListener('click', notify.undo);
+  notify.getElementsByClassName('linkblanker-notify-remove')[0].addEventListener('click', notify.hide);
 
   return notify;
 };

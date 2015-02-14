@@ -45,7 +45,7 @@
 		"message": "このページでは無効です。"
 	},
 	"message_drop_tabs": {
-		"message": "{REMOVE_TAB_ALIGN}側のタブを{REMOVE_TAB_LENGTH}コ<br />落としました。"
+		"message": "{REMOVE_TAB_ALIGN}側のタブを{REMOVE_TAB_LENGTH}つ落としました。"
 	},
 	"title_right": {
 		"message": "右"
@@ -61,5 +61,11 @@
 	},
 	"title_disabled_same_domain": {
 		"message": "リンク先が同一ドメインの場合は無効にする"
+	},
+	"undo": {
+		"message": "元に戻す"
+	},
+	"notify_remove": {
+		"message": "通知を消去"
 	}
 }
