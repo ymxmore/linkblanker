@@ -214,7 +214,7 @@ Agent.prototype.receiveMessages = {
         notify.show();
 
         setTimeout(function () {
-          if (notify) {
+          if (notify && notify.hide) {
             notify.hide();
           }
         }, 10000);
@@ -328,20 +328,34 @@ Agent.prototype.getNotify = function (info, length){
     notify.setAttribute('class', 'show');
   };
 
-  notify.hide = function (time) {
+  notify.hide = function (e, time) {
+    if ('object' === typeof e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    } else {
+      time = e;
+    }
+
     if (notify) {
       notify.getElementsByClassName('linkblanker-notify-remove')[0].removeEventListener('click', notify.hide);
       notify.setAttribute('class', 'hide');
 
       setTimeout(function () {
-        if (notify) {
+        if (notify && notify.parentNode) {
           notify.parentNode.removeChild(notify);
         }
       }, 'undefine' === time ? 500 : time);
     }
   };
 
-  notify.undo = function () {
+  notify.undo = function (e) {
+    if ('object' === typeof e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    }
+
     notify.getElementsByClassName('linkblanker-undo')[0].removeEventListener('click', notify.undo);
     notify.hide();
 
