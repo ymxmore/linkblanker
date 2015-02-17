@@ -151,7 +151,7 @@ var Preference = React.createClass({
     return {
       'shortcut-key-toggle-enabled-restore': true,
       'shortcut-key-toggle-enabled-value': '',
-    }
+    };
   },
 
   componentDidMount: function () {
@@ -190,9 +190,9 @@ var Preference = React.createClass({
 
         if (46 !== event.keyCode && 8 !== event.keyCode) {
           var keyMap = getKeyMapping(
-            (this.props['shortcut-key-toggle-enabled-restore'])
-              ? ''
-              : this.props['shortcut-key-toggle-enabled-value']
+            (this.props['shortcut-key-toggle-enabled-restore']) ?
+              '' :
+              this.props['shortcut-key-toggle-enabled-value']
           );
 
           if (keyMap.keyCodes.indexOf(event.keyCode) > -1) {
@@ -251,7 +251,7 @@ var Preference = React.createClass({
     return (
       <div id="wrapper">
         <header id="extension-name">
-          <img className="icon" src={this.state['system-enabled-state'] ? '../images/icon-enabled.svgz' : '../images/icon-disabled.svgz'}/>
+          <img className="icon" src={this.state['system-enabled-state'] ? '../images/icon-enabled.svgz' : '../images/icon-disabled.svgz'} />
           <span id="version-name">
             Version {LinkBlanker.manifest.version}
           </span>

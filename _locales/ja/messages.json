@@ -45,7 +45,7 @@
 		"message": "このページでは無効です。"
 	},
 	"message_drop_tabs": {
-		"message": "{REMOVE_TAB_ALIGN}側のタブを{REMOVE_TAB_LENGTH}つ落としました。"
+		"message": "{REMOVE_TAB_ALIGN}側のタブを{REMOVE_TAB_LENGTH}個落としました。"
 	},
 	"title_right": {
 		"message": "右"

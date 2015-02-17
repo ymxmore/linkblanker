@@ -61,6 +61,18 @@ Agent.prototype.bindEvents = function() {
     this.window.removeEventListener(e, this.events[e]);
   }
 
+  var links = this.window.document.getElementsByTagName('a');
+
+  for (var i = 0; i < links.length; i++) {
+    links[i].removeEventListener('click', this.events.click);
+  }
+
+  if (this.enabled) {
+    for (i = 0; i < links.length; i++) {
+      links[i].addEventListener('click', this.events.click);
+    }
+  }
+
   if (this.enabled || this.multiClickClose) {
     this.window.addEventListener('click', this.events.click);
   }
@@ -251,7 +263,7 @@ Agent.prototype.getWait = function (info) {
 
   if (wait < 300) {
     wait = 300;
-  } else if (wait > 1000) {
+  } else if (wait > 500) {
     wait = 500;
   }
 

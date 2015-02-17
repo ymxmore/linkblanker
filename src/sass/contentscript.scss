@@ -1,8 +1,9 @@
+@import "compass";
 @import "compass/reset/utilities";
 @import "compass/utilities/general/clearfix";
 
 #linkblanker-canvas {
-	@include global-reset;
+	@include nested-reset;
 	position: absolute;
 	box-sizing: border-box;
 	z-index: 2999999999;
@@ -21,7 +22,7 @@
 }
 
 #linkblanker-notify {
-	@include global-reset;
+	@include nested-reset;
 	box-sizing: border-box;
 	position: fixed;
 	top: 6px;
@@ -32,14 +33,12 @@
 	border-radius: 6px;
 	border: 2px solid #fff;
 	background-color: rgba(0,0,0,.9);
-
 	box-shadow: #a6a6a6 0px 4px 10px;
-	width: 280px;
+	width: 300px;
 	height: 66px;
 	background-color: rgba(0,0,0,0.8);
 
-	-webkit-transition: opacity .5s;
-	transition: opacity .5s;
+	@include transition(opacity .5s);
 
 	.linkblanker-icon {
 		position: absolute;
@@ -53,23 +52,29 @@
 		color: #fff;
 		left: 64px;
 		font-size: 14px;
+		line-height: 1.5em;
 		top: 10px;
+		font-weight: bold;
 	}
 
 	.linkblanker-linkbox {
-		@include clearfix;
 		position: absolute;
 		left: 64px;
-		bottom: 10px;
+		bottom: 12px;
 		right: 6px;
 
+		&, li, li > a {
+			font-size: 12px;
+			line-height: 1em;
+		}
+
 		li {
-			float: left;
+			display: inline-block;
+			vertical-align: middle;
 			padding: 0 6px;
 			border-right: 1px solid #8e8e8e;
 
 			a {
-				font-size: 12px;
 				color: #ecdf85;
 			}
 		}

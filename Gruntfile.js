@@ -51,7 +51,7 @@ module.exports = function (grunt) {
         },
         files: {
           'src/javascripts/bundle-background.js': ['src/javascripts/apps/background.js'],
-          'src/javascripts/bundle-preference.js': ['src/javascripts/apps/preference.js'],
+          'src/javascripts/bundle-preference.js': ['src/javascripts/apps/preference.jsx'],
           'src/javascripts/bundle-contentscript.js': ['src/javascripts/apps/contentscript.js']
         }
       },
@@ -62,7 +62,7 @@ module.exports = function (grunt) {
         },
         files: {
           'src/javascripts/bundle-background.js': ['src/javascripts/apps/background.js'],
-          'src/javascripts/bundle-preference.js': ['src/javascripts/apps/preference.js'],
+          'src/javascripts/bundle-preference.js': ['src/javascripts/apps/preference.jsx'],
           'src/javascripts/bundle-contentscript.js': ['src/javascripts/apps/contentscript.js']
         }
       },
@@ -184,15 +184,15 @@ module.exports = function (grunt) {
         }]
       }
     },
-    jshint: {
+    'jshint-jsx': {
+      options: {
+        convertJSX: true
+      },
       files: [
         'Gruntfile.js',
         'src/**/*.js',
         'test/**/*.js',
         '!src/**/bundle-*.js',
-        '!src/javascripts/preference.js',
-        '!src/javascripts/apps/**/*.js',
-        '!src/javascripts/components/**/*.js'
       ]
     },
     watch: {
@@ -200,9 +200,10 @@ module.exports = function (grunt) {
         files: [
           'Gruntfile.js',
           'src/**/*.js',
-          'test/**/*.js'
+          'test/**/*.js',
+          '!src/**/bundle-*.js',
         ],
-        tasks: ['jshint', 'browserify:development', 'copy:javascripts']
+        tasks: ['jshint-jsx', 'browserify:development', 'copy:javascripts']
       },
       sass: {
         files: ['src/sass/*.scss'],
@@ -224,8 +225,8 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('default', ['init', 'watch']);
-  grunt.registerTask('test',    ['jshint']);
-  grunt.registerTask('build',   ['jshint', 'clean', 'compass:production', 'less:production', 'browserify:production', 'uglify:production', 'image', 'htmlmin', 'chrome-extension']);
+  grunt.registerTask('test',    ['jshint-jsx']);
+  grunt.registerTask('build',   ['jshint-jsx', 'clean', 'compass:production', 'less:production', 'browserify:production', 'uglify:production', 'image', 'htmlmin', 'chrome-extension']);
 
   grunt.registerTask('init', function() {
     grunt.task.run('clean');
