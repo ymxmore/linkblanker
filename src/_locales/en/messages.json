@@ -1,0 +1,71 @@
+{
+  "title_operating_state": {
+    "message": "Operating state"
+  },
+  "operating": {
+    "message": "Run"
+  },
+  "pause": {
+    "message": "Stop"
+  },
+  "title_disabled_off": {
+    "message": "Normal"
+  },
+  "title_disabled_on": {
+    "message": "Unavailable"
+  },
+  "title_disabled_domain": {
+    "message": "Invalidate this function at the domain of currently displayed page"
+  },
+  "title_disabled_directory": {
+    "message": "Invalidate this function in the directory of currently displayed page"
+  },
+  "title_disabled_page": {
+    "message": "Invalidate this function at the currently displayed page"
+  },
+  "title_background_open": {
+    "message": "Open in the background"
+  },
+  "title_multiclick_close": {
+    "message": "Close tabs by triple-click"
+  },
+  "title_open_settings": {
+    "message": "Disable setting"
+  },
+  "title_close_settings": {
+    "message": "Close Settings"
+  },
+  "title_whole_setting": {
+    "message": "Operation setting"
+  },
+  "title_link_help": {
+    "message": "click here for how to,help,etc.."
+  },
+  "message_cannot_use": {
+    "message": "It is not available in this page"
+  },
+  "message_drop_tabs": {
+    "message": "Dropped {REMOVE_TAB_ALIGN} {REMOVE_TAB_LENGTH} tabs."
+  },
+  "title_right": {
+    "message": "right side"
+  },
+  "title_left": {
+    "message": "left side"
+  },
+  "title_shortcut_key": {
+    "message": "Shortcut key"
+  },
+  "title_enable_toggle_key": {
+    "message": "Exchange key"
+  },
+  "title_disabled_same_domain": {
+    "message": "In the case of the same domain, a link invalidates it"
+  },
+  "undo": {
+    "message": "Undo"
+  },
+  "notify_remove": {
+    "message": "Remove notify"
+  }
+}

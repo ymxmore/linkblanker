@@ -1,7 +1,6 @@
 .DS_Store
 .sass-cache/
+.tmp/
 node_modules/
-build/
-dest/
-src/javascripts/bundle-*
-src/stylesheets/
+archive/
+dist/
