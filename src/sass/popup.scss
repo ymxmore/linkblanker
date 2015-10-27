@@ -1,0 +1,77 @@
+/*
+ * popup.scss
+ *
+ * Copyright (c) 2015, aozora-create.com. All rights reserved.
+ * Copyrights licensed under the New ISC License.
+ * See the accompanying LICENSE file for terms.
+ */
+
+// core
+
+@import "variables";
+
+// third party
+
+@import "compass";
+@import "compass/reset";
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,300,500);
+
+// original
+
+@import "tags";
+
+$logo-x: 60px;
+$icon-size: 48px;
+
+#wrapper {
+  padding: 1em;
+}
+
+#extension-name {
+  width: 100%;
+  height: $icon-size + $base-font-size;
+  background: url("/img/logo.svgz") $logo-x 0 scroll no-repeat;
+  position: relative;
+
+  .icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: $icon-size;
+    height: $icon-size;
+  }
+}
+
+#version-name {
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  left: $logo-x;
+}
+
+.popup-header {
+  border-bottom: 1px solid $border-color;
+}
+
+.popup-list {
+  li {
+    list-style-type: none;
+    display: block;
+    padding: 0 0 .3em .6em;
+    margin: 0 0 .6em 0;
+
+    > div {
+      width: 100%;
+    }
+  }
+
+  .support {
+    // padding: 0;
+    // margin: 0;
+  }
+
+  .split {
+    border-top: 1px solid $border-color-light;
+    padding-top: .9em;
+  }
+}

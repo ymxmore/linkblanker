@@ -1,0 +1,49 @@
+/*
+ * _variables.scss
+ *
+ * Copyright (c) 2015, aozora-create.com. All rights reserved.
+ * Copyrights licensed under the New ISC License.
+ * See the accompanying LICENSE file for terms.
+ */
+
+// sizes
+
+$base-font-size:   13px;
+$line-height:      1.4em;
+$letter-spacing:   .05em;
+
+// colors
+
+$primary-color:          #00bcd4;
+$primary-color-dark:     darken($primary-color, 10%);
+$primary-color-light:    lighten($primary-color, 50%);
+
+$text-color:             #757575;
+$text-color-dark:        darken($text-color, 10%);
+$text-color-light:       lighten($text-color, 30%);
+
+$border-color:           #cfcfcf;
+$border-color-dark:      darken($border-color, 20%);
+$border-color-light:     lighten($border-color, 10%);
+
+$background-color:       #ffffff;
+$background-color-dark:  darken($background-color, 5%);
+$background-color-light: #ffffff;
+
+$error-color:            #ff6a68;
+$error-color-dark:       darken($error-color, 40%);
+$error-color-light:      lighten($error-color, 25%);
+
+$warning-color:          #ffb560;
+$warning-color-dark:     darken($warning-color, 30%);
+$warning-color-light:    lighten($warning-color, 25%);
+
+$success-color:          #5aa1ff;
+$success-color-dark:     darken($success-color, 45%);
+$success-color-light:    lighten($success-color, 35%);
+
+$overlay-color:          rgba(10, 10, 10, 0.7);
+
+$highlight-color:        #ffffff;
+$accent-color:           #ff4081;
+$disabled-color:         #e8e8e8;
