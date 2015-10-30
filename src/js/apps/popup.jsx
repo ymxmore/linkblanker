@@ -1,9 +1,5 @@
 /*
  * popup.jsx
- *
- * Copyright (c) 2015, aozora-create.com. All rights reserved.
- * Copyrights licensed under the New ISC License.
- * See the accompanying LICENSE file for terms.
  */
 
 var LinkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
@@ -156,22 +152,12 @@ var Popup = React.createClass({
     };
   },
 
-  // getDefaultProps: function () {
-  //   return {
-  //     'shortcut-key-toggle-enabled-restore': true,
-  //     'shortcut-key-toggle-enabled-value': '',
-  //   };
-  // },
-
   componentDidMount: function () {
-    // PopupStore.addChangeListener(this.setStateAndProps);
     PopupStore.addChangeListener(this.setAllState);
-    // this.setStateAndProps();
     this.setAllState();
   },
 
   componentWillUnmount: function () {
-    // PopupStore.removeChangeListener(this.setStateAndProps);
     PopupStore.removeChangeListener(this.setAllState);
   },
 
@@ -194,11 +180,6 @@ var Popup = React.createClass({
   handleKeyDown: function (event) {
     switch (event.target.name) {
       case 'shortcut-key-toggle-enabled':
-        // var state = { 'shortcut-key-toggle-enabled': '' };
-        // var props = {
-        //   'shortcut-key-toggle-enabled-restore': false,
-        //   'shortcut-key-toggle-enabled-value': ''
-        // };
         var state = {
           'shortcut-key-toggle-enabled': '',
           'shortcut-key-toggle-enabled-restore': false,
@@ -226,7 +207,6 @@ var Popup = React.createClass({
         }
 
         this.setState(state);
-        // this.setProps(props);
 
         break;
     }
@@ -235,12 +215,10 @@ var Popup = React.createClass({
   handleKeyUp: function (event) {
     switch (event.target.name) {
       case 'shortcut-key-toggle-enabled':
-        // this.setProps({
         this.setState({
           'shortcut-key-toggle-enabled-restore': true,
         });
 
-        // this.save('shortcut-key-toggle-enabled', this.props['shortcut-key-toggle-enabled-value']);
         this.save('shortcut-key-toggle-enabled', this.state['shortcut-key-toggle-enabled-value']);
         break;
     }
@@ -250,22 +228,16 @@ var Popup = React.createClass({
     PopupActions.save(key, value);
   },
 
-  // setStateAndProps: function () {
   setAllState: function () {
     var self = this;
 
     PopupStore.getAll(function (state) {
-      // var props = {
-      //   'shortcut-key-toggle-enabled-value': state['shortcut-key-toggle-enabled']
-      // };
-
       state['shortcut-key-toggle-enabled-value'] = state['shortcut-key-toggle-enabled'];
 
       var keyMap = getKeyMapping(state['shortcut-key-toggle-enabled']);
       state['shortcut-key-toggle-enabled'] = keyMap.keyNames.join(' + ');
 
       self.setState(state);
-      // self.setProps(props);
     });
   },
 

@@ -1,9 +1,5 @@
 /*
  * LinkBlanker.js
- *
- * Copyright (c) 2015, aozora-create.com. All rights reserved.
- * Copyrights licensed under the New ISC License.
- * See the accompanying LICENSE file for terms.
  */
 
 /**
@@ -30,6 +26,8 @@ function LinkBlanker (chrome) {
 function initialize () {
   _this = this;
 
+  dataMigration();
+
   _this.chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     _this.updateStatus(tab);
   });
@@ -41,8 +39,6 @@ function initialize () {
   _this.chrome.extension.onConnect.addListener(function(port) {
     port.onMessage.addListener(_this.receiveMessages[port.name]);
   });
-
-  dataMigration();
 
   loadManifest.apply(self);
 

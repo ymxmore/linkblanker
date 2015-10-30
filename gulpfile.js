@@ -1,9 +1,5 @@
 /*
  * gulpfile.js
- *
- * Copyright (c) 2015, aozora-create.com. All rights reserved.
- * Copyrights licensed under the New ISC License.
- * See the accompanying LICENSE file for terms.
  */
 
 // ------------------------------------------------------------
@@ -91,6 +87,7 @@ gulp.task('browserify', function (callback) {
   var files = [
     './src/js/apps/background.js',
     './src/js/apps/contentscript.js',
+    './src/js/apps/options.jsx',
     './src/js/apps/popup.jsx',
   ];
 
@@ -106,7 +103,7 @@ gulp.task('browserify', function (callback) {
     .pipe(source(file))
     .pipe(buffer())
     .pipe(sourcemaps.init({
-      debug: !inproduction
+      loadMaps: !inproduction,
     }))
     .pipe(uglify({
       preserveComments: 'some',
@@ -127,8 +124,6 @@ gulp.task('browserify', function (callback) {
     }))
     .pipe(gulpif(!inproduction, sourcemaps.write('./', {
       addComment: !inproduction,
-      debug: !inproduction,
-      includeContent: !inproduction,
     })))
     .pipe(flatten())
     .pipe(gulp.dest('./dist/js'))
@@ -147,7 +142,7 @@ gulp.task('build', function (callback) {
 });
 
 gulp.task('clean', function () {
-  return gulp.src([ './dist', '.tmp' ], { read: false })
+  return gulp.src([ './dist/*', '.tmp' ], { read: false })
     .pipe(rimraf());
 });
 
@@ -257,21 +252,41 @@ gulp.task('archive', function (callback) {
 });
 
 gulp.task('watch', [ 'build' ], function () {
-  gulp.watch('./src/manifest.json', [ 'manifest' ]);
-
-  gulp.watch('./src/_locales/**/*', [ 'locale' ]);
-
-  gulp.watch('./src/html/**/*', function (event) {
-    runsequence('htmlhint', 'htmlmin');
+  gulp.watch('./src/manifest.json', function () {
+    runsequence('manifest', function () {
+      notifier.notify({title: 'Task done', message: 'manifest'});
+    });
   });
 
-  gulp.watch('./src/img/**/*', [ 'optimazeimage' ]);
+  gulp.watch('./src/_locales/**/*', function () {
+    runsequence('locale', function () {
+      notifier.notify({title: 'Task done', message: 'locale'});
+    });
+  });
+
+  gulp.watch('./src/html/**/*', function () {
+    runsequence('htmlhint', 'htmlmin', function () {
+      notifier.notify({title: 'Task done', message: 'htmlhint, htmlmin'});
+    });
+  });
+
+  gulp.watch('./src/img/**/*', function () {
+    runsequence('optimazeimage', function () {
+      notifier.notify({title: 'Task done', message: 'optimazeimage'});
+    });
+  });
 
   gulp.watch('./src/js/**/*', function (event) {
-    runsequence('jshint', 'browserify');
+    runsequence('jshint', 'browserify', function () {
+      notifier.notify({title: 'Task done', message: 'jshint, browserify'});
+    });
   });
 
-  gulp.watch('./src/sass/**/*', [ 'compass' ]);
+  gulp.watch('./src/sass/**/*', function () {
+    runsequence('compass', function () {
+      notifier.notify({title: 'Task done', message: 'compass'});
+    });
+  });
 });
 
 gulp.task('default', [ 'watch' ]);

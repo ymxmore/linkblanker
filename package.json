@@ -15,8 +15,8 @@
     "chrome",
     "newtab"
   ],
-  "author": "aozora-create.com",
-  "license": "GNU",
+  "author": "Aozora LLC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ym-aozora/linkblanker/issues"
   },
@@ -26,6 +26,7 @@
     "colors": "^1.1.2",
     "flux": "^2.1.1",
     "gulp": "^3.9.0",
+    "gulp-cached": "^1.1.0",
     "gulp-compass": "^2.1.0",
     "gulp-flatten": "^0.2.0",
     "gulp-header": "^1.7.1",
@@ -55,6 +56,7 @@
     "react-addons-transition-group": "^0.14.0",
     "react-addons-update": "^0.14.0",
     "react-dom": "^0.14.0",
+    "react-router": "^1.0.0-rc3",
     "react-tap-event-plugin": "^0.2.1",
     "reactify": "^1.1.1",
     "run-sequence": "^1.1.4",

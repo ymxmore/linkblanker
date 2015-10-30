@@ -1,6 +1,6 @@
 {
 	"manifest_version": 2,
-	"version": "2.3.4",
+	"version": "2.4.0",
 	"name": "Link Blanker",
 	"description": "Open link in new tab.",
 	"icons": {
@@ -43,5 +43,6 @@
 		"default_title": "Link Blanker",
 		"default_popup": "html/popup.html"
 	},
+  "options_page": "html/options.html#/tree",
 	"default_locale":"en"
 }
