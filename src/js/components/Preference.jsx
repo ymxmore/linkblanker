@@ -1,5 +1,5 @@
-/*
- * Preference.jsx
+/**
+ * components/Preference.jsx
  */
 
 var React = require('react');

@@ -1,5 +1,5 @@
-/*
- * NotFound.jsx
+/**
+ * components/NotFound.jsx
  */
 
 var React = require('react');

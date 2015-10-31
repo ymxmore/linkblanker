@@ -19,11 +19,23 @@
 $logo-x: 60px;
 $icon-size: 48px;
 
-#wrapper {
+#root, #app {
+  height: 100%;
+}
+
+#app {
   padding: 1em;
 }
 
-#extension-name {
+#popup {
+  min-width: 380px;
+}
+
+#preference, #tree {
+  width: 100%;
+}
+
+.extension-name {
   width: 100%;
   height: $icon-size + $base-font-size;
   background: url("/img/logo.svgz") $logo-x 0 scroll no-repeat;
@@ -38,18 +50,18 @@ $icon-size: 48px;
   }
 }
 
-#version-name {
+.version-name {
   display: inline-block;
   position: absolute;
   bottom: 0;
   left: $logo-x;
 }
 
-.popup-header {
+.header-underline {
   border-bottom: 1px solid $border-color;
 }
 
-.popup-list {
+.list {
   li {
     list-style-type: none;
     display: block;

@@ -1,11 +1,6 @@
-/*
- * Tabs.js
- */
-
 /**
- * Export the constructor.
+ * utils/Tabs.js
  */
-module.exports = Tabs;
 
 /**
  * Tabs active instance.
@@ -150,3 +145,8 @@ Tabs.prototype.getRandomX = function () {
 Tabs.prototype.getRandomY = function () {
   return this.getRandomInt(0, _this.height);
 };
+
+/**
+ * Export the constructor.
+ */
+module.exports = Tabs;

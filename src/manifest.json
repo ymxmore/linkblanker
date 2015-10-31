@@ -20,17 +20,15 @@
 	],
 	"background": {
 		"scripts": [
-			"js/bundle.background.min.js"
+			"js/bundle.linkblanker.min.js"
 		]
 	},
 	"content_scripts": [
 		{
-			"matches": ["http://*/*", "https://*/*"],
-			"css": ["css/contentscript.min.css"],
+			"matches": ["http://*/*", "https://*/*", "file:///*"],
+			"css": ["css/agent.min.css"],
 			"js": [
-				"vendor/easeljs-NEXT.min.js",
-				"vendor/tweenjs-NEXT.min.js",
-				"js/bundle.contentscript.min.js"
+				"js/bundle.agent.min.js"
 			],
 			"run_at": "document_start"
 		}
@@ -41,8 +39,8 @@
 			"32": "img/icon32.png"
 		},
 		"default_title": "Link Blanker",
-		"default_popup": "html/popup.html"
+		"default_popup": "index.html#/popup"
 	},
-  "options_page": "html/options.html#/tree",
+  "options_page": "index.html#/tree",
 	"default_locale":"en"
 }

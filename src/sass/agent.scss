@@ -5,6 +5,7 @@
 // core
 
 @import "variables";
+@import "animations";
 
 // third party
 
@@ -138,27 +139,3 @@
     @include animation-name(fadeOutRight);
   }
 }
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -100%, 0);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes fadeOutRight {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-    transform: translate3d(100%, 0, 0);
-  }
-}
-

@@ -8,10 +8,12 @@
 
 var async = require('async');
 var browserify = require('browserify');
+var browserifyshim = require('browserify-shim');
 var buffer = require('vinyl-buffer');
 var colors = require('colors');
 var compass = require('gulp-compass');
 var flatten = require('gulp-flatten');
+var glob = require('glob');
 var gulp = require('gulp');
 var gulpif = require('gulp-if');
 var header = require('gulp-header');
@@ -20,11 +22,13 @@ var jsonmin = require('gulp-jsonmin');
 var htmlmin = require('gulp-htmlmin');
 var htmlhint = require("gulp-htmlhint");
 var imagemin = require('gulp-imagemin');
+var manifest = require('./src/manifest');
 var notifier = require('node-notifier');
 var notify = require('gulp-notify');
 var plumber = require('gulp-plumber');
 var pngquant = require('imagemin-pngquant');
 var react = require('gulp-react');
+var reactify = require('reactify');
 var rename = require('gulp-rename');
 var rimraf = require('gulp-rimraf');
 var runsequence = require('run-sequence');
@@ -70,10 +74,10 @@ colors.setTheme({
 
 var errorHandler = function (title) {
   return function () {
-      notify.onError({
-        title: title,
-        message: '<%= error %>'
-      }).apply(this, arguments);
+    notify.onError({
+      title: title,
+      message: '<%= error %>'
+    }).apply(this, arguments);
 
     this.emit('end');
   };
@@ -84,20 +88,12 @@ var errorHandler = function (title) {
 // ------------------------------------------------------------
 
 gulp.task('browserify', function (callback) {
-  var files = [
-    './src/js/apps/background.js',
-    './src/js/apps/contentscript.js',
-    './src/js/apps/options.jsx',
-    './src/js/apps/popup.jsx',
-  ];
-
-  async.each(files, function (file, cb) {
+  async.each(glob.sync('./src/js/apps/*'), function (file, cb) {
     browserify({
       insertGlobals: true,
       debug: !inproduction,
-      entries: file
+      entries: file,
     })
-    .transform('reactify')
     .bundle()
     .on('error', errorHandler('An error has occurred in browserify'))
     .pipe(source(file))
@@ -112,8 +108,11 @@ gulp.task('browserify', function (callback) {
         indent_level: 2,
       },
       compress: {
-        global_defs: {},
-        hoist_funs: inproduction,
+        global_defs: {
+          __API_VERSION__: manifest.version,
+          __NODE_ENV__: process.env.NODE_ENV || 'development',
+          __BUILD_DATE_AT__: new Date().toString(),
+        },
       }
     }))
     .pipe(header(banner, { pkg: pkg } ))
@@ -134,7 +133,7 @@ gulp.task('browserify', function (callback) {
 gulp.task('build', function (callback) {
   runsequence(
     [ 'clean', 'htmlhint', 'jshint' ],
-    [ 'copyvendor', 'manifest', 'locale', 'optimazeimage', 'compass', 'browserify', 'htmlmin' ],
+    [ 'manifest', 'locale', 'optimazeimage', 'compass', 'browserify', 'htmlmin' ],
     function () {
       notifier.notify({title: 'Task done', message: 'Build done.' }, callback);
     }
@@ -164,12 +163,6 @@ gulp.task('compass', function () {
     .pipe(gulp.dest('./dist/css'));
 });
 
-gulp.task('copyvendor', function() {
-  return gulp.src('./src/vendor/**/*')
-    .pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
-    .pipe(gulp.dest('./dist/vendor'))
-});
-
 gulp.task('htmlhint', function() {
   return gulp.src('./src/html/**/*.html')
     .pipe(htmlhint())
@@ -189,7 +182,8 @@ gulp.task('htmlmin', function () {
       removeScriptTypeAttributes: true,
       removeStyleLinkTypeAttributes: true,
     }))
-    .pipe(gulp.dest('./dist/html'));
+    // .pipe(gulp.dest('./dist/html'));
+    .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('jshint', function () {
@@ -227,7 +221,6 @@ gulp.task('optimazeimage', function () {
 });
 
 gulp.task('zip', [ 'build' ], function () {
-  var manifest = require('./src/manifest');
   var filename = (manifest.name + '-v' + manifest.version + '.zip')
     .replace(/\s/, '-')
     .toLowerCase();

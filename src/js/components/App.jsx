@@ -1,13 +1,12 @@
-/*
- * Options.jsx
+/**
+ * components/App.jsx
  */
 
 var React = require('react');
 
-var Options = React.createClass({
+var App = React.createClass({
   getInitialState: function () {
-    return {
-    };
+    return {};
   },
 
   componentDidMount: function () {
@@ -15,12 +14,11 @@ var Options = React.createClass({
 
   render: function () {
     return (
-      <div>
-        <p>Options!</p>
+      <div id="app">
         {this.props.children}
       </div>
     );
   }
 });
 
-module.exports = Options;
+module.exports = App;

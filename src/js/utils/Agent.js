@@ -1,17 +1,20 @@
-/*
- * Agent.js
+/**
+ * utils/Agent.js
  */
 
-/**
- * Export the constructor.
- */
-module.exports = Agent;
+var Api = require('../utils/Api');
+var LinkBlankerConstants = require('../constants/LinkBlanker');
+var MessageName = LinkBlankerConstants.MessageName;
+
+require('easeljs');
+require('tweenjs');
 
 /**
  * LinkBlanker agent active instance.
  */
 var _this;
 
+var Logger = require('./Logger');
 var Tabs = require('./Tabs');
 
 function Agent (window) {
@@ -20,7 +23,7 @@ function Agent (window) {
   this.enable = false;
   this.multiClickClose = false;
   this.isBackground = false;
-  this.shortcutKeyTobbleEnabled = false;
+  this.shortcutKeyToggleEnabled = false;
   this.disabledSameDomain = false;
   this.ports = {};
   this.keys = [];
@@ -32,15 +35,28 @@ function initialize () {
   _this = this;
 
   chrome.extension.onMessage.addListener(function(response, sender) {
-    if ('name' in response &&
-      response.name in _this.receiveMessages &&
-      'function' === typeof _this.receiveMessages[response.name]) {
+    Logger.debug('agent reveive message', arguments);
+
+    if ('name' in response) {
       // call receiver
-      _this.receiveMessages[response.name].apply(_this, [ response ]);
+      var name;
+
+      switch (response.name) {
+        case MessageName.UPDATE_TAB_STATUS:
+          name = 'updateTabStatus';
+          break;
+        case MessageName.REMOVE_TABS:
+          name = 'removeTabs';
+          break;
+      }
+
+      if (name) {
+        _this.receiveMessages[name].apply(_this, [ response ]);
+      }
     }
   });
 
-  _this.portInitialize('openTab', 'undoRemoveTabs', 'removeTabs', 'toggleEnabled');
+  _this.portInitialize(MessageName.OPEN_TAB, MessageName.REMOVE_TABS, MessageName.UNDO_REMOVE_TABS, MessageName.TOGGLE_ENABLED);
   _this.bindEvents();
 }
 
@@ -81,7 +97,7 @@ Agent.prototype.bindEvents = function() {
     this.window.addEventListener('click', this.events.click);
   }
 
-  if (this.shortcutKeyTobbleEnabled.length > 0) {
+  if (this.shortcutKeyToggleEnabled.length > 0) {
     this.window.addEventListener('keydown', this.events.keydown);
     this.window.addEventListener('keyup', this.events.keyup);
   }
@@ -94,7 +110,7 @@ Agent.prototype.events = {
     if (target) {
       if (_this.enabled &&
         !e.defaultPrevented &&
-        _this.ports.openTab &&
+        _this.ports[MessageName.OPEN_TAB] &&
         target.href &&
         !target.onclick &&
         !target.href.match(/javascript:/i) &&
@@ -116,16 +132,16 @@ Agent.prototype.events = {
           selected: !_this.isBackground
         };
 
-        _this.ports.openTab.postMessage(params);
+        _this.ports[MessageName.OPEN_TAB].postMessage(params);
 
         return false;
       }
     } else if (_this.multiClickClose) {
       // multi clicks tab close.
-      if (_this.ports.removeTabs && 3 === e.detail) {
+      if (_this.ports[MessageName.REMOVE_TABS] && 3 === e.detail) {
         var align = (e.clientX > _this.window.document.documentElement.clientWidth / 2) ? 'right' : 'left';
 
-        _this.ports.removeTabs.postMessage({
+        _this.ports[MessageName.REMOVE_TABS].postMessage({
           align:   align,
           clientX: e.clientX,
           clientY: e.clientY,
@@ -144,11 +160,11 @@ Agent.prototype.events = {
       _this.keys.push(keyCode);
     }
 
-    if (_this.keys.length === _this.shortcutKeyTobbleEnabled.length) {
+    if (_this.keys.length === _this.shortcutKeyToggleEnabled.length) {
       var exist = true;
 
       for (var i in _this.keys) {
-        if (-1 === _this.shortcutKeyTobbleEnabled.indexOf(_this.keys[i])) {
+        if (-1 === _this.shortcutKeyToggleEnabled.indexOf(_this.keys[i])) {
           exist = false;
           break;
         }
@@ -157,8 +173,8 @@ Agent.prototype.events = {
       if (exist) {
         _this.keys = [];
 
-        if (_this.ports.toggleEnabled) {
-          _this.ports.toggleEnabled.postMessage();
+        if (_this.ports[MessageName.TOGGLE_ENABLED]) {
+          _this.ports[MessageName.TOGGLE_ENABLED].postMessage();
         }
       }
     }
@@ -169,7 +185,7 @@ Agent.prototype.events = {
 };
 
 Agent.prototype.receiveMessages = {
-  updateStatus: function (response) {
+  updateTabStatus: function (response) {
     if ('parse' in response) {
       _this.parse = response.parse;
     }
@@ -186,8 +202,8 @@ Agent.prototype.receiveMessages = {
       _this.multiClickClose = Boolean(response.multiClickClose);
     }
 
-    if ('shortcutKeyTobbleEnabled' in response) {
-      _this.shortcutKeyTobbleEnabled = response.shortcutKeyTobbleEnabled
+    if ('shortcutKeyToggleEnabled' in response) {
+      _this.shortcutKeyToggleEnabled = response.shortcutKeyToggleEnabled
         .split(',')
         .filter(function (val) {
           return val !== '';
@@ -203,7 +219,7 @@ Agent.prototype.receiveMessages = {
     _this.bindEvents();
   },
 
-  norifyRemoveTabs: function (response) {
+  removeTabs: function (response) {
     var _document = _this.window.document;
 
     var oldNotify = _document.getElementById('linkblanker-notify');
@@ -317,24 +333,24 @@ Agent.prototype.getNotify = function (info, length){
   notify.innerHTML = [
     '<img class="linkblanker-icon" src="' + chrome.extension.getURL('img/icon48.png') + '" />',
     '<p class="linkblanker-message">',
-    chrome.i18n.getMessage('message_drop_tabs')
+    Api.getI18nMessage('message_drop_tabs')
       .replace(
         "{REMOVE_TAB_ALIGN}",
         'left' === info.align ?
-          chrome.i18n.getMessage('title_left') :
-          chrome.i18n.getMessage('title_right')
+          Api.getI18nMessage('title_left') :
+          Api.getI18nMessage('title_right')
       )
       .replace("{REMOVE_TAB_LENGTH}", info.removeTabsLength),
     '</p>',
     '<ul class="linkblanker-linkbox">',
       '<li>',
         '<a class="linkblanker-undo" href="#">',
-          chrome.i18n.getMessage('undo'),
+          Api.getI18nMessage('undo'),
         '</a>',
       '</li>',
       '<li>',
         '<a class="linkblanker-notify-remove" href="#">',
-          chrome.i18n.getMessage('notify_remove'),
+          Api.getI18nMessage('notify_remove'),
         '</a>',
       '</li>',
     '</ul>',
@@ -377,8 +393,8 @@ Agent.prototype.getNotify = function (info, length){
     notify.getElementsByClassName('linkblanker-undo')[0].removeEventListener('click', notify.undo);
     notify.hide();
 
-    if (_this.ports.undoRemoveTabs) {
-      _this.ports.undoRemoveTabs.postMessage();
+    if (_this.ports[MessageName.UNDO_REMOVE_TABS]) {
+      _this.ports[MessageName.UNDO_REMOVE_TABS].postMessage();
     }
   };
 
@@ -412,3 +428,8 @@ function getNode (target, tag, normalized) {
 
   return false;
 }
+
+/**
+ * Export the constructor.
+ */
+module.exports = Agent;

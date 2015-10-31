@@ -1,5 +1,5 @@
-/*
- * AppDispatcher.js
+/**
+ * dispatcher/AppDispatcher.js
  */
 
 var Dispatcher = require('flux').Dispatcher;

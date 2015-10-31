@@ -1,23 +1,26 @@
-/*
- * PopupStore.js
+/**
+ * stores/Preference.js
  */
 
-var LinkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
+var Api = require('../utils/Api');
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
-var LinkBlankerConstants = require('../constants/LinkBlankerConstants');
-var Events = LinkBlankerConstants.Events;
-var Types = LinkBlankerConstants.Types;
+var LinkBlankerConstants = require('../constants/LinkBlanker');
+var Logger = require('../utils/Logger');
+var EventType = LinkBlankerConstants.EventType;
+var MessageName = LinkBlankerConstants.MessageName;
 var assign = require('object-assign');
 
 var disableds = [ 'disabled-domain', 'disabled-directory', 'disabled-page' ];
+var isBackgroundAttached = false;
+var data = {};
 
 var PreferenceStore = assign({}, EventEmitter.prototype, {
 
   getAll: function (callback) {
-    var data = LinkBlanker.getData();
+    var data = Api.getLinkBlanker().getData();
 
-    LinkBlanker.currentData(function (result) {
+    Api.getLinkBlanker().currentData(function (result) {
       Object.keys(data).forEach(function (k) {
         var v = data[k];
 
@@ -25,7 +28,7 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
           case 'disabled-domain':
           case 'disabled-directory':
           case 'disabled-page':
-            var item = LinkBlanker.preferenceValueFromId(k, result);
+            var item = Api.getLinkBlanker().preferenceValueFromId(k, result);
 
             if ('disabled-directory' === k) {
               var exist = false;
@@ -56,7 +59,7 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
       });
 
       // build virtual fileld
-      data['system-enabled-state'] = Boolean(LinkBlanker.enableFromUrl(result.url));
+      data['system-enabled-state'] = Boolean(Api.getLinkBlanker().enableFromUrl(result.url));
       data['disabled-state'] = 'disabled-off';
 
       disableds.forEach(function (value) {
@@ -74,27 +77,27 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
   },
 
   emitChange: function () {
-    this.emit(Events.CHANGE);
+    this.emit(EventType.CHANGE);
   },
 
   /**
    * @param {function} callback
    */
   addChangeListener: function (callback) {
-    this.on(Events.CHANGE, callback);
+    this.on(EventType.CHANGE, callback);
   },
 
   /**
    * @param {function} callback
    */
   removeChangeListener: function (callback) {
-    this.removeListener(Events.CHANGE, callback);
-  }
+    this.removeListener(EventType.CHANGE, callback);
+  },
 });
 
 AppDispatcher.register(function (action) {
   switch(action.type) {
-    case Types.SAVE:
+    case EventType.TRY_SAVE:
       if (action.data['disabled-state']) {
         disableds.forEach(function (value) {
           action.data[value] = (value === action.data['disabled-state']) ? true : false;
@@ -104,10 +107,20 @@ AppDispatcher.register(function (action) {
         delete action.data['disabled-state'];
       }
 
-      LinkBlanker.setData(action.data, function () {
-        PreferenceStore.emitChange();
-      });
+      Api.getLinkBlanker().setData(action.data);
 
+      break;
+    case EventType.RECEIVE_MESSAGE:
+      Logger.debug('receive message on store', action);
+      var response = action.args[0];
+
+      if ('name' in response) {
+        switch (response.name) {
+          case MessageName.SAVED:
+            PreferenceStore.emitChange();
+            break;
+        }
+      }
       break;
   }
 });
