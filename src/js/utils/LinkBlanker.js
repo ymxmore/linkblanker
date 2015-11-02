@@ -1,6 +1,7 @@
 /**
  * utils/LinkBlanker.js
  */
+var async = require('async');
 var LinkBlankerConstants = require('../constants/LinkBlanker');
 var Logger = require('../utils/Logger');
 var MessageName = LinkBlankerConstants.MessageName;
@@ -39,44 +40,59 @@ function initialize () {
 
   dataMigration();
 
+  _this.chrome.tabs.onCreated.addListener(function(tab) {
+    Logger.debug('chrome.tabs.onCreated > ', arguments);
+
+    if (_this.hasRuntimeError()) {
+      return;
+    }
+
+    _this.mergeTabInfo(tab, function (mergedTab) {
+      _this.setTabLogs('info', mergedTab, mergedTab.id);
+    });
+  });
+
   _this.chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    // TODO:
-    Logger.debug(arguments);
+    Logger.debug('chrome.tabs.onUpdated > ', arguments);
+
+    if (_this.hasRuntimeError()) {
+      return;
+    }
+
+    _this.getTabLogs('info', tabId, function (existTab) {
+      if (existTab) {
+        _this.mergeTabInfo(existTab, function (mergedTab) {
+          _this.setTabLogs('info', mergedTab, tabId);
+        });
+      } else {
+        _this.deleteTabLog(tabId);
+      }
+    });
 
     _this.updateTabStatus(tab);
   });
 
   _this.chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-    // TODO:
-    Logger.debug(arguments);
+    Logger.debug('chrome.tabs.onCreated > ', arguments);
+
+    if (_this.hasRuntimeError()) {
+      return;
+    }
+
+    Logger.debug('on remove', tabId);
 
     _this.deleteTabLog(tabId);
   });
 
-  // ------------------------------------
-  // TODO: 使えるイベントを吟味
-
-  // 親のtabIdほしくてcreatedハンドルしてみたが
-  // updatedでtab.openerTabIdで取れるからいらない
-  //  _this.chrome.tabs.onCreated.addListener(function() {
-  //   // TODO:
-  //   Logger.debug('onCreated', arguments);
-  // });
-  _this.chrome.tabs.onAttached.addListener(function() {
-    // TODO:
-    Logger.debug('onAttached', arguments);
-  });
-  _this.chrome.tabs.onDetached.addListener(function() {
-    // TODO:
-    Logger.debug('onDetached', arguments);
-  });
-  _this.chrome.tabs.onMoved.addListener(function() {
-    // TODO:
-    Logger.debug('onMoved', arguments);
-  });
-  // ------------------------------------
+  _this.chrome.tabs.onAttached.addListener(_this.setAllTabInfo);
+  _this.chrome.tabs.onDetached.addListener(_this.setAllTabInfo);
+  _this.chrome.tabs.onMoved.addListener(_this.setAllTabInfo);
 
   _this.chrome.extension.onConnect.addListener(function(port) {
+    if (_this.hasRuntimeError()) {
+      return;
+    }
+
     var name;
 
     switch (port.name) {
@@ -99,25 +115,11 @@ function initialize () {
     }
   });
 
-  // loadManifest.apply(this);
-  // _this.manifest = chrome.extension.getManifest();
-
+  _this.setAllTabInfo();
   _this.updateTabStatusAll();
 
   return true;
 }
-
-// function loadManifest () {
-//   var url = this.host + 'manifest.json';
-//   var xhr = new XMLHttpRequest();
-
-//   xhr.onload = function(){
-//     _this.manifest = JSON.parse(xhr.responseText);
-//   };
-
-//   xhr.open('GET', url, true);
-//   xhr.send(null);
-// }
 
 function dataMigration () {
   // 反転する
@@ -136,6 +138,79 @@ function getHostRegExp () {
   return _hostRegExp;
 }
 
+LinkBlanker.prototype.getAllTabs = function (callback) {
+  async.waterfall([
+    function(cbw) {
+      _this.chrome.windows.getAll({ populate: true, windowTypes: [ 'normal' ] }, function (windows) {
+        cbw(_this.hasRuntimeError(), windows);
+      });
+    },
+    function(windows, cbw) {
+      async.concat(windows, function (win, cbc) {
+        if (win.tabs) {
+          cbc(null, win.tabs);
+        } else {
+          cbc(new Error('This window does not have possession of the tab.'), null);
+        }
+      }, cbw);
+    },
+    function(tabs, cbw) {
+      async.map(tabs, function (tab, cbm) {
+        _this.chrome.tabs.get(tab.id, function (tab) {
+          if (_this.hasRuntimeError()) {
+            cbm(null, null);
+            return;
+          }
+          cbm(null, tab);
+        });
+      }, cbw);
+    },
+    function(tabs, cbw) {
+      async.filter(tabs, function (tab, cbf) {
+        cbf(null !== tab);
+      }, function (results) {
+        cbw(null, results);
+      });
+    },
+  ], callback);
+};
+
+LinkBlanker.prototype.getCurrentTab = function (callback) {
+  if (callback) {
+    async.waterfall([
+      function(cbw) {
+        _this.chrome.windows.getLastFocused(function (win) {
+          cbw(_this.hasRuntimeError(), win);
+        });
+      },
+      function(win, cbw) {
+        _this.chrome.tabs.query({ windowId: win.id, active: true }, function (tabs) {
+          cbw(_this.hasRuntimeError(), tabs);
+        });
+      },
+      function(tabs, cbw) {
+        if (tabs && tabs.length > 0) {
+          cbw(null, tabs[0]);
+        } else {
+          cbw(new Error('Target tab is none.'), null);
+        }
+      },
+    ], callback);
+  } else {
+    Logger.debug(new Error('Callback is undefined.'));
+  }
+};
+
+LinkBlanker.prototype.hasRuntimeError = function () {
+  var error = chrome.runtime.lastError;
+
+  if (error) {
+    Logger.debug(error.message, error);
+  }
+
+  return error;
+};
+
 LinkBlanker.prototype.getManifest = function () {
   return chrome.runtime.getManifest();
 };
@@ -153,7 +228,7 @@ LinkBlanker.prototype.getData = function () {
   };
 };
 
-LinkBlanker.prototype.setData = function (key, value, callback) {
+LinkBlanker.prototype.setData = function (key, value) {
   var all  = _this.getData();
   var data = {};
 
@@ -163,50 +238,49 @@ LinkBlanker.prototype.setData = function (key, value, callback) {
     data[key] = value;
   }
 
-  if (!callback && 'function' === typeof value) {
-    callback = value;
-  }
+  _this.getCurrentData(function(error, result) {
+    if (error) {
+      return;
+    }
 
-  _this.currentData(function(result) {
-    Object.keys(data).forEach(function (k) {
-      var v = data[k];
+    Object.keys(data).forEach(function (fixKey) {
+      var fixValue = data[fixKey];
 
-      switch (k) {
+      switch (fixKey) {
         case 'disabled-domain':
         case 'disabled-directory':
         case 'disabled-page':
-          var item  = _this.preferenceValueFromId(k, result);
-          var index = all[k].indexOf(item);
+          var item  = _this.preferenceValueFromId(fixKey, result);
+          var index = all[fixKey].indexOf(item);
 
-          if (v) {
+          if (fixValue) {
             if (-1 === index) {
-              all[k].push(item);
+              all[fixKey].push(item);
             }
           } else {
             if (index > -1) {
-              all[k].splice(index, 1);
+              all[fixKey].splice(index, 1);
             }
           }
 
-          localStorage[k] = JSON.stringify(all[k]);
+          localStorage[fixKey] = JSON.stringify(all[fixKey]);
           break;
         case 'shortcut-key-toggle-enabled':
-          localStorage[k] = v;
+          localStorage[fixKey] = fixValue;
           break;
         case 'enabled-extension':
         case 'enabled-background-open':
         case 'enabled-multiclick-close':
         case 'disabled-same-domain':
-          localStorage[k] = v ? 1 : 0;
+          localStorage[fixKey] = fixValue ? 1 : 0;
           break;
       }
     });
 
-    if (callback) {
-      callback();
-    }
-
-    _this.chrome.extension.sendMessage({ name: MessageName.SAVED, data: _this.getData() });
+    _this.chrome.extension.sendMessage({
+      name: MessageName.UPDATED_DATA,
+      data: _this.getData(),
+    });
 
     _this.updateTabStatusAll();
   });
@@ -223,58 +297,55 @@ LinkBlanker.prototype.preferenceValueFromId = function (id, result) {
 };
 
 LinkBlanker.prototype.updateTabStatus = function (tab) {
-  var enabled = _this.enableFromUrl(tab.url);
+  var enabled = _this.isEnableFromUrl(tab.url);
   var data = _this.getData();
 
-  _this.chrome.tabs.sendMessage(tab.id, {
-    name: MessageName.UPDATE_TAB_STATUS,
-    parse: _this.parseData(tab.url),
-    enabled: enabled,
-    isBackground: 1 === data['enabled-background-open'] && 1 === data['enabled-extension'] ? 1 : 0,
-    multiClickClose: data['enabled-multiclick-close'],
-    shortcutKeyTobbleEnabled: data['shortcut-key-toggle-enabled'],
-    disabledSameDomain: data['disabled-same-domain']
-  });
+  _this.chrome.tabs.get(tab.id, function (tab) {
+    if (_this.hasRuntimeError()) {
+      return;
+    }
 
-  _this.chrome.browserAction.setBadgeBackgroundColor({
-    color: enabled ? [48,201,221,128] : [0,0,0,64],
-    tabId: tab.id
-  });
+    _this.chrome.tabs.sendMessage(tab.id, {
+      name: MessageName.UPDATE_TAB_STATUS,
+      parse: _this.parseData(tab.url),
+      enabled: enabled,
+      isBackground: 1 === data['enabled-background-open'] && 1 === data['enabled-extension'] ? 1 : 0,
+      multiClickClose: data['enabled-multiclick-close'],
+      shortcutKeyTobbleEnabled: data['shortcut-key-toggle-enabled'],
+      disabledSameDomain: data['disabled-same-domain']
+    });
 
-  _this.chrome.browserAction.setBadgeText({
-    text: enabled ? ' ON ' : 'OFF',
-    tabId: tab.id
-  });
+    _this.chrome.browserAction.setBadgeBackgroundColor({
+      color: enabled ? [48,　201,　221,　128] : [0,　0,　0,　64],
+      tabId: tab.id
+    });
 
-  _this.chrome.browserAction.setIcon({
-    path: 'img/icon32' + (enabled ? '' : '-disabled') + '.png',
-    tabId: tab.id
+    _this.chrome.browserAction.setBadgeText({
+      text: enabled ? ' ON ' : 'OFF',
+      tabId: tab.id
+    });
+
+    _this.chrome.browserAction.setIcon({
+      path: 'img/icon32' + (enabled ? '' : '-disabled') + '.png',
+      tabId: tab.id
+    });
   });
 };
 
 LinkBlanker.prototype.updateTabStatusAll = function () {
-  _this.chrome.windows.getAll({populate: true}, function (windows) {
-    if (windows) {
-      windows.forEach(function (win) {
-        if (win.tabs) {
-          win.tabs.forEach(function (tab) {
-            _this.updateTabStatus(tab);
-          });
-        }
+  _this.getAllTabs(function (error, tabs) {
+    if (error) {
+      Logger.debug('The failure to update the status of all the tabs.', error);
+    } else {
+      async.each(tabs, function (tab, cbe) {
+        _this.updateTabStatus(tab);
+        cbe();
       });
     }
   });
 };
 
-LinkBlanker.prototype.currentEnable = function (callback) {
-  if (callback) {
-    _this.currentData(function (result) {
-      callback(_this.enableFromFullData(result));
-    });
-  }
-};
-
-LinkBlanker.prototype.enableFromFullData = function (info) {
+LinkBlanker.prototype.isEnableFromData = function (info) {
   var data = this.getData();
 
   if (!info.url.match(getHostRegExp()) && info.url.match(/^chrome(-extension)?:\/\/(.*)$/)) {
@@ -298,21 +369,24 @@ LinkBlanker.prototype.enableFromFullData = function (info) {
   return result ? 1 : 0;
 };
 
-LinkBlanker.prototype.enableFromUrl = function (url) {
-  return this.enableFromFullData(this.parseData(url));
+LinkBlanker.prototype.isEnableFromUrl = function (url) {
+  return this.isEnableFromData(this.parseData(url));
 };
 
-LinkBlanker.prototype.currentData = function (callback) {
+LinkBlanker.prototype.getCurrentData = function (callback) {
   if (callback) {
-    _this.chrome.windows.getLastFocused(function (win) {
-      if (win) {
-        _this.chrome.tabs.query({windowId: win.id, active: true}, function (tabs) {
-          if (tabs && tabs.length > 0) {
-            _this.parseData(tabs[0].url, callback);
-          }
-        });
+    _this.getCurrentTab(function (error, tab) {
+      if (error) {
+        callback(error, null);
+        return;
       }
+
+      _this.parseData(tab.url, function (result) {
+        callback(null, result);
+      });
     });
+  } else {
+    Logger.debug(new Error('Callback is undefined.'));
   }
 };
 
@@ -324,7 +398,6 @@ LinkBlanker.prototype.parseData = function (url, callback) {
   };
 
   var tmpUrl = encodeURI(url);
-
   var sp = tmpUrl.split('/');
 
   if (sp) {
@@ -346,108 +419,208 @@ LinkBlanker.prototype.parseData = function (url, callback) {
   return result;
 };
 
-LinkBlanker.prototype.deleteTabLog = function (tabId) {
-  if ('undefined' === typeof tabId) {
-    _this.chrome.windows.getLastFocused(function (win) {
-      if (win) {
-        _this.chrome.tabs.query({windowId: win.id, active: true}, function (tabs) {
-          if (tabs && tabs.length > 0) {
-            _this.deleteTabLog(tabs[0].id);
-          }
+LinkBlanker.prototype.setAllTabInfo = function () {
+  _this.getAllTabs(function (error, tabs) {
+    if (error) {
+      Logger.debug('It is not possible to set all of the tab information.', error);
+    } else {
+      async.each(tabs, function (tab, cbe) {
+        _this.mergeTabInfo(tab, function (mergedTab) {
+          _this.setTabLogs('info', mergedTab, mergedTab.id);
+          cbe();
         });
-      }
-    });
-    return;
-  }
-
-  if (_this.tabLogs[tabId]) {
-    delete _this.tabLogs[tabId];
-  }
+      });
+    }
+  });
 };
 
-LinkBlanker.prototype.getTabLogs = function (key, tab, callback) {
-  if ('function' === typeof tab) {
-    callback = tab;
-    tab = undefined;
+LinkBlanker.prototype.mergeTabInfo = function (tab, callback) {
+  _this.getTabLogs('info', tab.id, function (existTab) {
+    var filterdTab = _this.filterTabPropaties(tab);
+
+    if (existTab) {
+      Object.keys(filterdTab).forEach(function (key) {
+        existTab[key] = filterdTab[key];
+      });
+
+      callback(existTab);
+    } else {
+      callback(filterdTab);
+    }
+  });
+};
+
+LinkBlanker.prototype.filterTabPropaties = function (tab) {
+  var propaties = [
+    'id',
+    'favIconUrl',
+    'index',
+    'title',
+    'url',
+    'windowId',
+  ];
+
+  var len = propaties.length;
+  var result = {};
+
+  for (var i = 0; i < len; i++) {
+    var key = propaties[i];
+
+    if (key in tab) {
+      result[key] = tab[key];
+    }
   }
 
-  if ('undefined' === typeof callback) {
+  return result;
+};
+
+LinkBlanker.prototype.getTabLogs = function (key, tabId, callback) {
+  var fixKey, fixTabId, fixCallback;
+
+  if (key) {
+    if (String(key).match(/^[0-9]+$/)) {
+      fixTabId = Number(key);
+      fixKey = '*';
+    } else {
+      fixKey = key;
+    }
+  }
+
+  if ('function' === typeof tabId) {
+    fixCallback = tabId;
+  } else if ('object' === typeof tabId && 'id' in tabId && String(tabId.id).match(/^[0-9]+$/)) {
+    fixTabId = Number(tabId.id);
+  } else if (String(tabId).match(/^[0-9]+$/)) {
+    fixTabId = Number(tabId);
+  }
+
+  if ('function' === typeof callback) {
+    fixCallback = callback;
+  }
+
+  if ('undefined' === typeof callback && !fixCallback) {
     return;
   }
 
-  if ('undefined' === typeof tab) {
-    _this.chrome.windows.getLastFocused(function (win) {
-      if (win) {
-        _this.chrome.tabs.query({windowId: win.id, active: true}, function (tabs) {
-          if (tabs && tabs.length > 0) {
-            _this.getTabLogs(key, tabs[0], callback);
-          }
-        });
+  if (!fixTabId) {
+    _this.getCurrentTab(function (error, tab) {
+      if (error) {
+        callback(error, null);
+        return;
       }
+
+      _this.getTabLogs(fixKey, tab, fixCallback);
     });
     return;
   }
 
-  if ('object' !== typeof tab) {
-    _this.chrome.tabs.get(tab, function (tab) {
-      _this.getTabLogs(key, tab, callback);
-    });
-    return;
-  }
+  _this.chrome.tabs.get(fixTabId, function (tab) {
+    if (_this.hasRuntimeError()) {
+      fixCallback(false);
+    }
 
-  if (_this.tabLogs[tab.id] && _this.tabLogs[tab.id][key]) {
-    callback(_this.tabLogs[tab.id][key], tab);
-  } else {
-    callback(false);
-  }
+    if (fixTabId in _this.tabLogs) {
+      if (fixKey && '*' !== fixKey && fixKey in _this.tabLogs[fixTabId]) {
+        fixCallback(_this.tabLogs[fixTabId][fixKey], tab);
+      } else {
+        fixCallback(_this.tabLogs[fixTabId], tab);
+      }
+    } else {
+      fixCallback(false);
+    }
+  });
 };
 
 LinkBlanker.prototype.setTabLogs = function (key, value, tabId) {
   if ('undefined' === typeof tabId) {
-    _this.chrome.windows.getLastFocused(function (win) {
-      if (win) {
-        _this.chrome.tabs.query({windowId: win.id, active: true}, function (tabs) {
-          if (tabs && tabs.length > 0) {
-            _this.setTabLogs(key, value, tabs[0].id);
-          }
-        });
+    _this.getCurrentTab(function (error, tab) {
+      if (error) {
+        callback(error, null);
+        return;
       }
+
+      _this.setTabLogs(key, value, tab.id);
     });
     return;
   }
 
-  if (!_this.tabLogs[tabId]) {
+  if (!(tabId in _this.tabLogs)) {
     _this.tabLogs[tabId] = {};
   }
 
   _this.tabLogs[tabId][key] = value;
+
+  _this.chrome.extension.sendMessage({
+    name: MessageName.SAVED_TAB_LOG,
+    data: _this.tabLogs,
+  });
+
+  Logger.debug(MessageName.SAVED_TAB_LOG, _this.tabLogs);
+};
+
+LinkBlanker.prototype.deleteTabLog = function (key, tabId) {
+  if (key && !tabId && String(key).match(/^[0-9]+$/)) {
+    tabId = Number(key);
+    key = '*';
+  }
+
+  if ('undefined' === typeof tabId) {
+    _this.getCurrentTab(function (error, tab) {
+      if (error) {
+        callback(error, null);
+        return;
+      }
+
+      _this.deleteTabLog(key, tab.id);
+    });
+    return;
+  }
+
+  if (tabId in _this.tabLogs) {
+    if (key && '*' !== key) {
+      delete _this.tabLogs[tabId][key];
+    } else {
+      delete _this.tabLogs[tabId];
+    }
+  }
+
+  _this.chrome.extension.sendMessage({
+    name: MessageName.DELETED_TAB_LOG,
+    data: _this.tabLogs
+  });
+
+  Logger.debug(MessageName.DELETED_TAB_LOG, _this.tabLogs);
 };
 
 LinkBlanker.prototype.receiveMessages = {
 
   openTab: function (params) {
     if (params) {
-      _this.chrome.windows.getLastFocused(function (win) {
-        if (win) {
-          _this.chrome.tabs.query({windowId: win.id, active: true}, function (tabs) {
-            if (tabs && tabs.length > 0) {
-              _this.chrome.tabs.create({
-                index: tabs[0].index + 1,
-                openerTabId: tabs[0].id,
-                url: params.url,
-                selected: params.selected,
-              }, function () {
-                Logger.debug(arguments);
-              });
-            }
-          });
+      _this.getCurrentTab(function (error, tab) {
+        if (error) {
+          callback(error, null);
+          return;
         }
+
+        _this.chrome.tabs.create({
+          index: 'index' in params ? params.index : tab.index + 1,
+          url: params.url,
+          selected: params.selected,
+        }, function (tab) {
+          var filterdTab = _this.filterTabPropaties(tab);
+          filterdTab.openerTabId = tab.id;
+          _this.setTabLogs('info', filterdTab, filterdTab.id);
+        });
       });
     }
   },
 
   removeTabs: function (message) {
-    _this.chrome.windows.getLastFocused({populate: true}, function (win) {
+    _this.chrome.windows.getLastFocused({ populate: true, windowTypes: [ 'normal' ] }, function (win) {
+      if (_this.hasRuntimeError()) {
+        return;
+      }
+
       win.tabs.sort(function (a, b) {
         if (a.index < b.index) return 'right' === message.align ? -1 : 1;
         if (a.index > b.index) return 'right' === message.align ? 1  : -1;
@@ -464,7 +637,7 @@ LinkBlanker.prototype.receiveMessages = {
         }
 
         if (activeTabId > -1) {
-          removeTabs.push(win.tabs[i]);
+          removeTabs.push(_this.filterTabPropaties(win.tabs[i]));
         }
       }
 
@@ -489,15 +662,15 @@ LinkBlanker.prototype.receiveMessages = {
   undoRemoveTabs: function () {
     _this.getTabLogs('remove', function (log, tab) {
       if (log && log.tabs) {
-        _this.deleteTabLog();
-
         log.tabs.map(function (item, i) {
-          _this.chrome.tabs.create({
+          _this.receiveMessages.openTab({
             url: item.url,
             selected: false,
             index: ('right' === log.align ? tab.index + 1 + i : tab.index)
           });
         });
+
+        _this.deleteTabLog('remove', tab.id);
       }
     });
   },

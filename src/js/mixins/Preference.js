@@ -37,7 +37,11 @@ var Preference = {
   setAllState: function () {
     var self = this;
 
-    PreferenceStore.getAll(function (state) {
+    PreferenceStore.getAll(function (error, state) {
+      if (error) {
+        return;
+      }
+
       Logger.debug('Preference.getAll callback', state);
       state['shortcut-key-toggle-enabled-value'] = state['shortcut-key-toggle-enabled'];
 
@@ -69,13 +73,13 @@ var Preference = {
 
     switch (event.target.name) {
       case 'disabled-state':
-        this.save(event.target.name, event.target.value);
+        this.updateData(event.target.name, event.target.value);
         break;
       case 'enabled-extension':
       case 'enabled-background-open':
       case 'enabled-multiclick-close':
       case 'disabled-same-domain':
-        this.save(event.target.name, event.target.checked);
+        this.updateData(event.target.name, event.target.checked);
         break;
     }
   },
@@ -122,13 +126,13 @@ var Preference = {
           'shortcut-key-toggle-enabled-restore': true,
         });
 
-        this.save('shortcut-key-toggle-enabled', this.state['shortcut-key-toggle-enabled-value']);
+        this.updateData('shortcut-key-toggle-enabled', this.state['shortcut-key-toggle-enabled-value']);
         break;
     }
   },
 
-  save: function (key, value) {
-    PreferenceActions.save(key, value);
+  updateData: function (key, value) {
+    PreferenceActions.updateData(key, value);
   },
 };
 

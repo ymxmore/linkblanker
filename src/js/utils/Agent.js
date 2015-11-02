@@ -4,6 +4,9 @@
 
 var Api = require('../utils/Api');
 var LinkBlankerConstants = require('../constants/LinkBlanker');
+var Logger = require('./Logger');
+var Tabs = require('./Tabs');
+
 var MessageName = LinkBlankerConstants.MessageName;
 
 require('easeljs');
@@ -13,9 +16,6 @@ require('tweenjs');
  * LinkBlanker agent active instance.
  */
 var _this;
-
-var Logger = require('./Logger');
-var Tabs = require('./Tabs');
 
 function Agent (window) {
   this.window = window;
@@ -35,8 +35,6 @@ function initialize () {
   _this = this;
 
   chrome.extension.onMessage.addListener(function(response, sender) {
-    Logger.debug('agent reveive message', arguments);
-
     if ('name' in response) {
       // call receiver
       var name;
@@ -56,24 +54,19 @@ function initialize () {
     }
   });
 
-  _this.portInitialize(MessageName.OPEN_TAB, MessageName.REMOVE_TABS, MessageName.UNDO_REMOVE_TABS, MessageName.TOGGLE_ENABLED);
   _this.bindEvents();
 }
 
-Agent.prototype.portInitialize = function() {
-  var args = Array.prototype.slice.call(arguments);
+Agent.prototype.postMessage = function(name, params) {
+  var port = chrome.extension.connect({ name: name });
 
-  args.forEach(function (key) {
-    var port = chrome.extension.connect({ name: key });
+  if (port && port.postMessage) {
+    port.postMessage(params);
+    port.disconnect();
+    return true;
+  }
 
-    delete _this.ports[key];
-
-    port.onDisconnect.addListener(function() {
-      _this.ports[key] = false;
-    });
-
-    _this.ports[key] = port;
-  });
+  return false;
 };
 
 Agent.prototype.bindEvents = function() {
@@ -110,16 +103,25 @@ Agent.prototype.events = {
     if (target) {
       if (_this.enabled &&
         !e.defaultPrevented &&
-        _this.ports[MessageName.OPEN_TAB] &&
         target.href &&
         !target.onclick &&
-        !target.href.match(/javascript:/i) &&
-        !target.href.match(/#.*$/i)) {
+        !target.href.match(/javascript:/i)) {
 
         var targetFullUrl = _this.absPath(target.href);
+        var isSameDomain = targetFullUrl.match(new RegExp('^https?:\/\/' + _this.parse.domain));
 
-        if (_this.disabledSameDomain &&
-          targetFullUrl.match(new RegExp('^https?:\/\/' + _this.parse.domain))) {
+        if (isSameDomain && (_this.disabledSameDomain || target.href.match(/#.*$/i))) {
+          return true;
+        }
+
+        var params = {
+          url: targetFullUrl,
+          selected: !_this.isBackground
+        };
+
+        if (!_this.postMessage(MessageName.OPEN_TAB, params)) {
+          // エラー時にはイベントを止めない
+          // => 通常の振る舞いをするようにしないとただクリック出来ないだけの拡張機能になってしまう
           return true;
         }
 
@@ -127,21 +129,14 @@ Agent.prototype.events = {
         e.stopPropagation();
         e.stopImmediatePropagation();
 
-        var params = {
-          url: targetFullUrl,
-          selected: !_this.isBackground
-        };
-
-        _this.ports[MessageName.OPEN_TAB].postMessage(params);
-
         return false;
       }
     } else if (_this.multiClickClose) {
       // multi clicks tab close.
-      if (_this.ports[MessageName.REMOVE_TABS] && 3 === e.detail) {
+      if (3 === e.detail) {
         var align = (e.clientX > _this.window.document.documentElement.clientWidth / 2) ? 'right' : 'left';
 
-        _this.ports[MessageName.REMOVE_TABS].postMessage({
+        _this.postMessage(MessageName.REMOVE_TABS, {
           align:   align,
           clientX: e.clientX,
           clientY: e.clientY,
@@ -172,10 +167,7 @@ Agent.prototype.events = {
 
       if (exist) {
         _this.keys = [];
-
-        if (_this.ports[MessageName.TOGGLE_ENABLED]) {
-          _this.ports[MessageName.TOGGLE_ENABLED].postMessage();
-        }
+        _this.postMessage(MessageName.TOGGLE_ENABLED);
       }
     }
   },
@@ -393,9 +385,7 @@ Agent.prototype.getNotify = function (info, length){
     notify.getElementsByClassName('linkblanker-undo')[0].removeEventListener('click', notify.undo);
     notify.hide();
 
-    if (_this.ports[MessageName.UNDO_REMOVE_TABS]) {
-      _this.ports[MessageName.UNDO_REMOVE_TABS].postMessage();
-    }
+    _this.postMessage(MessageName.UNDO_REMOVE_TABS);
   };
 
   notify.getElementsByClassName('linkblanker-undo')[0].addEventListener('click', notify.undo);

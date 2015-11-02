@@ -20,7 +20,16 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
   getAll: function (callback) {
     var data = Api.getLinkBlanker().getData();
 
-    Api.getLinkBlanker().currentData(function (result) {
+    Api.getLinkBlanker().getCurrentData(function (error, result) {
+      if (error) {
+        if (callback) {
+          callback(error, null);
+        }
+
+        Logger.debug('the debug 3', error, result);
+        return;
+      }
+
       Object.keys(data).forEach(function (k) {
         var v = data[k];
 
@@ -59,7 +68,7 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
       });
 
       // build virtual fileld
-      data['system-enabled-state'] = Boolean(Api.getLinkBlanker().enableFromUrl(result.url));
+      data['system-enabled-state'] = Boolean(Api.getLinkBlanker().isEnableFromUrl(result.url));
       data['disabled-state'] = 'disabled-off';
 
       disableds.forEach(function (value) {
@@ -71,7 +80,7 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
       });
 
       if (callback) {
-        callback(data);
+        callback(null, data);
       }
     });
   },
@@ -97,7 +106,7 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
 
 AppDispatcher.register(function (action) {
   switch(action.type) {
-    case EventType.TRY_SAVE:
+    case EventType.TRY_UPDATE_DATA:
       if (action.data['disabled-state']) {
         disableds.forEach(function (value) {
           action.data[value] = (value === action.data['disabled-state']) ? true : false;
@@ -116,7 +125,7 @@ AppDispatcher.register(function (action) {
 
       if ('name' in response) {
         switch (response.name) {
-          case MessageName.SAVED:
+          case MessageName.UPDATED_DATA:
             PreferenceStore.emitChange();
             break;
         }

@@ -9,9 +9,9 @@ var EventType = LinkBlankerConstants.EventType;
 var Preference = {
 
   /**
-   * Save Data
+   * Update Data
    */
-  save: function (key, value) {
+  updateData: function (key, value) {
     var data = {};
 
     if ('object' === typeof key){
@@ -21,7 +21,7 @@ var Preference = {
     }
 
     AppDispatcher.dispatch({
-      type: EventType.TRY_SAVE,
+      type: EventType.TRY_UPDATE_DATA,
       data: data
     });
   },
