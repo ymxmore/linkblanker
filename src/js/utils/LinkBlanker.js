@@ -73,13 +73,11 @@ function initialize () {
   });
 
   _this.chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-    Logger.debug('chrome.tabs.onCreated > ', arguments);
+    Logger.debug('chrome.tabs.onRemoved > ', arguments);
 
     if (_this.hasRuntimeError()) {
       return;
     }
-
-    Logger.debug('on remove', tabId);
 
     _this.deleteTabLog(tabId);
   });
@@ -202,7 +200,7 @@ LinkBlanker.prototype.getCurrentTab = function (callback) {
 };
 
 LinkBlanker.prototype.hasRuntimeError = function () {
-  var error = chrome.runtime.lastError;
+  var error = _this.chrome.runtime.lastError;
 
   if (error) {
     Logger.debug(error.message, error);
@@ -212,7 +210,7 @@ LinkBlanker.prototype.hasRuntimeError = function () {
 };
 
 LinkBlanker.prototype.getManifest = function () {
-  return chrome.runtime.getManifest();
+  return _this.chrome.runtime.getManifest();
 };
 
 LinkBlanker.prototype.getData = function () {
@@ -606,8 +604,8 @@ LinkBlanker.prototype.receiveMessages = {
           index: 'index' in params ? params.index : tab.index + 1,
           url: params.url,
           selected: params.selected,
-        }, function (tab) {
-          var filterdTab = _this.filterTabPropaties(tab);
+        }, function (newTab) {
+          var filterdTab = _this.filterTabPropaties(newTab);
           filterdTab.openerTabId = tab.id;
           _this.setTabLogs('info', filterdTab, filterdTab.id);
         });

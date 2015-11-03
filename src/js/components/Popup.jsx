@@ -13,17 +13,6 @@ var Popup = React.createClass({
   render: function () {
     return (
       <div id="popup">
-        <header className="extension-name">
-          <img
-            className="icon"
-            src={this.state['system-enabled-state'] ?
-              '/img/icon-enabled.svgz' :
-              '/img/icon-disabled.svgz'}
-          />
-          <span className="version-name">
-            Version {Api.getVersion()}
-          </span>
-        </header>
         <section>
           <h5 className="header-underline">
             {Api.getI18nMessage('title_whole_setting')}
