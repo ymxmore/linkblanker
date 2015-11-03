@@ -36,7 +36,7 @@ var Tree = React.createClass({
 
   _onChange: function () {
     this.setState({
-      data: TreeStore.getAll(),
+      data: TreeStore.get(),
     });
   },
 });

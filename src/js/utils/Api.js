@@ -40,6 +40,10 @@ var Api = {
   getVersion: function () {
     return this.getLinkBlanker().getManifest().version;
   },
+
+  isArray: function (target) {
+    return '[object Array]' === Object.prototype.toString.call(target);
+  }
 };
 
 module.exports = Api;

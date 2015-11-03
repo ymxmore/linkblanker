@@ -17,6 +17,84 @@ require('tweenjs');
  */
 var _this;
 
+/**
+ * Listener
+ */
+var listener = {
+  onUpdateTabStatus: function (response) {
+    if ('parse' in response) {
+      _this.parse = response.parse;
+    }
+
+    if ('enabled' in response) {
+      _this.enabled = Boolean(response.enabled);
+    }
+
+    if ('isBackground' in response) {
+      _this.isBackground = Boolean(response.isBackground);
+    }
+
+    if ('multiClickClose' in response) {
+      _this.multiClickClose = Boolean(response.multiClickClose);
+    }
+
+    if ('shortcutKeyToggleEnabled' in response) {
+      _this.shortcutKeyToggleEnabled = response.shortcutKeyToggleEnabled
+        .split(',')
+        .filter(function (val) {
+          return val !== '';
+        }).map(function (val) {
+          return Number(val);
+        });
+    }
+
+    if ('disabledSameDomain' in response) {
+      _this.disabledSameDomain = Boolean(response.disabledSameDomain);
+    }
+
+    _this.bindEvents();
+  },
+
+  onRemoveTabs: function (response) {
+    var _document = _this.window.document;
+
+    var oldNotify = _document.getElementById('linkblanker-notify');
+
+    if (oldNotify) {
+      oldNotify.hide(0);
+    }
+
+    var canvas = _this.getCanvas(response);
+
+    _this.window.document.body.appendChild(canvas);
+
+    var tabs = new Tabs(canvas);
+    var align = 'left' === response.align ? tabs.REMOVE.RIGHT_TO_LEFT : tabs.REMOVE.LEFT_TO_RIGHT;
+
+    tabs.show(response.removeTabsLength);
+
+    setTimeout(function () {
+      tabs.removeAll(align, function (removed) {
+        canvas.setAttribute('class', 'hide');
+
+        var notify = _this.getNotify(response, removed);
+        _this.window.document.body.appendChild(notify);
+        notify.show();
+
+        setTimeout(function () {
+          if (notify && notify.hide) {
+            notify.hide();
+          }
+        }, 10000);
+
+        setTimeout(function () {
+          canvas.parentNode.removeChild(canvas);
+        }, 210);
+      });
+    }, _this.getWait(response));
+  }
+};
+
 function Agent (window) {
   this.window = window;
   this.parse = {};
@@ -41,15 +119,15 @@ function initialize () {
 
       switch (response.name) {
         case MessageName.UPDATE_TAB_STATUS:
-          name = 'updateTabStatus';
+          name = 'onUpdateTabStatus';
           break;
         case MessageName.REMOVE_TABS:
-          name = 'removeTabs';
+          name = 'onRemoveTabs';
           break;
       }
 
       if (name) {
-        _this.receiveMessages[name].apply(_this, [ response ]);
+        listener[name].apply(_this, [ response ]);
       }
     }
   });
@@ -173,81 +251,6 @@ Agent.prototype.events = {
   },
   keyup: function (e) {
      _this.keys = [];
-  }
-};
-
-Agent.prototype.receiveMessages = {
-  updateTabStatus: function (response) {
-    if ('parse' in response) {
-      _this.parse = response.parse;
-    }
-
-    if ('enabled' in response) {
-      _this.enabled = Boolean(response.enabled);
-    }
-
-    if ('isBackground' in response) {
-      _this.isBackground = Boolean(response.isBackground);
-    }
-
-    if ('multiClickClose' in response) {
-      _this.multiClickClose = Boolean(response.multiClickClose);
-    }
-
-    if ('shortcutKeyToggleEnabled' in response) {
-      _this.shortcutKeyToggleEnabled = response.shortcutKeyToggleEnabled
-        .split(',')
-        .filter(function (val) {
-          return val !== '';
-        }).map(function (val) {
-          return Number(val);
-        });
-    }
-
-    if ('disabledSameDomain' in response) {
-      _this.disabledSameDomain = Boolean(response.disabledSameDomain);
-    }
-
-    _this.bindEvents();
-  },
-
-  removeTabs: function (response) {
-    var _document = _this.window.document;
-
-    var oldNotify = _document.getElementById('linkblanker-notify');
-
-    if (oldNotify) {
-      oldNotify.hide(0);
-    }
-
-    var canvas = _this.getCanvas(response);
-
-    _this.window.document.body.appendChild(canvas);
-
-    var tabs = new Tabs(canvas);
-    var align = 'left' === response.align ? tabs.REMOVE.RIGHT_TO_LEFT : tabs.REMOVE.LEFT_TO_RIGHT;
-
-    tabs.show(response.removeTabsLength);
-
-    setTimeout(function () {
-      tabs.removeAll(align, function (removed) {
-        canvas.setAttribute('class', 'hide');
-
-        var notify = _this.getNotify(response, removed);
-        _this.window.document.body.appendChild(notify);
-        notify.show();
-
-        setTimeout(function () {
-          if (notify && notify.hide) {
-            notify.hide();
-          }
-        }, 10000);
-
-        setTimeout(function () {
-          canvas.parentNode.removeChild(canvas);
-        }, 210);
-      });
-    }, _this.getWait(response));
   }
 };
 

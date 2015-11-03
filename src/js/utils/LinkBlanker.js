@@ -17,11 +17,200 @@ module.exports = LinkBlanker;
 var _this;
 
 /**
- * Private variables
+ * Private variable
  * No direct access!!
  */
-
 var _hostRegExp = '';
+
+/**
+ * Listener
+ */
+var listener =  {
+  tabs: {
+    onCreated: function (tab) {
+      Logger.debug('chrome.tabs.onCreated > ', arguments);
+
+      _this.mergeTabInfo(tab, function (mergedTab) {
+        _this.setTabLog('info', mergedTab, mergedTab.id);
+      });
+    },
+    onUpdated: function(tabId, changeInfo, tab) {
+      Logger.debug('chrome.tabs.onUpdated > ', arguments);
+
+      _this.getTabLog('info', tabId, function (existTab) {
+        if (existTab) {
+          _this.mergeTabInfo(existTab, function (mergedTab) {
+            _this.setTabLog('info', mergedTab, tabId);
+          });
+        } else {
+          _this.deleteTabLog(tabId);
+        }
+      });
+
+      _this.updateTabStatus(tab);
+    },
+
+    onRemoved: function(tabId, removeInfo) {
+      Logger.debug('chrome.tabs.onRemoved > ', arguments);
+      _this.deleteTabLog(tabId);
+    },
+
+    onAttached: function(tabId, attachInfo) {
+      Logger.debug('chrome.tabs.onAttached > ', arguments);
+      _this.lastCreateTabIndex = -1;
+      _this.setAllTabInfo();
+    },
+
+    onDetached: function (tabId, detachInfo) {
+      Logger.debug('chrome.tabs.onDetached > ', arguments);
+      _this.lastCreateTabIndex = -1;
+      _this.setAllTabInfo();
+    },
+
+    onMoved: function (tabId, moveInfo) {
+      Logger.debug('chrome.tabs.onMoved > ', arguments);
+      _this.lastCreateTabIndex = -1;
+      _this.setAllTabInfo();
+    },
+
+    onActivated: function (tabId, moveInfo) {
+      Logger.debug('chrome.tabs.onActivated > ', arguments);
+      _this.lastCreateTabIndex = -1;
+    },
+  },
+
+  extension: {
+    onConnect: function(port) {
+      if (_this.hasRuntimeError()) {
+        return;
+      }
+
+      var name;
+
+      switch (port.name) {
+        case MessageName.OPEN_TAB:
+          name = 'onOpenTab';
+          break;
+        case MessageName.REMOVE_TABS:
+          name = 'onRemoveTabs';
+          break;
+        case MessageName.UNDO_REMOVE_TABS:
+          name = 'onUndoRemoveTabs';
+          break;
+        case MessageName.TOGGLE_ENABLED:
+          name = 'onToggleEnabled';
+          break;
+      }
+
+      if (name) {
+        port.onMessage.addListener(listener.port[name].bind(_this));
+      }
+    },
+  },
+
+  port: {
+    onOpenTab: function (params) {
+      if (params) {
+        _this.getCurrentTab(function (error, tab) {
+          if (error) {
+            callback(error, null);
+            return;
+          }
+
+          var index = tab.index + 1;
+
+          if ('index' in params) {
+            index = params.index;
+          } else if (_this.lastCreateTabIndex > -1) {
+            index = _this.lastCreateTabIndex = _this.lastCreateTabIndex + 1;
+          } else {
+            _this.lastCreateTabIndex = index;
+          }
+
+          _this.chrome.tabs.create({
+            index: index,
+            url: params.url,
+            selected: params.selected,
+          }, function (newTab) {
+            var filterdTab = _this.filterTabPropaties(newTab);
+            filterdTab.openerTabId = tab.id;
+            _this.setTabLog('info', filterdTab, filterdTab.id);
+          });
+        });
+      }
+    },
+
+    onRemoveTabs: function (message) {
+      _this.chrome.windows.getLastFocused({ populate: true, windowTypes: [ 'normal' ] }, function (win) {
+        if (_this.hasRuntimeError()) {
+          return;
+        }
+
+        win.tabs.sort(function (a, b) {
+          if (a.index < b.index) {
+            return 'right' === message.align ? -1 : 1;
+          }
+
+          if (a.index > b.index) {
+            return 'right' === message.align ? 1  : -1;
+          }
+
+          return 0;
+        });
+
+        var removeTabs = [];
+        var activeTabId = -1;
+
+        for (var i = 0; i < win.tabs.length; i++) {
+          if (win.tabs[i].active) {
+            activeTabId = win.tabs[i].id;
+            continue;
+          }
+
+          if (activeTabId > -1) {
+            removeTabs.push(_this.filterTabPropaties(win.tabs[i]));
+          }
+        }
+
+        if (removeTabs.length > 0) {
+          _this.setTabLog('remove', {
+            align: message.align,
+            tabs: removeTabs
+          });
+
+          _this.chrome.tabs.remove(removeTabs.map(function (item) {
+            return item.id;
+          }));
+
+          message.name = MessageName.REMOVE_TABS;
+          message.removeTabsLength = removeTabs.length;
+
+          _this.chrome.tabs.sendMessage(activeTabId, message);
+        }
+      });
+    },
+
+    onUndoRemoveTabs: function () {
+      _this.getTabLog('remove', function (log, tab) {
+        if (log && log.tabs) {
+          log.tabs.map(function (item, i) {
+            _this.receiveMessages.openTab({
+              url: item.url,
+              selected: false,
+              index: ('right' === log.align ? tab.index + 1 + i : tab.index)
+            });
+          });
+
+          _this.deleteTabLog('remove', tab.id);
+        }
+      });
+    },
+
+    onToggleEnabled: function () {
+      _this.setData('enabled-extension', (0 === _this.getData()['enabled-extension']) ? 1 : 0);
+    },
+  },
+};
 
 /**
  * Constructor
@@ -29,8 +218,9 @@ var _hostRegExp = '';
 function LinkBlanker (chrome) {
   this.chrome = chrome;
   this.manifest = {};
-  this.tabLogs = {};
+  this.tabLog = {};
   this.messageReceiveMap = {};
+  this.lastCreateTabIndex = -1;
 
   initialize.apply(this);
 }
@@ -40,77 +230,12 @@ function initialize () {
 
   dataMigration();
 
-  _this.chrome.tabs.onCreated.addListener(function(tab) {
-    Logger.debug('chrome.tabs.onCreated > ', arguments);
-
-    if (_this.hasRuntimeError()) {
-      return;
-    }
-
-    _this.mergeTabInfo(tab, function (mergedTab) {
-      _this.setTabLogs('info', mergedTab, mergedTab.id);
-    });
+  Object.keys(listener.tabs).forEach(function (key) {
+    _this.chrome.tabs[key].addListener(listener.tabs[key].bind(_this));
   });
 
-  _this.chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    Logger.debug('chrome.tabs.onUpdated > ', arguments);
-
-    if (_this.hasRuntimeError()) {
-      return;
-    }
-
-    _this.getTabLogs('info', tabId, function (existTab) {
-      if (existTab) {
-        _this.mergeTabInfo(existTab, function (mergedTab) {
-          _this.setTabLogs('info', mergedTab, tabId);
-        });
-      } else {
-        _this.deleteTabLog(tabId);
-      }
-    });
-
-    _this.updateTabStatus(tab);
-  });
-
-  _this.chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-    Logger.debug('chrome.tabs.onRemoved > ', arguments);
-
-    if (_this.hasRuntimeError()) {
-      return;
-    }
-
-    _this.deleteTabLog(tabId);
-  });
-
-  _this.chrome.tabs.onAttached.addListener(_this.setAllTabInfo);
-  _this.chrome.tabs.onDetached.addListener(_this.setAllTabInfo);
-  _this.chrome.tabs.onMoved.addListener(_this.setAllTabInfo);
-
-  _this.chrome.extension.onConnect.addListener(function(port) {
-    if (_this.hasRuntimeError()) {
-      return;
-    }
-
-    var name;
-
-    switch (port.name) {
-      case MessageName.OPEN_TAB:
-        name = 'openTab';
-        break;
-      case MessageName.REMOVE_TABS:
-        name = 'removeTabs';
-        break;
-      case MessageName.UNDO_REMOVE_TABS:
-        name = 'undoRemoveTabs';
-        break;
-      case MessageName.TOGGLE_ENABLED:
-        name = 'toggleEnabled';
-        break;
-    }
-
-    if (name) {
-      port.onMessage.addListener(_this.receiveMessages[name]);
-    }
+  Object.keys(listener.extension).forEach(function (key) {
+    _this.chrome.extension[key].addListener(listener.extension[key].bind(_this));
   });
 
   _this.setAllTabInfo();
@@ -309,7 +434,7 @@ LinkBlanker.prototype.updateTabStatus = function (tab) {
       enabled: enabled,
       isBackground: 1 === data['enabled-background-open'] && 1 === data['enabled-extension'] ? 1 : 0,
       multiClickClose: data['enabled-multiclick-close'],
-      shortcutKeyTobbleEnabled: data['shortcut-key-toggle-enabled'],
+      shortcutKeyToggleEnabled: data['shortcut-key-toggle-enabled'],
       disabledSameDomain: data['disabled-same-domain']
     });
 
@@ -424,7 +549,7 @@ LinkBlanker.prototype.setAllTabInfo = function () {
     } else {
       async.each(tabs, function (tab, cbe) {
         _this.mergeTabInfo(tab, function (mergedTab) {
-          _this.setTabLogs('info', mergedTab, mergedTab.id);
+          _this.setTabLog('info', mergedTab, mergedTab.id);
           cbe();
         });
       });
@@ -433,7 +558,7 @@ LinkBlanker.prototype.setAllTabInfo = function () {
 };
 
 LinkBlanker.prototype.mergeTabInfo = function (tab, callback) {
-  _this.getTabLogs('info', tab.id, function (existTab) {
+  _this.getTabLog('info', tab.id, function (existTab) {
     var filterdTab = _this.filterTabPropaties(tab);
 
     if (existTab) {
@@ -472,7 +597,7 @@ LinkBlanker.prototype.filterTabPropaties = function (tab) {
   return result;
 };
 
-LinkBlanker.prototype.getTabLogs = function (key, tabId, callback) {
+LinkBlanker.prototype.getTabLog = function (key, tabId, callback) {
   var fixKey, fixTabId, fixCallback;
 
   if (key) {
@@ -507,7 +632,7 @@ LinkBlanker.prototype.getTabLogs = function (key, tabId, callback) {
         return;
       }
 
-      _this.getTabLogs(fixKey, tab, fixCallback);
+      _this.getTabLog(fixKey, tab, fixCallback);
     });
     return;
   }
@@ -517,11 +642,11 @@ LinkBlanker.prototype.getTabLogs = function (key, tabId, callback) {
       fixCallback(false);
     }
 
-    if (fixTabId in _this.tabLogs) {
-      if (fixKey && '*' !== fixKey && fixKey in _this.tabLogs[fixTabId]) {
-        fixCallback(_this.tabLogs[fixTabId][fixKey], tab);
+    if (fixTabId in _this.tabLog) {
+      if (fixKey && '*' !== fixKey && fixKey in _this.tabLog[fixTabId]) {
+        fixCallback(_this.tabLog[fixTabId][fixKey], tab);
       } else {
-        fixCallback(_this.tabLogs[fixTabId], tab);
+        fixCallback(_this.tabLog[fixTabId], tab);
       }
     } else {
       fixCallback(false);
@@ -529,7 +654,7 @@ LinkBlanker.prototype.getTabLogs = function (key, tabId, callback) {
   });
 };
 
-LinkBlanker.prototype.setTabLogs = function (key, value, tabId) {
+LinkBlanker.prototype.setTabLog = function (key, value, tabId) {
   if ('undefined' === typeof tabId) {
     _this.getCurrentTab(function (error, tab) {
       if (error) {
@@ -537,23 +662,23 @@ LinkBlanker.prototype.setTabLogs = function (key, value, tabId) {
         return;
       }
 
-      _this.setTabLogs(key, value, tab.id);
+      _this.setTabLog(key, value, tab.id);
     });
     return;
   }
 
-  if (!(tabId in _this.tabLogs)) {
-    _this.tabLogs[tabId] = {};
+  if (!(tabId in _this.tabLog)) {
+    _this.tabLog[tabId] = {};
   }
 
-  _this.tabLogs[tabId][key] = value;
+  _this.tabLog[tabId][key] = value;
 
   _this.chrome.extension.sendMessage({
     name: MessageName.SAVED_TAB_LOG,
-    data: _this.tabLogs,
+    data: _this.tabLog,
   });
 
-  Logger.debug(MessageName.SAVED_TAB_LOG, _this.tabLogs);
+  Logger.debug(MessageName.SAVED_TAB_LOG, _this.tabLog);
 };
 
 LinkBlanker.prototype.deleteTabLog = function (key, tabId) {
@@ -574,106 +699,18 @@ LinkBlanker.prototype.deleteTabLog = function (key, tabId) {
     return;
   }
 
-  if (tabId in _this.tabLogs) {
+  if (tabId in _this.tabLog) {
     if (key && '*' !== key) {
-      delete _this.tabLogs[tabId][key];
+      delete _this.tabLog[tabId][key];
     } else {
-      delete _this.tabLogs[tabId];
+      delete _this.tabLog[tabId];
     }
   }
 
   _this.chrome.extension.sendMessage({
     name: MessageName.DELETED_TAB_LOG,
-    data: _this.tabLogs
+    data: _this.tabLog
   });
 
-  Logger.debug(MessageName.DELETED_TAB_LOG, _this.tabLogs);
-};
-
-LinkBlanker.prototype.receiveMessages = {
-
-  openTab: function (params) {
-    if (params) {
-      _this.getCurrentTab(function (error, tab) {
-        if (error) {
-          callback(error, null);
-          return;
-        }
-
-        _this.chrome.tabs.create({
-          index: 'index' in params ? params.index : tab.index + 1,
-          url: params.url,
-          selected: params.selected,
-        }, function (newTab) {
-          var filterdTab = _this.filterTabPropaties(newTab);
-          filterdTab.openerTabId = tab.id;
-          _this.setTabLogs('info', filterdTab, filterdTab.id);
-        });
-      });
-    }
-  },
-
-  removeTabs: function (message) {
-    _this.chrome.windows.getLastFocused({ populate: true, windowTypes: [ 'normal' ] }, function (win) {
-      if (_this.hasRuntimeError()) {
-        return;
-      }
-
-      win.tabs.sort(function (a, b) {
-        if (a.index < b.index) return 'right' === message.align ? -1 : 1;
-        if (a.index > b.index) return 'right' === message.align ? 1  : -1;
-        return 0;
-      });
-
-      var removeTabs = [];
-      var activeTabId = -1;
-
-      for (var i = 0; i < win.tabs.length; i++) {
-        if (win.tabs[i].active) {
-          activeTabId = win.tabs[i].id;
-          continue;
-        }
-
-        if (activeTabId > -1) {
-          removeTabs.push(_this.filterTabPropaties(win.tabs[i]));
-        }
-      }
-
-      if (removeTabs.length > 0) {
-        _this.setTabLogs('remove', {
-          align: message.align,
-          tabs: removeTabs
-        });
-
-        _this.chrome.tabs.remove(removeTabs.map(function (item) {
-          return item.id;
-        }));
-
-        message.name = MessageName.REMOVE_TABS;
-        message.removeTabsLength = removeTabs.length;
-
-        _this.chrome.tabs.sendMessage(activeTabId, message);
-      }
-    });
-  },
-
-  undoRemoveTabs: function () {
-    _this.getTabLogs('remove', function (log, tab) {
-      if (log && log.tabs) {
-        log.tabs.map(function (item, i) {
-          _this.receiveMessages.openTab({
-            url: item.url,
-            selected: false,
-            index: ('right' === log.align ? tab.index + 1 + i : tab.index)
-          });
-        });
-
-        _this.deleteTabLog('remove', tab.id);
-      }
-    });
-  },
-
-  toggleEnabled: function () {
-    _this.setData('enabled-extension', (0 === _this.getData()['enabled-extension']) ? 1 : 0);
-  },
+  Logger.debug(MessageName.DELETED_TAB_LOG, _this.tabLog);
 };
