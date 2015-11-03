@@ -194,7 +194,7 @@ var listener =  {
       _this.getTabLog('remove', function (log, tab) {
         if (log && log.tabs) {
           log.tabs.map(function (item, i) {
-            _this.receiveMessages.openTab({
+            listener.port.onOpenTab({
               url: item.url,
               selected: false,
               index: ('right' === log.align ? tab.index + 1 + i : tab.index)
