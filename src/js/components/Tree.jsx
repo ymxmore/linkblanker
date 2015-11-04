@@ -3,17 +3,18 @@
  */
 
 var Api = require('../utils/Api');
+var Helmet = require('react-helmet');
+// var ImageLoader = require('react-imageloader');
+var Image = require('./Image.jsx');
+var Logger = require('../utils/Logger');
 var MaterialUi = require('material-ui');
-var PreferenceMixin = require('../mixins/Preference');
 var React = window.React = require('react');
 var TreeStore = require('../stores/Tree');
 
 var Tree = React.createClass({
-  mixins: [ PreferenceMixin ],
-
   getInitialState: function () {
     return {
-      data: {},
+      data: [],
     };
   },
 
@@ -27,9 +28,27 @@ var Tree = React.createClass({
   },
 
   render: function () {
+    Logger.debug('Tree.render > ', this.state);
+
     return (
       <div id="tree">
-
+        <Helmet title="Tab Tree"/>
+        {this.state.data.map(function (item) {
+          return (
+            <a key={item.info.id} data-id={item.info.id} className="tab">
+              <header>
+                <h6>{item.info.title}</h6>
+                <Image
+                  className="favicon"
+                  src={item.info.favIconUrl}
+                  width="16"
+                  height="16"
+                  alt={item.info.title}
+                />
+              </header>
+            </a>
+          );
+        }.bind(this))}
       </div>
     );
   },
@@ -38,6 +57,14 @@ var Tree = React.createClass({
     this.setState({
       data: TreeStore.get(),
     });
+  },
+
+  _getPreLoader: function () {
+    return (<div>Load</div>);
+  },
+
+  _getFavicon: function () {
+    return (<div>Load</div>);
   },
 });
 

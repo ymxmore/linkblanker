@@ -64,6 +64,7 @@
     "jshint-stylish": "^2.0.1",
     "keymirror": "^0.1.1",
     "material-ui": "^0.13.0",
+    "md5": "^2.0.0",
     "node-notifier": "^4.3.1",
     "object-assign": "^4.0.1",
     "react": "^0.14.0",
@@ -77,6 +78,7 @@
     "react-tap-event-plugin": "^0.2.1",
     "reactify": "^1.1.1",
     "run-sequence": "^1.1.4",
+    "superagent": "^1.4.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }

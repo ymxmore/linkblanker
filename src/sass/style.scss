@@ -54,7 +54,7 @@ $icon-size: 48px;
   display: inline-block;
   position: absolute;
   bottom: 0;
-  left: $logo-x;
+  left: $logo-x + 2px;
 }
 
 .header-underline {
