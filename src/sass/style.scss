@@ -80,6 +80,29 @@ $icon-size: 48px;
   }
 }
 
+.tab-tree {
+
+  &, .tab {
+    position: relative;
+  }
+
+  .tab {
+    display: inline-block;
+  }
+
+  h6 {
+    margin: 0;
+    padding: 0 0 0 20px;
+  }
+
+  .favicon {
+    position: absolute;
+    top: 1px;
+    left: 0;
+  }
+}
+
 .fa {
   color: $text-color-dark;
+  font-size: 16px;
 }

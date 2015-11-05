@@ -33,20 +33,21 @@ var Tree = React.createClass({
     return (
       <div id="tree">
         <Helmet title="Tab Tree"/>
-        {this.state.data.map(function (item) {
+        {this.state.data.map(function (item, i) {
           return (
-            <a key={item.info.id} data-id={item.info.id} className="tab">
-              <header>
-                <h6>{item.info.title}</h6>
+            <div className="tab-tree" key={i}>
+              <div className="tab" key={item.info.id} data-id={item.info.id} title={item.info.title || item.info.url}>
+                <h6>{item.info.title || item.info.url}</h6>
                 <Image
                   className="favicon"
                   src={item.info.favIconUrl}
                   width="16"
                   height="16"
+                  tabStatus={item.info.status || 'complete'}
                   alt={item.info.title}
                 />
-              </header>
-            </a>
+              </div>
+            </div>
           );
         }.bind(this))}
       </div>

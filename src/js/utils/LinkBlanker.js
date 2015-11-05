@@ -582,6 +582,7 @@ LinkBlanker.prototype.filterTabPropaties = function (tab) {
     'id',
     'favIconUrl',
     'index',
+    'status',
     'title',
     'url',
     'windowId',

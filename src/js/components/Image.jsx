@@ -17,6 +17,7 @@ var Image = React.createClass({
   getDefaultProps: function () {
     return {
       src: '',
+      tabStatus: 'loading',
       useCache: true,
     };
   },
@@ -25,35 +26,20 @@ var Image = React.createClass({
     return {
       src: '',
       dataURL: '',
+      tabStatus: 'loading',
       useCache: true,
       imgProps: {},
     };
   },
 
-  componentWillMount: function () {
-    Logger.debug('Image.componentWillReceiveProps > ', this.props);
+  componentWillReceiveProps: function (nextProps) {
+    // Logger.debug('Image.componentWillReceiveProps > ', this.props);
 
-    var state = this.state;
-    var imgProps = this.props;
-    var keys = Object.keys(state);
-    var len = keys.length;
+    this._setState(nextProps);
+  },
 
-    Logger.debug('Image.componentWillReceiveProps loop > ', state, imgProps);
-
-    for (var i = 0; i < len; i++) {
-      var key = keys[i];
-
-      if (key in imgProps) {
-        state[key] = imgProps[key];
-        delete imgProps[key];
-      }
-    }
-
-    state.imgProps = assign(state.imgProps, imgProps);
-    state.imgProps.className = (state.imgProps.className || '') + ' favicon';
-    state.dataURL = this._getDataURL(state.src, state.useCache);
-
-    this.setState(state);
+  componentDidMount: function () {
+    this._setState(this.props);
   },
 
   render: function () {
@@ -73,7 +59,32 @@ var Image = React.createClass({
     );
   },
 
-  _getDataURL: function (url, useCache) {
+  _setState: function (props) {
+    var state = this.state;
+    // var imgProps = this.props;
+    var imgProps = props;
+    var keys = Object.keys(state);
+    var len = keys.length;
+
+    // Logger.debug('Image.componentWillReceiveProps loop > ', state, imgProps);
+
+    for (var i = 0; i < len; i++) {
+      var key = keys[i];
+
+      if (key in imgProps) {
+        state[key] = imgProps[key];
+        delete imgProps[key];
+      }
+    }
+
+    state.imgProps = assign(state.imgProps, imgProps);
+    state.dataURL = this._getDataURL(state.src, state.tabStatus, state.useCache);
+
+    this.setState(state);
+  },
+
+  _getDataURL: function (url, tabStatus, useCache) {
+    Logger.debug('[start] fetch', url, tabStatus, useCache);
     if (url && '' !== url) {
       var cacheKey = this._getCacheKey(url);
 
@@ -82,6 +93,7 @@ var Image = React.createClass({
       }
 
       if (!url.match(/^https?:\/\/.+/)) {
+        Logger.debug('[faild] no match url', url, this.state);
         return 'faild';
       }
 
@@ -96,7 +108,7 @@ var Image = React.createClass({
         xhr.open('GET', url, true);
 
         xhr.onload = function (e) {
-          Logger.debug('onload.', e, this);
+          Logger.debug('[onload]', e, this);
 
           if (200 !== this.status) {
             self.onerror.apply(this);
@@ -106,7 +118,7 @@ var Image = React.createClass({
           var bytes = new Uint8Array(this.response);
           var ext = self._getExtention(bytes);
 
-          Logger.debug(ext, bytes);
+          // Logger.debug(ext, bytes);
 
           var raw = String.fromCharCode.apply(null, bytes);
           var b64 = btoa(raw);
@@ -114,7 +126,7 @@ var Image = React.createClass({
 
           // cache
           if (useCache) {
-            sessionStorage[cacheKey] = dataURL;
+            sessionStorage[self._getCacheKey(this.responseURL)] = dataURL;
           }
 
           // set
@@ -122,17 +134,17 @@ var Image = React.createClass({
         };
 
         xhr.onreadystatechange = function (e) {
-          Logger.debug('onreadystatechange.', e, this);
+          // Logger.debug('onreadystatechange.', e, this);
 
           if (this.readyState === 4) {
           }
         };
 
         xhr.onerror = xhr.ontimeout = xhr.ontimeout = function (e) {
-          Logger.debug('fetch onerror.', e);
+          // Logger.debug('fetch onerror.', e);
 
           if (useCache) {
-            delete sessionStorage[cacheKey];
+            delete sessionStorage[self._getCacheKey(this.responseURL)];
           }
 
           self.setState({ dataURL: 'faild' });
@@ -140,18 +152,20 @@ var Image = React.createClass({
 
         xhr.send();
 
-        Logger.debug('image fetching.', url);
+        // Logger.debug('image fetching.', url);
 
         return 'loading';
       } catch (e) {
-        Logger.debug('fetch image faild.', e);
+        // Logger.debug('fetch image faild.', e);
+        Logger.debug('[faild] has error', url, this.state, e);
         return 'faild';
       }
     }
 
-    Logger.debug('no url.', url);
+    // Logger.debug('no url.', url);
 
-    return 'faild';
+    Logger.debug('[faild] normal faild', url, this.state);
+    return 'complete' === tabStatus ? 'faild' : 'loading';
   },
 
   _getCacheKey: function (url) {
