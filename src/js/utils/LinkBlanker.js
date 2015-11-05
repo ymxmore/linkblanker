@@ -34,17 +34,21 @@ var listener =  {
         _this.setTabLog('info', mergedTab, mergedTab.id);
       });
     },
+
     onUpdated: function(tabId, changeInfo, tab) {
       Logger.debug('chrome.tabs.onUpdated > ', arguments);
 
-      _this.getTabLog('info', tabId, function (existTab) {
-        if (existTab) {
-          _this.mergeTabInfo(existTab, function (mergedTab) {
-            _this.setTabLog('info', mergedTab, tabId);
-          });
-        } else {
-          _this.deleteTabLog(tabId);
-        }
+      // _this.getTabLog('info', tabId, function (existTab) {
+      //   if (existTab) {
+      //     _this.mergeTabInfo(existTab, function (mergedTab) {
+      //       _this.setTabLog('info', mergedTab, tabId);
+      //     });
+      //   } else {
+      //     _this.deleteTabLog(tabId);
+      //   }
+      // });
+      _this.mergeTabInfo(tab, function (mergedTab) {
+        _this.setTabLog('info', mergedTab, tabId);
       });
 
       _this.updateTabStatus(tab);

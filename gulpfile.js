@@ -87,6 +87,19 @@ var errorHandler = function (title) {
 // Tasks
 // ------------------------------------------------------------
 
+gulp.task('archive', function (callback) {
+  if (!inproduction) {
+    console.log('Archive should be in the production environment'.warn);
+  }
+
+  runsequence(
+    [ 'zip' ],
+    function () {
+      notifier.notify({title: 'Task done', message: 'Archive done.' }, callback);
+    }
+  );
+});
+
 gulp.task('browserify', function (callback) {
   async.each(glob.sync('./src/js/apps/*'), function (file, cb) {
     browserify({
@@ -133,7 +146,7 @@ gulp.task('browserify', function (callback) {
 gulp.task('build', function (callback) {
   runsequence(
     [ 'clean', 'htmlhint', 'jshint' ],
-    [ 'manifest', 'locale', 'optimazeimage', 'compass', 'browserify', 'htmlmin' ],
+    [ 'manifest', 'locale', 'fontcopy', 'optimazeimage', 'compass', 'browserify', 'htmlmin' ],
     function () {
       notifier.notify({title: 'Task done', message: 'Build done.' }, callback);
     }
@@ -163,6 +176,15 @@ gulp.task('compass', function () {
     .pipe(gulp.dest('./dist/css'));
 });
 
+gulp.task('fontcopy', function () {
+  return gulp.src([
+      './src/font/**/*',
+      './node_modules/font-awesome/fonts/*'
+    ])
+    .pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
+    .pipe(gulp.dest('./dist/font'));
+});
+
 gulp.task('htmlhint', function() {
   return gulp.src('./src/html/**/*.html')
     .pipe(htmlhint())
@@ -182,7 +204,6 @@ gulp.task('htmlmin', function () {
       removeScriptTypeAttributes: true,
       removeStyleLinkTypeAttributes: true,
     }))
-    // .pipe(gulp.dest('./dist/html'));
     .pipe(gulp.dest('./dist'));
 });
 
@@ -231,18 +252,6 @@ gulp.task('zip', [ 'build' ], function () {
     .pipe(gulp.dest('./archive'));
 });
 
-gulp.task('archive', function (callback) {
-  if (!inproduction) {
-    console.log('Archive should be in the production environment'.warn);
-  }
-
-  runsequence(
-    [ 'zip' ],
-    function () {
-      notifier.notify({title: 'Task done', message: 'Archive done.' }, callback);
-    }
-  );
-});
 
 gulp.task('watch', [ 'build' ], function () {
   gulp.watch('./src/manifest.json', function () {
@@ -260,6 +269,12 @@ gulp.task('watch', [ 'build' ], function () {
   gulp.watch('./src/html/**/*', function () {
     runsequence('htmlhint', 'htmlmin', function () {
       notifier.notify({title: 'Task done', message: 'htmlhint, htmlmin'});
+    });
+  });
+
+  gulp.watch('./src/font/**/*', function () {
+    runsequence('fontcopy', function () {
+      notifier.notify({title: 'Task done', message: 'fontcopy'});
     });
   });
 

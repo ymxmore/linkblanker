@@ -10,6 +10,7 @@
 
 @import "compass";
 @import "compass/reset";
+@import "../../node_modules/font-awesome/scss/font-awesome";
 @import url(http://fonts.googleapis.com/css?family=Roboto:400,300,500);
 
 // original
@@ -77,4 +78,8 @@ $icon-size: 48px;
     border-top: 1px solid $border-color-light;
     padding-top: .9em;
   }
+}
+
+.fa {
+  color: $text-color-dark;
 }

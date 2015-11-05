@@ -40,6 +40,7 @@
     "browserify-shim": "^3.8.11",
     "colors": "^1.1.2",
     "flux": "^2.1.1",
+    "font-awesome": "^4.4.0",
     "glob": "^5.0.15",
     "gulp": "^3.9.0",
     "gulp-cached": "^1.1.0",

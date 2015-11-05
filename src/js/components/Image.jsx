@@ -50,14 +50,23 @@ var Image = React.createClass({
     }
 
     state.imgProps = assign(state.imgProps, imgProps);
+    state.imgProps.className = (state.imgProps.className || '') + ' favicon';
     state.dataURL = this._getDataURL(state.src, state.useCache);
 
     this.setState(state);
   },
 
   render: function () {
-    // TODO: loader
-    // <i class="fa fa-refresh fa-spin"></i>
+    var className = (this.state.imgProps.className || '');
+
+    switch (this.state.dataURL) {
+      case 'loading':
+        className += ' fa fa-2x fa-circle-o-notch fa-spin';
+        return (<i className={className}></i>);
+      case 'faild':
+        className += ' fa fa-2x fa-sticky-note-o';
+        return (<i className={className}></i>);
+    }
 
     return (
       <img {...this.state.imgProps} src={this.state.dataURL}/>
@@ -68,54 +77,81 @@ var Image = React.createClass({
     if (url && '' !== url) {
       var cacheKey = this._getCacheKey(url);
 
-      if (useCache && cacheKey in localStorage) {
-        return localStorage[cacheKey];
+      if (useCache && cacheKey in sessionStorage) {
+        return sessionStorage[cacheKey];
+      }
+
+      if (!url.match(/^https?:\/\/.+/)) {
+        return 'faild';
       }
 
       var self = this;
-      var xhr = new XMLHttpRequest();
 
-      xhr.timeout = 10000;
-      xhr.responseType = 'arraybuffer';
+      try {
+        var xhr = new XMLHttpRequest();
 
-      xhr.open('GET', url, true);
+        xhr.timeout = 10000;
+        xhr.responseType = 'arraybuffer';
 
-      xhr.onload = function (e) {
-        if (200 !== this.status) {
-          self.onerror.apply(this);
-          return;
-        }
+        xhr.open('GET', url, true);
 
-        var bytes = new Uint8Array(this.response);
-        var ext = self._getExtention(bytes);
+        xhr.onload = function (e) {
+          Logger.debug('onload.', e, this);
 
-        Logger.debug(ext, bytes);
+          if (200 !== this.status) {
+            self.onerror.apply(this);
+            return;
+          }
 
-        var raw = String.fromCharCode.apply(null, bytes);
-        var b64 = btoa(raw);
-        var dataURL = 'data:image/' + ext + ';base64,' + b64;
+          var bytes = new Uint8Array(this.response);
+          var ext = self._getExtention(bytes);
 
-        // cache
-        if (useCache) {
-          localStorage[cacheKey] = dataURL;
-        }
+          Logger.debug(ext, bytes);
 
-        // set
-        self.setState({ dataURL: dataURL });
-      };
+          var raw = String.fromCharCode.apply(null, bytes);
+          var b64 = btoa(raw);
+          var dataURL = 'data:image/' + ext + ';base64,' + b64;
 
-      xhr.onerror = xhr.ontimeout = xhr.ontimeout = function (e) {
-        if (useCache) {
-          delete localStorage[cacheKey];
-        }
+          // cache
+          if (useCache) {
+            sessionStorage[cacheKey] = dataURL;
+          }
 
-        self.setState({ dataURL: 'TODO: no favicon...' });
-      };
+          // set
+          self.setState({ dataURL: dataURL });
+        };
 
-      xhr.send();
+        xhr.onreadystatechange = function (e) {
+          Logger.debug('onreadystatechange.', e, this);
+
+          if (this.readyState === 4) {
+          }
+        };
+
+        xhr.onerror = xhr.ontimeout = xhr.ontimeout = function (e) {
+          Logger.debug('fetch onerror.', e);
+
+          if (useCache) {
+            delete sessionStorage[cacheKey];
+          }
+
+          self.setState({ dataURL: 'faild' });
+        };
+
+        xhr.send();
+
+        Logger.debug('image fetching.', url);
+
+        return 'loading';
+      } catch (e) {
+        Logger.debug('fetch image faild.', e);
+        return 'faild';
+      }
     }
 
-    return ''; // preloader
+    Logger.debug('no url.', url);
+
+    return 'faild';
   },
 
   _getCacheKey: function (url) {
