@@ -26,7 +26,7 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
           callback(error, null);
         }
 
-        Logger.debug('the debug 3', error, result);
+        // Logger.debug('the debug 3', error, result);
         return;
       }
 
@@ -120,7 +120,7 @@ AppDispatcher.register(function (action) {
 
       break;
     case EventType.RECEIVE_MESSAGE:
-      Logger.debug('receive message on store', action);
+      // Logger.debug('receive message on store', action);
       var response = action.args[0];
 
       if ('name' in response) {

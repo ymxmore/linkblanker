@@ -42,7 +42,7 @@ var Preference = {
         return;
       }
 
-      Logger.debug('Preference.getAll callback', state);
+      // Logger.debug('Preference.getAll callback', state);
       state['shortcut-key-toggle-enabled-value'] = state['shortcut-key-toggle-enabled'];
 
       var keyMap = self.getKeyMap(state['shortcut-key-toggle-enabled']);

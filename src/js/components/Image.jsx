@@ -2,39 +2,38 @@
  * components/Image.jsx
  */
 
+var Api = require('../utils/Api');
 var assign = require('object-assign');
 var Logger = require('../utils/Logger');
-var md5 = require('md5');
 var React = require('react');
 var request = require('superagent');
 
 var Image = React.createClass({
   propTypes: {
     src: React.PropTypes.string.isRequired,
-    useCache: React.PropTypes.bool,
+    url: React.PropTypes.string,
+    tabStatus: React.PropTypes.string,
   },
 
   getDefaultProps: function () {
     return {
       src: '',
+      url: '',
       tabStatus: 'loading',
-      useCache: true,
     };
   },
 
   getInitialState: function () {
     return {
       src: '',
+      url: '',
       dataURL: '',
       tabStatus: 'loading',
-      useCache: true,
       imgProps: {},
     };
   },
 
   componentWillReceiveProps: function (nextProps) {
-    // Logger.debug('Image.componentWillReceiveProps > ', this.props);
-
     this._setState(nextProps);
   },
 
@@ -61,12 +60,9 @@ var Image = React.createClass({
 
   _setState: function (props) {
     var state = this.state;
-    // var imgProps = this.props;
     var imgProps = props;
     var keys = Object.keys(state);
     var len = keys.length;
-
-    // Logger.debug('Image.componentWillReceiveProps loop > ', state, imgProps);
 
     for (var i = 0; i < len; i++) {
       var key = keys[i];
@@ -78,118 +74,29 @@ var Image = React.createClass({
     }
 
     state.imgProps = assign(state.imgProps, imgProps);
-    state.dataURL = this._getDataURL(state.src, state.tabStatus, state.useCache);
 
     this.setState(state);
+
+    this.fetchImage(state.src, state.tabStatus, state.url);
   },
 
-  _getDataURL: function (url, tabStatus, useCache) {
-    Logger.debug('[start] fetch', url, tabStatus, useCache);
-    if (url && '' !== url) {
-      var cacheKey = this._getCacheKey(url);
-
-      if (useCache && cacheKey in sessionStorage) {
-        return sessionStorage[cacheKey];
-      }
-
-      if (!url.match(/^https?:\/\/.+/)) {
-        Logger.debug('[faild] no match url', url, this.state);
-        return 'faild';
-      }
-
-      var self = this;
-
-      try {
-        var xhr = new XMLHttpRequest();
-
-        xhr.timeout = 10000;
-        xhr.responseType = 'arraybuffer';
-
-        xhr.open('GET', url, true);
-
-        xhr.onload = function (e) {
-          Logger.debug('[onload]', e, this);
-
-          if (200 !== this.status) {
-            self.onerror.apply(this);
-            return;
-          }
-
-          var bytes = new Uint8Array(this.response);
-          var ext = self._getExtention(bytes);
-
-          // Logger.debug(ext, bytes);
-
-          var raw = String.fromCharCode.apply(null, bytes);
-          var b64 = btoa(raw);
-          var dataURL = 'data:image/' + ext + ';base64,' + b64;
-
-          // cache
-          if (useCache) {
-            sessionStorage[self._getCacheKey(this.responseURL)] = dataURL;
-          }
-
-          // set
-          self.setState({ dataURL: dataURL });
-        };
-
-        xhr.onreadystatechange = function (e) {
-          // Logger.debug('onreadystatechange.', e, this);
-
-          if (this.readyState === 4) {
-          }
-        };
-
-        xhr.onerror = xhr.ontimeout = xhr.ontimeout = function (e) {
-          // Logger.debug('fetch onerror.', e);
-
-          if (useCache) {
-            delete sessionStorage[self._getCacheKey(this.responseURL)];
-          }
-
-          self.setState({ dataURL: 'faild' });
-        };
-
-        xhr.send();
-
-        // Logger.debug('image fetching.', url);
-
-        return 'loading';
-      } catch (e) {
-        // Logger.debug('fetch image faild.', e);
-        Logger.debug('[faild] has error', url, this.state, e);
-        return 'faild';
-      }
+  fetchImage: function (url, tabStatus, guideUrl) {
+    if ('loading' === tabStatus) {
+      this.setState({ dataURL: 'loading' });
+    } else {
+      Api.getLinkBlanker().fetchImage(url, this._onFetch, guideUrl);
     }
-
-    // Logger.debug('no url.', url);
-
-    Logger.debug('[faild] normal faild', url, this.state);
-    return 'complete' === tabStatus ? 'faild' : 'loading';
   },
 
-  _getCacheKey: function (url) {
-    if (this.cacheKey) {
-      return this.cacheKey;
+  _onFetch: function (error, dataURL) {
+    // Logger.debug('onfetch => ', arguments, this);
+
+    if (!error && dataURL) {
+      this.setState({ dataURL: dataURL });
+    } else {
+      // Logger.debug('[faild] fetch image', error);
+      this.setState({ dataURL: 'faild' });
     }
-
-    var cacheKey = 'cache:' + md5(url);
-
-    this.cacheKey = cacheKey;
-
-    return this.cacheKey;
-  },
-
-  _getExtention: function (bytes) {
-    if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[bytes.length-2] === 0xff && bytes[bytes.length-1] === 0xd9) {
-      return 'jpeg';
-    } else if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
-      return 'png';
-    } else if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) {
-      return 'gif';
-    }
-
-    return 'jpeg';
   },
 });
 

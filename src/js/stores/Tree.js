@@ -100,7 +100,7 @@ function convertTreeFromTabLogs (tabLogs) {
   // sort by window id and tab index
   tree = getSortedTabsByWindowIdAndIndex(tree);
 
-  Logger.debug('convertTreeFromTabLogs', tree);
+  // Logger.debug('convertTreeFromTabLogs', tree);
 
   return tree;
 }
@@ -136,7 +136,7 @@ function getSortedTabsByOpenerTabId (tabLogArr) {
       return 0;
     });
 
-    Logger.debug('getSortedTabsByOpenerTabId', tabLogArr);
+    // Logger.debug('getSortedTabsByOpenerTabId', tabLogArr);
   }
 
   return tabLogArr;
@@ -153,7 +153,7 @@ function getSortedTabsByWindowIdAndIndex (tabLogArr) {
         return 1;
       }
 
-      if (a.info.windowId > b.info.windowId) {
+      if (a.info.windowId < b.info.windowId) {
         return -1;
       }
 
@@ -168,7 +168,7 @@ function getSortedTabsByWindowIdAndIndex (tabLogArr) {
       return 0;
     });
 
-    Logger.debug('getSortedTabsByWindowIdAndIndex', tabLogArr);
+    // Logger.debug('getSortedTabsByWindowIdAndIndex', tabLogArr);
   }
 
   return tabLogArr;

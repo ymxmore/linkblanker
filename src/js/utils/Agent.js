@@ -194,7 +194,7 @@ Agent.prototype.events = {
 
         var params = {
           url: targetFullUrl,
-          selected: !_this.isBackground
+          active: !_this.isBackground
         };
 
         if (!_this.postMessage(MessageName.OPEN_TAB, params)) {
