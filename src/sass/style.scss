@@ -89,6 +89,8 @@ $icon-size: 48px;
 .tab-tree-group, .tab-tree, .tab {
   position: relative;
   width: auto;
+  @include transition-property(width, height, opacity, border, color, background-color);
+  @include transition-duration(.2s);
 }
 
 .tab-tree-group {
@@ -130,15 +132,22 @@ $icon-size: 48px;
   }
 }
 
+#tree > .tab-tree-group {
+  margin-left: 1rem;
+
+  border-bottom: 1px dashed $border-color;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
 .tab-tree {
   padding: 0;
 
-  @include transition-property(width, height, opacity, border, color, background-color);
-  @include transition-duration(.1s);
-
   .tab-icon {
     position: absolute;
-    top: 1rem;
+    top: .9rem;
     left: .5rem;
     cursor: pointer;
     z-index: 2;
@@ -150,7 +159,7 @@ $icon-size: 48px;
     .remove-tab {
       display: none;
       font-size: 1.8rem;
-      margin-top: -.5rem;
+      margin-top: -.4rem;
       color: $error-color;
     }
 
@@ -179,9 +188,6 @@ $icon-size: 48px;
   cursor: pointer;
   z-index: 1;
 
-  @include transition-property(width, height, opacity, border, color, background-color);
-  @include transition-duration(.1s);
-
   &:hover {
     background-color: $primary-color-light;
 
@@ -193,16 +199,6 @@ $icon-size: 48px;
   h6 {
     margin: 0;
     line-height: 1.2rem;
-  }
-}
-
-#tree > .tab-tree-group {
-  margin-left: 1rem;
-
-  border-bottom: 1px dashed $border-color;
-
-  &:last-child {
-    border-bottom: 0;
   }
 }
 
@@ -219,5 +215,5 @@ $icon-size: 48px;
 
 .highlight-text {
   font-weight: bold;
-  letter-spacing: $letter-spacing - 0.002em;
+  letter-spacing: $letter-spacing - 0.006em;
 }
