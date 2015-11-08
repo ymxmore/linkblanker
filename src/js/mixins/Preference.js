@@ -26,7 +26,6 @@ var Preference = {
 
   componentDidMount: function () {
     PreferenceStore.addChangeListener(this.setAllState);
-    Api.listenMessage();
     this.setAllState();
   },
 

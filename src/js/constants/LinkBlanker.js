@@ -21,4 +21,9 @@ module.exports = {
     UNDO_REMOVE_TABS: null,
     TOGGLE_ENABLED: null,
   }),
+
+  StorageType: keyMirror({
+    PERSISTENCE: null,
+    EPHEMERAL: null,
+  })
 };

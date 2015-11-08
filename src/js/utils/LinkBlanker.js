@@ -6,14 +6,19 @@ var LinkBlankerConstants = require('../constants/LinkBlanker');
 var Logger = require('../utils/Logger');
 var MessageName = LinkBlankerConstants.MessageName;
 var md5 = require('md5');
+var StorageFactory = require('../utils/StorageFactory');
+
+var StorageType = LinkBlankerConstants.StorageType;
+var pStorage = StorageFactory.get(StorageType.PERSISTENCE);
+var eStorage = StorageFactory.get(StorageType.EPHEMERAL);
 
 /**
- * Export the constructor.
+ * Export the constructor
  */
 module.exports = LinkBlanker;
 
 /**
- * LinkBlanker active instance.
+ * LinkBlanker active instance
  */
 var _this;
 
@@ -23,9 +28,9 @@ var _this;
 var _hostRegExp = '';
 
 /**
- * Cache
+ * Temporary fetch image listener
  */
-var _cache = {};
+var _fetchImageListener = {};
 
 /**
  * Listener
@@ -178,7 +183,7 @@ var listener =  {
     },
 
     onRemoveTabs: function (message) {
-      _this.chrome.windows.getLastFocused({ populate: true, windowTypes: [ 'normal' ] }, function (win) {
+      _this.chrome.windows.getCurrent({ populate: true, windowTypes: [ 'normal' ] }, function (win) {
         if (_this.hasRuntimeError()) {
           return;
         }
@@ -303,7 +308,7 @@ LinkBlanker.prototype.getCurrentTab = function (callback) {
   if (callback) {
     async.waterfall([
       function(cbw) {
-        _this.chrome.windows.getLastFocused(function (win) {
+        _this.chrome.windows.getCurrent({ populate: true, windowTypes: [ 'normal' ] }, function (win) {
           cbw(_this.hasRuntimeError(), win);
         });
       },
@@ -341,14 +346,23 @@ LinkBlanker.prototype.getManifest = function () {
 
 LinkBlanker.prototype.getData = function () {
   return {
-    'enabled-extension': Number(localStorage['enabled-extension'] || '1'),
-    'disabled-domain': JSON.parse(localStorage['disabled-domain'] || '[]'),
-    'disabled-directory': JSON.parse(localStorage['disabled-directory'] || '[]'),
-    'disabled-page': JSON.parse(localStorage['disabled-page'] || '[]'),
-    'enabled-background-open': Number(localStorage['enabled-background-open'] || '0'),
-    'enabled-multiclick-close': Number(localStorage['enabled-multiclick-close'] || '0'),
-    'shortcut-key-toggle-enabled': localStorage['shortcut-key-toggle-enabled'] || '',
-    'disabled-same-domain': Number(localStorage['disabled-same-domain'] || '0'),
+    // 'enabled-extension': Number(localStorage['enabled-extension'] || '1'),
+    // 'disabled-domain': JSON.parse(localStorage['disabled-domain'] || '[]'),
+    // 'disabled-directory': JSON.parse(localStorage['disabled-directory'] || '[]'),
+    // 'disabled-page': JSON.parse(localStorage['disabled-page'] || '[]'),
+    // 'enabled-background-open': Number(localStorage['enabled-background-open'] || '0'),
+    // 'enabled-multiclick-close': Number(localStorage['enabled-multiclick-close'] || '0'),
+    // 'shortcut-key-toggle-enabled': localStorage['shortcut-key-toggle-enabled'] || '',
+    // 'disabled-same-domain': Number(localStorage['disabled-same-domain'] || '0'),
+
+    'enabled-extension': pStorage.getItem('enabled-extension', 0),
+    'disabled-domain': pStorage.getItem('disabled-domain', []),
+    'disabled-directory': pStorage.getItem('disabled-directory', []),
+    'disabled-page': pStorage.getItem('disabled-page', []),
+    'enabled-background-open': pStorage.getItem('enabled-background-open', 0),
+    'enabled-multiclick-close': pStorage.getItem('enabled-multiclick-close', 0),
+    'shortcut-key-toggle-enabled': pStorage.getItem('shortcut-key-toggle-enabled', ''),
+    'disabled-same-domain': pStorage.getItem('disabled-same-domain', 0),
   };
 };
 
@@ -387,16 +401,20 @@ LinkBlanker.prototype.setData = function (key, value) {
             }
           }
 
-          localStorage[fixKey] = JSON.stringify(all[fixKey]);
+          // localStorage[fixKey] = JSON.stringify(all[fixKey]);
+          pStorage.setItem(fixKey, all[fixKey]);
           break;
         case 'shortcut-key-toggle-enabled':
-          localStorage[fixKey] = fixValue;
+          // localStorage[fixKey] = fixValue;
+          pStorage.setItem(fixKey, fixValue);
           break;
         case 'enabled-extension':
         case 'enabled-background-open':
         case 'enabled-multiclick-close':
         case 'disabled-same-domain':
-          localStorage[fixKey] = fixValue ? 1 : 0;
+          // localStorage[fixKey] = fixValue ? 1 : 0;
+          Logger.debug(fixKey, fixValue, fixValue ? 1 : 0);
+          pStorage.setItem(fixKey, fixValue ? 1 : 0);
           break;
       }
     });
@@ -755,7 +773,9 @@ LinkBlanker.prototype.deleteTabLog = function (key, tabId) {
   // Logger.debug(MessageName.DELETED_TAB_LOG, _this.tabLog);
 };
 
-// TODO: メモリをいっぱい使ってしまうのと、ここはハイパフォーマンスの必要は無いので、session storageにする
+/**
+ * Fetch image
+ */
 LinkBlanker.prototype.fetchImage = function (url, callback, guideUrl) {
   if (!url || '' === url || !url.match(/^https?:\/\/.+/)) {
     if (url.match(getHostRegExp())) {
@@ -763,9 +783,9 @@ LinkBlanker.prototype.fetchImage = function (url, callback, guideUrl) {
       return;
     }
 
-    getCacheImageByGuideUrl(guideUrl, function (error, result) {
-      if (!error && result) {
-        callback(null, result);
+    getCacheImageByGuideUrl(guideUrl, function (error, cacheImage) {
+      if (!error && cacheImage) {
+        callback(null, cacheImage);
       } else {
         callback(new Error('Empty url [' + url + ']'), null);
       }
@@ -776,62 +796,19 @@ LinkBlanker.prototype.fetchImage = function (url, callback, guideUrl) {
 
   var urlCacheKey = md5(url);
 
-  if (urlCacheKey in _cache) {
-    callback(null, _cache[urlCacheKey].data);
+  if (eStorage.exist(urlCacheKey)) {
+    callback(null, eStorage.getItem(urlCacheKey).data);
   } else {
-    getCacheImageByGuideUrl(guideUrl, function (error, result) {
-      if (!error && result) {
-        callback(null, result);
+    getCacheImageByGuideUrl(guideUrl, function (error, cacheImage) {
+      if (!error && cacheImage) {
+        callback(null, cacheImage);
       } else {
-        var self = this;
-
-        try {
-          var xhr = new XMLHttpRequest();
-
-          xhr.timeout = 10000;
-          xhr.responseType = 'arraybuffer';
-
-          xhr.open('GET', url, true);
-
-          xhr.onload = function (e) {
-            if (200 !== this.status) {
-              this.onerror.apply(this, Array.prototype.slice.call(arguments));
-              return;
-            }
-
-            var bytes = new Uint8Array(this.response);
-            var ext = getExtention(bytes);
-            var raw = String.fromCharCode.apply(null, bytes);
-            var b64 = btoa(raw);
-            var dataURL = 'data:image/' + ext + ';base64,' + b64;
-
-            // cache
-            _cache[urlCacheKey] = {
-              data: dataURL,
-              time: new Date().getTime(),
-            };
-
-            if (guideUrl) {
-              _this.parseData(guideUrl, function (result) {
-                // Logger.debug('[result.domain]', result.domain);
-                var guideCacheKey = md5(result.domain);
-                _cache[guideCacheKey] = urlCacheKey;
-              });
-            }
-
-            callback(null, dataURL);
-          };
-
-          xhr.onerror = xhr.ontimeout = xhr.ontimeout = function (e) {
-            // delete cache
-            delete _cache[urlCacheKey];
-            callback(new Error('Load faild. [' + url + ']'), null);
-          };
-
-          xhr.send();
-        } catch (e) {
-          callback(e, null);
-        }
+        fetchImage(url, function (fetchError, dataURL) {
+          setCacheImageByGuideUrl(guideUrl, urlCacheKey);
+          callback(fetchError, dataURL);
+          xhr = null;
+          urlCacheKey = null;
+        });
       }
     });
   }
@@ -858,10 +835,10 @@ function initialize () {
 
 function dataMigration () {
   // 反転する
-  if ('disabled-extension' in localStorage) {
-    var value = Number(localStorage['disabled-extension'] || '0');
-    localStorage['enabled-extension'] = (0 === value) ? 1 : 0;
-    delete localStorage['disabled-extension'];
+  if (pStorage.exist('disabled-extension')) {
+    var value = pStorage.getItem('disabled-extension') || 0;
+    pStorage.setItem('enabled-extension', (0 === value) ? 1 : 0);
+    pStorage.removeItem('disabled-extension');
   }
 }
 
@@ -885,18 +862,121 @@ function getExtention (bytes) {
   return 'jpeg';
 }
 
+function setFetchImageListener (urlCacheKey, callback) {
+  if (!(urlCacheKey in _fetchImageListener)) {
+    _fetchImageListener[urlCacheKey] = {
+      listeners: [ callback ],
+      status: 'pending',
+    };
+  } else if ('loading' === _fetchImageListener[urlCacheKey].status) {
+    _fetchImageListener[urlCacheKey].listeners.push(callback);
+    return 'loading';
+  } else if ('complete' === _fetchImageListener[urlCacheKey].status) {
+    return 'complete';
+  }
+
+  return 'pending';
+}
+
+function dispatchFetchImageListener (urlCacheKey, error, value) {
+  if (urlCacheKey in _fetchImageListener) {
+    while (_fetchImageListener[urlCacheKey].listeners.length > 0) {
+      var callback = _fetchImageListener[urlCacheKey].listeners.shift();
+      callback(error, value);
+    }
+
+    delete _fetchImageListener[urlCacheKey];
+  }
+}
+
+function fetchImage (url, callback) {
+  try {
+    var urlCacheKey = md5(url);
+    var status = setFetchImageListener(urlCacheKey, callback);
+
+    if ('loading' === status) {
+      return;
+    }
+
+    if ('complete' === status && eStorage.exist(urlCacheKey)) {
+      callback(null, eStorage.getItem(urlCacheKey).data);
+      return;
+    }
+
+    _fetchImageListener[urlCacheKey].status = 'loading';
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.timeout = 10000;
+    xhr.responseType = 'arraybuffer';
+
+    xhr.open('GET', url, true);
+
+    xhr.onload = function (e) {
+      if (200 !== this.status) {
+        this.onerror.apply(this, Array.prototype.slice.call(arguments));
+        return;
+      }
+
+      _fetchImageListener[urlCacheKey].status = 'complete';
+
+      var bytes = new Uint8Array(this.response);
+      var ext = getExtention(bytes);
+      var raw = String.fromCharCode.apply(null, bytes);
+      var b64 = btoa(raw);
+      var dataURL = 'data:image/' + ext + ';base64,' + b64;
+
+      eStorage.setItem(urlCacheKey, {
+        data: dataURL,
+        time: new Date().getTime(),
+      });
+
+      dispatchFetchImageListener(urlCacheKey, null, dataURL);
+      xhr = null;
+      urlCacheKey = null;
+    };
+
+    xhr.onerror = xhr.ontimeout = function (e) {
+      _fetchImageListener[urlCacheKey].status = 'complete';
+
+      eStorage.setItem(urlCacheKey, {
+        data: 'faild',
+        time: new Date().getTime(),
+      });
+
+      dispatchFetchImageListener(urlCacheKey, new Error('Load faild. [' + e.target.responseURL + ']'), 'faild');
+      xhr = null;
+      urlCacheKey = null;
+    };
+
+    xhr.send();
+  } catch (e) {
+    callback(e, null);
+  }
+}
+
 function getCacheImageByGuideUrl (guideUrl, callback) {
   if (guideUrl && '' !== guideUrl) {
     _this.parseData(guideUrl, function (result) {
       var guideCacheKey = md5(result.domain);
+      var urlCacheKey;
 
-      if (guideCacheKey in _cache && _cache[guideCacheKey] in _cache) {
-        callback(null, _cache[_cache[guideCacheKey]].data);
+      if ((urlCacheKey = eStorage.getItem(guideCacheKey)) && eStorage.exist(urlCacheKey)) {
+        callback(null, eStorage.getItem(urlCacheKey).data);
       } else {
         callback(new Error('No cache by [' + guideUrl + ']'), null);
       }
     });
   } else {
     callback(new Error('Empty guide url [' + guideUrl + ']'), null);
+  }
+}
+
+function setCacheImageByGuideUrl (guideUrl, value) {
+  if (guideUrl) {
+    _this.parseData(guideUrl, function (result) {
+      var guideCacheKey = md5(result.domain);
+      eStorage.setItem(guideCacheKey, value);
+    });
   }
 }

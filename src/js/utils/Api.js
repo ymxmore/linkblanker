@@ -21,10 +21,19 @@ var Api = {
   /**
    * イベントリスナを登録
    */
-  listenMessage: function () {
-    chrome.extension.onMessage.addListener(function() {
-      PreferenceActions.receiveMessage.apply(null, Array.prototype.slice.call(arguments));
-    });
+  subscribeMessageEvent: function () {
+    chrome.extension.onMessage.addListener(Api.onMessage);
+  },
+
+  /**
+   * イベントリスナを解除
+   */
+  unSubscribeMessageEvent: function () {
+    chrome.extension.onMessage.removeListener(Api.onMessage);
+  },
+
+  onMessage: function() {
+    PreferenceActions.receiveMessage.apply(null, Array.prototype.slice.call(arguments));
   },
 
   /**

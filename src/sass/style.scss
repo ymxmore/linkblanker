@@ -96,14 +96,13 @@ $icon-size: 48px;
 
   .remove-children {
     position: absolute;
-    top: .5rem;
+    top: .2rem;
     left: -1.5rem;
     display: inline-block;
     font-family: FontAwesome;
     font-style: normal;
     font-weight: normal;
-    font-size: 2rem;
-    line-height: 2.2rem;
+    font-size: 1.8rem;
     color: $text-color-light;
     cursor: pointer;
     -webkit-font-smoothing: antialiased;
@@ -120,7 +119,7 @@ $icon-size: 48px;
         background-color: $error-color-light;
 
         h6 {
-          font-weight: bold;
+          @extend .highlight-text;
         }
       }
 
@@ -134,9 +133,12 @@ $icon-size: 48px;
 .tab-tree {
   padding: 0;
 
+  @include transition-property(width, height, opacity, border, color, background-color);
+  @include transition-duration(.1s);
+
   .tab-icon {
     position: absolute;
-    top: 1.1rem;
+    top: 1rem;
     left: .5rem;
     cursor: pointer;
     z-index: 2;
@@ -147,13 +149,12 @@ $icon-size: 48px;
 
     .remove-tab {
       display: none;
-      font-size: 1.5rem;
+      font-size: 1.8rem;
+      margin-top: -.5rem;
       color: $error-color;
     }
 
     &:hover {
-      top: .9rem;
-
       .favicon {
         display: none;
       }
@@ -166,7 +167,7 @@ $icon-size: 48px;
         background-color: $error-color-light;
 
         h6 {
-          font-weight: bold;
+          @extend .highlight-text;
         }
       }
     }
@@ -178,16 +179,20 @@ $icon-size: 48px;
   cursor: pointer;
   z-index: 1;
 
+  @include transition-property(width, height, opacity, border, color, background-color);
+  @include transition-duration(.1s);
+
   &:hover {
     background-color: $primary-color-light;
 
     h6 {
-      font-weight: bold;
+      @extend .highlight-text;
     }
   }
 
   h6 {
     margin: 0;
+    line-height: 1.2rem;
   }
 }
 
@@ -210,4 +215,9 @@ $icon-size: 48px;
 .fa-spin {
   color: $primary-color;
   font-weight: normal;
+}
+
+.highlight-text {
+  font-weight: bold;
+  letter-spacing: $letter-spacing - 0.002em;
 }

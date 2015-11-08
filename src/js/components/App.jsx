@@ -14,6 +14,14 @@ var App = React.createClass({
     return {};
   },
 
+  componentDidMount: function () {
+    Api.subscribeMessageEvent();
+  },
+
+  componentWillUnmount: function () {
+    Api.unSubscribeMessageEvent();
+  },
+
   render: function () {
     return (
       <div id="app">
