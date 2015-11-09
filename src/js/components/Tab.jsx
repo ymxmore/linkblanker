@@ -1,5 +1,5 @@
 /**
- * components/Tree.jsx
+ * components/Tab.jsx
  */
 
 var Api = require('../utils/Api');
@@ -8,9 +8,9 @@ var Image = require('./Image.jsx');
 var Logger = require('../utils/Logger');
 var MaterialUi = require('material-ui');
 var React = window.React = require('react');
-var TreeStore = require('../stores/Tree');
+var TabStore = require('../stores/Tab');
 
-var Tree = React.createClass({
+var Tab = React.createClass({
   getInitialState: function () {
     return {
       data: [],
@@ -18,36 +18,36 @@ var Tree = React.createClass({
   },
 
   componentDidMount: function () {
-    TreeStore.addChangeListener(this._onChange);
+    TabStore.addChangeListener(this._onChange);
     this._onChange();
   },
 
   componentWillUnmount: function () {
-    TreeStore.removeChangeListener(this._onChange);
+    TabStore.removeChangeListener(this._onChange);
   },
 
   render: function () {
-    // Logger.debug('Tree.render > ', this.state);
+    // Logger.debug('Tab.render > ', this.state);
 
     return (
       <div id="tree">
-        <Helmet title="Tab Tree"/>
-        {this.state.data.map(this._getTabTree)}
+        <Helmet title="Tab List"/>
+        {this.state.data.map(this._getTabList)}
       </div>
     );
   },
 
   _onChange: function () {
     this.setState({
-      data: TreeStore.get(),
+      data: TabStore.get(),
     });
   },
 
-  _getTabTree: function (item, i) {
+  _getTabList: function (item, i) {
     var children = '';
 
     if (item.children.length > 0) {
-      children = item.children.map(this._getTabTree);
+      children = item.children.map(this._getTabList);
     }
 
     return (
@@ -96,4 +96,4 @@ var Tree = React.createClass({
   },
 });
 
-module.exports = Tree;
+module.exports = Tab;

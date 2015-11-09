@@ -90,7 +90,7 @@ $icon-size: 48px;
   position: relative;
   width: auto;
   @include transition-property(width, height, opacity, border, color, background-color);
-  @include transition-duration(.2s);
+  @include transition-duration(.5s);
 }
 
 .tab-tree-group {
