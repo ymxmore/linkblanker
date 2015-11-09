@@ -8,11 +8,11 @@ var Image = require('./Image.jsx');
 var Logger = require('../utils/Logger');
 var MaterialUi = require('material-ui');
 var React = window.React = require('react');
-var TabStore = require('../stores/Tab');
+var TabListStore = require('../stores/TabList');
 
 var IconButton = MaterialUi.IconButton;
 
-var Tab = React.createClass({
+var TabList = React.createClass({
   getInitialState: function () {
     return {
       data: [],
@@ -20,19 +20,19 @@ var Tab = React.createClass({
   },
 
   componentDidMount: function () {
-    TabStore.addChangeListener(this._onChange);
+    TabListStore.addChangeListener(this._onChange);
     this._onChange();
   },
 
   componentWillUnmount: function () {
-    TabStore.removeChangeListener(this._onChange);
+    TabListStore.removeChangeListener(this._onChange);
   },
 
   render: function () {
     // Logger.debug('Tab.render > ', this.state);
 
     return (
-      <div id="tree">
+      <div id="tab-list">
         <Helmet title="Tab List"/>
         {this.state.data.map(this._getTabList)}
       </div>
@@ -41,21 +41,19 @@ var Tab = React.createClass({
 
   _onChange: function () {
     this.setState({
-      data: TabStore.get(),
+      data: TabListStore.get(),
     });
   },
 
   _getTabList: function (item, i) {
     return (
-      <div className="tab-tree">
-        <div className="tab-tree-icon">
-          <IconButton
-            iconClassName="fa fa-chevron-right"
-            onClick={this._onClickRemoveChildren}/>
-          <IconButton
-            iconClassName="fa fa-times"
-            onClick={this._onClickRemoveChildren}/>
-        </div>
+      <div
+        className="tab"
+        key={item.info.id}
+        data-id={item.info.id}
+        title={item.info.title || item.info.url}
+        onClick={this._onClickTab}>
+
         <div className="tab-icon">
           <Image
             className="favicon"
@@ -69,15 +67,20 @@ var Tab = React.createClass({
             iconClassName="fa fa-times remove-tab"
             onClick={this._onClickRemoveTab}/>
         </div>
-        <div
-          className="tab"
-          key={item.info.id}
-          data-id={item.info.id}
-          title={item.info.title || item.info.url}
-          onClick={this._onClickTab}>
-          <h6>{item.info.title || item.info.url}</h6>
+
+        <h6 className="tab-title">{item.info.title || item.info.url}</h6>
+
+        <div className="tab-tree">
+          <div className="tab-tree-icon">
+            <IconButton
+              iconClassName="fa fa-chevron-right"
+              onClick={this._onClickRemoveChildren}/>
+            <IconButton
+              iconClassName="fa fa-times remove-tab-tree"
+              onClick={this._onClickRemoveChildren}/>
+          </div>
+          {item.children.map(this._getTabList)}
         </div>
-        {item.children.map(this._getTabList)}
       </div>
     );
   },
@@ -95,4 +98,4 @@ var Tab = React.createClass({
   },
 });
 
-module.exports = Tab;
+module.exports = TabList;
