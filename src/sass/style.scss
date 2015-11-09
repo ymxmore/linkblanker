@@ -20,6 +20,13 @@
 $logo-x: 60px;
 $icon-size: 48px;
 
+%font-icon {
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.8rem;
+}
+
 #root, #app {
   overflow: auto;
 }
@@ -86,8 +93,15 @@ $icon-size: 48px;
   }
 }
 
-.tab {
+.tab-title {
+  position: relative;
 
+  h6 {
+    display: inline-block;
+    margin: 0;
+    padding-left: 28px;
+    font-size: 1.2rem;
+  }
 }
 
 .tab-icon {
@@ -96,10 +110,7 @@ $icon-size: 48px;
 }
 
 .remove-tab-tree {
-  font-family: FontAwesome;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 1.8rem;
+  @extend %font-icon;
   color: $text-color-light;
   cursor: pointer;
 
@@ -108,8 +119,8 @@ $icon-size: 48px;
   }
 
   &:hover {
-    // left: -2rem;
-    color: $error-color;
+    left: 0 !important;
+    color: $error-color !important;
 
     &:before {
       content: "\f00d";
@@ -118,10 +129,26 @@ $icon-size: 48px;
 }
 
 .remove-tab {
+  position: absolute;
+  top: .2rem;
+  left: 0;
   display: inline-block;
   width: 16px;
   height: 16px;
   background-size: cover;
+  @extend %font-icon;
+
+  &:hover {
+    color: $error-color !important;
+    background-image: initial !important;
+    font-size: 24px !important;
+    line-height: 1rem !important;
+    left: -4px !important;
+
+    &:before {
+      content: "\f00d";
+    }
+  }
 }
 
 .fa {

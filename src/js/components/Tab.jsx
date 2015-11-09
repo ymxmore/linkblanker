@@ -52,23 +52,25 @@ var Tab = React.createClass({
     return (
       <ListItem
         className="tab"
-        rightIconButton={
+        leftIcon={
           <FontIcon
             className="remove-tab-tree"
             onClick={this._onClickRemoveChildren}/>
         }
-        leftIcon={
-          <Image
-            className="remove-tab"
-            src={item.info.favIconUrl}
-            url={item.info.url}
-            tabStatus={item.info.status || 'complete'}
-            alt={item.info.title}
-            onClick={this._onClickRemoveTab}/>
-        }
         nestedItems={item.children.map(this._getTabTree)}
         initiallyOpen={true}
-        primaryText={item.info.title || item.info.url}
+        primaryText={
+          <div className="tab-title">
+            <Image
+              className="remove-tab"
+              src={item.info.favIconUrl}
+              url={item.info.url}
+              tabStatus={item.info.status || 'complete'}
+              alt={item.info.title}
+              onClick={this._onClickRemoveTab}/>
+            <h6>{item.info.title || item.info.url}</h6>
+          </div>
+        }
         key={item.info.id}
         onClick={this._onClickTab}
         data-id={item.info.id}/>
