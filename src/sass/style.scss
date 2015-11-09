@@ -86,120 +86,42 @@ $icon-size: 48px;
   }
 }
 
-.tab-tree-group, .tab-tree, .tab {
-  position: relative;
-  width: auto;
-  @include transition-property(width, height, opacity, border, color, background-color);
-  @include transition-duration(.2s);
-}
-
-.tab-tree-group {
-  margin-left: 3rem;
-
-  .remove-children {
-    position: absolute;
-    top: .2rem;
-    left: -1.5rem;
-    display: inline-block;
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 1.8rem;
-    color: $text-color-light;
-    cursor: pointer;
-    -webkit-font-smoothing: antialiased;
-
-    &:before {
-      content: "\f105";
-    }
-
-    &:hover {
-      left: -2rem;
-      color: $error-color;
-
-      & ~ .tab-tree {
-        background-color: $error-color-light;
-
-        h6 {
-          @extend .highlight-text;
-        }
-      }
-
-      &:before {
-        content: "\f00d";
-      }
-    }
-  }
-}
-
-#tree > .tab-tree-group {
-  margin-left: 1rem;
-
-  border-bottom: 1px dashed $border-color;
-
-  &:last-child {
-    border-bottom: 0;
-  }
-}
-
-.tab-tree {
-  padding: 0;
-
-  .tab-icon {
-    position: absolute;
-    top: .9rem;
-    left: .5rem;
-    cursor: pointer;
-    z-index: 2;
-
-    .favicon {
-      display: inline-block;
-    }
-
-    .remove-tab {
-      display: none;
-      font-size: 1.8rem;
-      margin-top: -.4rem;
-      color: $error-color;
-    }
-
-    &:hover {
-      .favicon {
-        display: none;
-      }
-
-      .remove-tab {
-        display: inline-block;
-      }
-
-      & ~ .tab {
-        background-color: $error-color-light;
-
-        h6 {
-          @extend .highlight-text;
-        }
-      }
-    }
-  }
-}
-
 .tab {
-  padding: 1rem .5rem 1rem 2rem;
+
+}
+
+.tab-icon {
+  // width: 40px;
+  // height: 16px;
+}
+
+.remove-tab-tree {
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.8rem;
+  color: $text-color-light;
   cursor: pointer;
-  z-index: 1;
+
+  &:before {
+    content: "\f105";
+  }
 
   &:hover {
-    background-color: $primary-color-light;
+    // left: -2rem;
+    color: $error-color;
 
-    h6 {
-      @extend .highlight-text;
+    &:before {
+      content: "\f00d";
     }
   }
+}
 
-  h6 {
-    margin: 0;
-    line-height: 1.2rem;
-  }
+.remove-tab {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-size: cover;
 }
 
 .fa {
@@ -217,3 +139,121 @@ $icon-size: 48px;
   font-weight: bold;
   letter-spacing: $letter-spacing - 0.006em;
 }
+
+
+// .tab-tree-group, .tab-tree, .tab {
+//   position: relative;
+//   width: auto;
+//   @include transition-property(width, height, opacity, border, color, background-color);
+//   @include transition-duration(.2s);
+// }
+
+// .tab-tree-group {
+//   margin-left: 3rem;
+
+//   .remove-children {
+//     position: absolute;
+//     top: .2rem;
+//     left: -1.5rem;
+//     display: inline-block;
+//     font-family: FontAwesome;
+//     font-style: normal;
+//     font-weight: normal;
+//     font-size: 1.8rem;
+//     color: $text-color-light;
+//     cursor: pointer;
+//     -webkit-font-smoothing: antialiased;
+
+//     &:before {
+//       content: "\f105";
+//     }
+
+//     &:hover {
+//       left: -2rem;
+//       color: $error-color;
+
+//       & ~ .tab-tree {
+//         background-color: $error-color-light;
+
+//         h6 {
+//           @extend .highlight-text;
+//         }
+//       }
+
+//       &:before {
+//         content: "\f00d";
+//       }
+//     }
+//   }
+// }
+
+// #tree > .tab-tree-group {
+//   margin-left: 1rem;
+
+//   border-bottom: 1px dashed $border-color;
+
+//   &:last-child {
+//     border-bottom: 0;
+//   }
+// }
+
+// .tab-tree {
+//   padding: 0;
+
+//   .tab-icon {
+//     position: absolute;
+//     top: .9rem;
+//     left: .5rem;
+//     cursor: pointer;
+//     z-index: 2;
+
+//     .favicon {
+//       display: inline-block;
+//     }
+
+//     .remove-tab {
+//       display: none;
+//       font-size: 1.8rem;
+//       margin-top: -.4rem;
+//       color: $error-color;
+//     }
+
+//     &:hover {
+//       .favicon {
+//         display: none;
+//       }
+
+//       .remove-tab {
+//         display: inline-block;
+//       }
+
+//       & ~ .tab {
+//         background-color: $error-color-light;
+
+//         h6 {
+//           @extend .highlight-text;
+//         }
+//       }
+//     }
+//   }
+// }
+
+// .tab {
+//   padding: 1rem .5rem 1rem 2rem;
+//   cursor: pointer;
+//   z-index: 1;
+
+//   &:hover {
+//     background-color: $primary-color-light;
+
+//     h6 {
+//       @extend .highlight-text;
+//     }
+//   }
+
+//   h6 {
+//     margin: 0;
+//     line-height: 1.2rem;
+//   }
+// }
+

@@ -50,20 +50,27 @@ var Image = React.createClass({
     switch (this.state.dataURL) {
       case 'loading':
         className += ' fa fa-2x fa-circle-o-notch fa-spin';
-        return (<FontIcon className={className}/>);
+        return (<span className={className}/>);
       case 'faild':
         className += ' fa fa-2x fa-sticky-note-o';
-        return (<FontIcon className={className}/>);
+        return (<span className={className}/>);
     }
-// console.log(this.state.dataURL);
+
+    var props = this.state.imgProps;
+
+    if ('' !== this.state.dataURL) {
+      props.style = props.style || {};
+      props.style.backgroundImage = 'url(' + this.state.dataURL + ')';
+    }
+
     return (
-      <FontIcon {...this.state.imgProps} />
+      <span {...props} />
     );
   },
 
   _setState: function (props) {
     var state = this.state;
-    var imgProps = props;
+    var imgProps = assign(state.imgProps, props);
     var keys = Object.keys(state);
     var len = keys.length;
 
@@ -76,10 +83,9 @@ var Image = React.createClass({
       }
     }
 
-    state.imgProps = assign(state.imgProps, imgProps);
+    state.imgProps = imgProps;
 
     this.setState(state);
-
     this.fetchImage(state.src, state.tabStatus, state.url);
   },
 

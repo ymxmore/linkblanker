@@ -51,19 +51,17 @@ var Tab = React.createClass({
   _getTabTree: function (item, i) {
     return (
       <ListItem
-        className="tab-tree"
-        leftIcon={
+        className="tab"
+        rightIconButton={
           <FontIcon
-            className="remove-children"
+            className="remove-tab-tree"
             onClick={this._onClickRemoveChildren}/>
         }
-        leftAvatar={
+        leftIcon={
           <Image
-            className="favicon"
+            className="remove-tab"
             src={item.info.favIconUrl}
             url={item.info.url}
-            size={18}
-            style={{borderRadius: 0}}
             tabStatus={item.info.status || 'complete'}
             alt={item.info.title}
             onClick={this._onClickRemoveTab}/>
