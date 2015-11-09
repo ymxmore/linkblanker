@@ -326,7 +326,7 @@ LinkBlanker.prototype.getCurrentTab = function (callback) {
       },
     ], callback);
   } else {
-    // Logger.debug(new Error('Callback is undefined.'));
+    Logger.debug(new Error('Callback is undefined.'));
   }
 };
 
@@ -334,7 +334,7 @@ LinkBlanker.prototype.hasRuntimeError = function () {
   var error = _this.chrome.runtime.lastError;
 
   if (error) {
-    // Logger.debug(error.message, error);
+    Logger.debug(error.message, error);
   }
 
   return error;
@@ -346,16 +346,7 @@ LinkBlanker.prototype.getManifest = function () {
 
 LinkBlanker.prototype.getData = function () {
   return {
-    // 'enabled-extension': Number(localStorage['enabled-extension'] || '1'),
-    // 'disabled-domain': JSON.parse(localStorage['disabled-domain'] || '[]'),
-    // 'disabled-directory': JSON.parse(localStorage['disabled-directory'] || '[]'),
-    // 'disabled-page': JSON.parse(localStorage['disabled-page'] || '[]'),
-    // 'enabled-background-open': Number(localStorage['enabled-background-open'] || '0'),
-    // 'enabled-multiclick-close': Number(localStorage['enabled-multiclick-close'] || '0'),
-    // 'shortcut-key-toggle-enabled': localStorage['shortcut-key-toggle-enabled'] || '',
-    // 'disabled-same-domain': Number(localStorage['disabled-same-domain'] || '0'),
-
-    'enabled-extension': pStorage.getItem('enabled-extension', 0),
+    'enabled-extension': pStorage.getItem('enabled-extension', 1),
     'disabled-domain': pStorage.getItem('disabled-domain', []),
     'disabled-directory': pStorage.getItem('disabled-directory', []),
     'disabled-page': pStorage.getItem('disabled-page', []),

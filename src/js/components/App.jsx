@@ -26,17 +26,6 @@ var App = React.createClass({
     return (
       <div id="app">
         <Helmet titleTemplate="%s - LinkBlanker" />
-        <header className="extension-name">
-          <img
-            className="icon"
-            src={this.state['system-enabled-state'] ?
-              '/img/icon-enabled.svgz' :
-              '/img/icon-disabled.svgz'}
-          />
-          <span className="version-name">
-            Version {Api.getVersion()}
-          </span>
-        </header>
         {this.props.children}
       </div>
     );

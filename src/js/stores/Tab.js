@@ -1,5 +1,5 @@
 /**
- * stores/Tree.js
+ * stores/Tab.js
  */
 
 var Api = require('../utils/Api');
@@ -16,7 +16,7 @@ var assign = require('object-assign');
  */
 var _tree = [];
 
-var TreeStore = assign({}, EventEmitter.prototype, {
+var TabStore = assign({}, EventEmitter.prototype, {
 
   get: function () {
     return _tree;
@@ -50,8 +50,8 @@ AppDispatcher.register(function (action) {
         switch (response.name) {
           case MessageName.SAVED_TAB_LOG:
           case MessageName.DELETED_TAB_LOG:
-            _tree = convertTreeFromTabLogs(response.data);
-            TreeStore.emitChange();
+            _tree = convertTabFromTabLogs(response.data);
+            TabStore.emitChange();
             break;
         }
       }
@@ -60,7 +60,7 @@ AppDispatcher.register(function (action) {
   }
 });
 
-function convertTreeFromTabLogs (tabLogs) {
+function convertTabFromTabLogs (tabLogs) {
   var tabLogArr = getValues(tabLogs);
   var index = {};
   var tree = [];
@@ -100,7 +100,7 @@ function convertTreeFromTabLogs (tabLogs) {
   // sort by window id and tab index
   tree = getSortedTabsByWindowIdAndIndex(tree);
 
-  // Logger.debug('convertTreeFromTabLogs', tree);
+  // Logger.debug('convertTabFromTabLogs', tree);
 
   return tree;
 }
@@ -174,4 +174,4 @@ function getSortedTabsByWindowIdAndIndex (tabLogArr) {
   return tabLogArr;
 }
 
-module.exports = TreeStore;
+module.exports = TabStore;

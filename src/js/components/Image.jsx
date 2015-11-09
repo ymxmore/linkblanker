@@ -5,8 +5,11 @@
 var Api = require('../utils/Api');
 var assign = require('object-assign');
 var Logger = require('../utils/Logger');
+var MaterialUi = require('material-ui');
 var React = require('react');
 var request = require('superagent');
+var Avatar = MaterialUi.Avatar;
+var FontIcon = MaterialUi.FontIcon;
 
 var Image = React.createClass({
   propTypes: {
@@ -47,14 +50,14 @@ var Image = React.createClass({
     switch (this.state.dataURL) {
       case 'loading':
         className += ' fa fa-2x fa-circle-o-notch fa-spin';
-        return (<i className={className}></i>);
+        return (<FontIcon className={className}/>);
       case 'faild':
         className += ' fa fa-2x fa-sticky-note-o';
-        return (<i className={className}></i>);
+        return (<FontIcon className={className}/>);
     }
-
+// console.log(this.state.dataURL);
     return (
-      <img {...this.state.imgProps} src={this.state.dataURL}/>
+      <FontIcon {...this.state.imgProps} />
     );
   },
 

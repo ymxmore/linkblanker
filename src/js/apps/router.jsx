@@ -15,7 +15,7 @@ var Preference = require('../components/Preference.jsx');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var ReactRouter = require('react-router');
-var Tree = require('../components/Tree.jsx');
+var Tab = require('../components/Tab.jsx');
 var InjectTapEventPlugin = require('react-tap-event-plugin');
 
 var IndexRoute = ReactRouter.IndexRoute;
@@ -33,9 +33,9 @@ ReactDOM.render(
     <Router>
       <Route path="/" component={App}>
         <Route path="preference" component={Preference}/>
-        <Route path="tree" component={Tree}/>
+        <Route path="tree" component={Tab}/>
         <Route path="popup" component={Popup}/>
-        <IndexRoute component={Tree}/>
+        <IndexRoute component={Tab}/>
         <Route path="*" component={NotFound}/>
       </Route>
     </Router>
