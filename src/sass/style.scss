@@ -86,121 +86,124 @@ $icon-size: 48px;
   }
 }
 
-.tab-tree-group, .tab-tree, .tab {
-  position: relative;
-  width: auto;
-  @include transition-property(width, height, opacity, border, color, background-color);
-  @include transition-duration(.5s);
-}
+// .tab-tree-group, .tab-tree, .tab {
+//   position: relative;
+//   width: auto;
+//   @include transition-property(width, height, opacity, border, color, background-color);
+//   @include transition-duration(.5s);
+// }
 
-.tab-tree-group {
-  margin-left: 3rem;
+// .tab-tree-group {
+//   margin-left: 3rem;
 
-  .remove-children {
-    position: absolute;
-    top: .2rem;
-    left: -1.5rem;
-    display: inline-block;
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 1.8rem;
-    color: $text-color-light;
-    cursor: pointer;
-    -webkit-font-smoothing: antialiased;
+//   .remove-children {
+//     // position: absolute;
+//     // top: .2rem;
+//     // left: -1.5rem;
+//     display: inline-block;
+//     font-family: FontAwesome;
+//     font-style: normal;
+//     font-weight: normal;
+//     font-size: 1.8rem;
+//     color: $text-color-light;
+//     cursor: pointer;
 
-    &:before {
-      content: "\f105";
-    }
+//     &:before {
+//       content: "\f105";
+//     }
 
-    &:hover {
-      left: -2rem;
-      color: $error-color;
+//     &:hover {
+//       // left: -2rem;
+//       color: $error-color;
 
-      & ~ .tab-tree {
-        background-color: $error-color-light;
+//       & ~ .tab-tree {
+//         background-color: $error-color-light;
 
-        h6 {
-          @extend .highlight-text;
-        }
-      }
+//         h6 {
+//           @extend .highlight-text;
+//         }
+//       }
 
-      &:before {
-        content: "\f00d";
-      }
-    }
-  }
-}
+//       &:before {
+//         content: "\f00d";
+//       }
+//     }
+//   }
+// }
 
-#tree > .tab-tree-group {
-  margin-left: 1rem;
+// #tree > .tab-tree-group {
+//   margin-left: 1rem;
 
-  border-bottom: 1px dashed $border-color;
+//   border-bottom: 1px dashed $border-color;
 
-  &:last-child {
-    border-bottom: 0;
-  }
-}
+//   &:last-child {
+//     border-bottom: 0;
+//   }
+// }
 
-.tab-tree {
-  padding: 0;
+// .tab-tree {
+//   padding: 0;
 
-  .tab-icon {
-    position: absolute;
-    top: .9rem;
-    left: .5rem;
-    cursor: pointer;
-    z-index: 2;
+//   .tab-icon {
+//     position: absolute;
+//     top: .9rem;
+//     left: .5rem;
+//     cursor: pointer;
+//     z-index: 2;
 
-    .favicon {
-      display: inline-block;
-    }
+//     .favicon {
+//       // display: inline-block;
+//       width: auto;
+//     }
 
-    .remove-tab {
-      display: none;
-      font-size: 1.8rem;
-      margin-top: -.4rem;
-      color: $error-color;
-    }
+//     .remove-tab {
+//       // display: none;
+//       width: 0;
+//       font-size: 1.8rem;
+//       margin-top: -.4rem;
+//       color: $error-color;
+//     }
 
-    &:hover {
-      .favicon {
-        display: none;
-      }
+//     &:hover {
+//       .favicon {
+//         // display: none;
+//         width: 0;
+//       }
 
-      .remove-tab {
-        display: inline-block;
-      }
+//       .remove-tab {
+//         // display: inline-block;
+//         width: auto;
+//       }
 
-      & ~ .tab {
-        background-color: $error-color-light;
+//       & ~ .tab {
+//         background-color: $error-color-light;
 
-        h6 {
-          @extend .highlight-text;
-        }
-      }
-    }
-  }
-}
+//         h6 {
+//           @extend .highlight-text;
+//         }
+//       }
+//     }
+//   }
+// }
 
-.tab {
-  padding: 1rem .5rem 1rem 2rem;
-  cursor: pointer;
-  z-index: 1;
+// .tab {
+//   padding: 1rem .5rem 1rem 2rem;
+//   cursor: pointer;
+//   z-index: 1;
 
-  &:hover {
-    background-color: $primary-color-light;
+//   &:hover {
+//     background-color: $primary-color-light;
 
-    h6 {
-      @extend .highlight-text;
-    }
-  }
+//     h6 {
+//       @extend .highlight-text;
+//     }
+//   }
 
-  h6 {
-    margin: 0;
-    line-height: 1.2rem;
-  }
-}
+//   h6 {
+//     margin: 0;
+//     line-height: 1.2rem;
+//   }
+// }
 
 .fa {
   color: $text-color;
@@ -217,3 +220,4 @@ $icon-size: 48px;
   font-weight: bold;
   letter-spacing: $letter-spacing - 0.006em;
 }
+
