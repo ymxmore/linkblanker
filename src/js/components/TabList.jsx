@@ -10,6 +10,7 @@ var MaterialUi = require('material-ui');
 var React = window.React = require('react');
 var TabListStore = require('../stores/TabList');
 
+var FontIcon = MaterialUi.FontIcon;
 var IconButton = MaterialUi.IconButton;
 
 var TabList = React.createClass({
@@ -32,7 +33,7 @@ var TabList = React.createClass({
     // Logger.debug('Tab.render > ', this.state);
 
     return (
-      <div id="tab-list">
+      <div id="tab-list" className="tab-list tree">
         <Helmet title="Tab List"/>
         {this.state.data.map(this._getTabList)}
       </div>
@@ -54,6 +55,13 @@ var TabList = React.createClass({
         title={item.info.title || item.info.url}
         onClick={this._onClickTab}>
 
+        <div className="tab-tree-icon">
+          <FontIcon
+            className="fa fa-angle-right chevron"/>
+          <IconButton
+            iconClassName="fa fa-times remove-tab-tree-with-me"
+            onClick={this._onClickRemoveChildrenWithMe}/>
+        </div>
         <div className="tab-icon">
           <Image
             className="favicon"
@@ -71,14 +79,6 @@ var TabList = React.createClass({
         <h6 className="tab-title">{item.info.title || item.info.url}</h6>
 
         <div className="tab-tree">
-          <div className="tab-tree-icon">
-            <IconButton
-              iconClassName="fa fa-chevron-right"
-              onClick={this._onClickRemoveChildren}/>
-            <IconButton
-              iconClassName="fa fa-times remove-tab-tree"
-              onClick={this._onClickRemoveChildren}/>
-          </div>
           {item.children.map(this._getTabList)}
         </div>
       </div>
@@ -87,6 +87,10 @@ var TabList = React.createClass({
 
   _onClickTab: function () {
     // TODO: action creatorを通してbackgroundに処理を依頼
+  },
+
+  _onClickRemoveChildrenWithMe: function () {
+
   },
 
   _onClickRemoveChildren: function () {

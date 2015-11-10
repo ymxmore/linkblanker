@@ -86,6 +86,105 @@ $icon-size: 48px;
   }
 }
 
+.tab-list {
+  & > .tab {
+    border-bottom: 1px solid $border-color-light;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+}
+
+.tab {
+  position: relative;
+  padding-left: 96px;
+
+  // &:hover {
+  //   background-color: $error-color-light;
+  // }
+}
+
+.tab-tree-icon, .tab-icon {
+  position: absolute;
+  top: 0;
+  width: 48px;
+  height: 48px;
+
+  & > * {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 48px !important;
+    height: 48px !important;
+    cursor: pointer;
+    @include transition-property(opacity);
+    @include transition-duration(.3s);
+  }
+
+  & > span {
+    padding: 12px;
+    font-size: 24px;
+    line-height: 1em;
+  }
+
+  .chevron {
+    padding-left: 20px;
+  }
+
+  .chevron, .favicon {
+    opacity: 1;
+    z-index: 0;
+    color: $text-color-light !important;
+  }
+
+  button {
+    opacity: 0;
+    z-index: 1;
+
+    span {
+      color: $error-color !important;
+    }
+  }
+
+  &:hover {
+    .chevron, .favicon {
+      opacity: 0 !important;
+    }
+
+    button {
+      opacity: 1;
+    }
+  }
+}
+
+.tab-tree-icon {
+  left: 0;
+}
+
+.tab-icon {
+  left: 48px;
+
+  .favicon {
+    color: $text-color !important;
+  }
+
+  span.favicon {
+    padding: 16px;
+    font-size: 16px;
+  }
+
+  & > img {
+    padding: 16px;
+  }
+}
+
+.tab-title {
+  margin: 0;
+  padding: 12px 12px 12px 0;
+  line-height: 24px;
+}
+
 // .tab-tree-group, .tab-tree, .tab {
 //   position: relative;
 //   width: auto;
@@ -208,12 +307,12 @@ $icon-size: 48px;
 .fa {
   color: $text-color;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: lighter;
 }
 
 .fa-spin {
   color: $primary-color;
-  font-weight: normal;
+  font-weight: lighter;
 }
 
 .highlight-text {

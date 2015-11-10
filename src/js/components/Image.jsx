@@ -47,10 +47,10 @@ var Image = React.createClass({
     switch (this.state.dataURL) {
       case 'loading':
         className += ' fa fa-2x fa-circle-o-notch fa-spin';
-        return (<i className={className}></i>);
+        return (<span className={className}></span>);
       case 'faild':
         className += ' fa fa-2x fa-sticky-note-o';
-        return (<i className={className}></i>);
+        return (<span className={className}></span>);
     }
 
     return (
