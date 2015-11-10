@@ -922,7 +922,12 @@ function fetchImage (url, callback) {
 
       var bytes = new Uint8Array(this.response);
       var ext = getExtention(bytes);
-      var raw = String.fromCharCode.apply(null, bytes);
+      var i = bytes.length;
+      var bs = new Array(i);
+      while (i--) {
+        bs[i] = String.fromCharCode(bytes[i]);
+      }
+      var raw = bs.join('');
       var b64 = btoa(raw);
       var dataURL = 'data:image/' + ext + ';base64,' + b64;
 

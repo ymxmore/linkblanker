@@ -86,26 +86,49 @@ $icon-size: 48px;
   }
 }
 
-.tab-list {
-  & > .tab {
-    border-bottom: 1px solid $border-color-light;
+.fa {
+  color: $text-color;
+  font-size: 16px;
+  font-weight: lighter;
+}
 
-    &:last-child {
-      border-bottom: 0;
-    }
-  }
+.highlight-text {
+  font-weight: bold;
+  letter-spacing: $letter-spacing - 0.006em;
+}
+
+.tab, .tab-tree, .tab-title {
+  @include transition-property(background-color);
+  @include transition-duration(.5s);
 }
 
 .tab {
   position: relative;
-  padding-left: 96px;
 
-  // &:hover {
-  //   background-color: $error-color-light;
+  // &:nth-child(odd) > .tab-title {
+  //   background-color: #fcfcfc;
   // }
 }
 
-.tab-tree-icon, .tab-icon {
+.tab-tree {
+  position: relative;
+  margin-left: 48px;
+  padding-left: 48px;
+}
+
+.tab-title {
+  margin: 0 0 0 0;
+  padding: 12px 12px 12px 48px;
+  line-height: 24px;
+  border-bottom: 1px dotted $border-color-light;
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.tab-tree-icon-with-me, .tab-tree-icon, .tab-icon {
   position: absolute;
   top: 0;
   width: 48px;
@@ -128,8 +151,8 @@ $icon-size: 48px;
     line-height: 1em;
   }
 
-  .chevron {
-    padding-left: 20px;
+  .chevron, .favicon, button {
+    text-align: center;
   }
 
   .chevron, .favicon {
@@ -158,15 +181,29 @@ $icon-size: 48px;
   }
 }
 
+.tab-tree-icon-with-me {
+  right: 0;
+
+  .chevron {
+    font-size: 20px !important;
+    line-height: 1.2em;
+
+  }
+}
+
 .tab-tree-icon {
   left: 0;
 }
 
 .tab-icon {
-  left: 48px;
+  left: 0;
 
   .favicon {
     color: $text-color !important;
+  }
+
+  .fa-spin {
+    color: $primary-color !important;
   }
 
   span.favicon {
@@ -179,144 +216,14 @@ $icon-size: 48px;
   }
 }
 
-.tab-title {
-  margin: 0;
-  padding: 12px 12px 12px 0;
-  line-height: 24px;
+.tab-active-range {
+  &, .tab, .tab-tree, .tab-title {
+    background-color: $primary-color-light !important;
+  }
 }
 
-// .tab-tree-group, .tab-tree, .tab {
-//   position: relative;
-//   width: auto;
-//   @include transition-property(width, height, opacity, border, color, background-color);
-//   @include transition-duration(.5s);
-// }
-
-// .tab-tree-group {
-//   margin-left: 3rem;
-
-//   .remove-children {
-//     // position: absolute;
-//     // top: .2rem;
-//     // left: -1.5rem;
-//     display: inline-block;
-//     font-family: FontAwesome;
-//     font-style: normal;
-//     font-weight: normal;
-//     font-size: 1.8rem;
-//     color: $text-color-light;
-//     cursor: pointer;
-
-//     &:before {
-//       content: "\f105";
-//     }
-
-//     &:hover {
-//       // left: -2rem;
-//       color: $error-color;
-
-//       & ~ .tab-tree {
-//         background-color: $error-color-light;
-
-//         h6 {
-//           @extend .highlight-text;
-//         }
-//       }
-
-//       &:before {
-//         content: "\f00d";
-//       }
-//     }
-//   }
-// }
-
-// #tree > .tab-tree-group {
-//   margin-left: 1rem;
-
-//   border-bottom: 1px dashed $border-color;
-
-//   &:last-child {
-//     border-bottom: 0;
-//   }
-// }
-
-// .tab-tree {
-//   padding: 0;
-
-//   .tab-icon {
-//     position: absolute;
-//     top: .9rem;
-//     left: .5rem;
-//     cursor: pointer;
-//     z-index: 2;
-
-//     .favicon {
-//       // display: inline-block;
-//       width: auto;
-//     }
-
-//     .remove-tab {
-//       // display: none;
-//       width: 0;
-//       font-size: 1.8rem;
-//       margin-top: -.4rem;
-//       color: $error-color;
-//     }
-
-//     &:hover {
-//       .favicon {
-//         // display: none;
-//         width: 0;
-//       }
-
-//       .remove-tab {
-//         // display: inline-block;
-//         width: auto;
-//       }
-
-//       & ~ .tab {
-//         background-color: $error-color-light;
-
-//         h6 {
-//           @extend .highlight-text;
-//         }
-//       }
-//     }
-//   }
-// }
-
-// .tab {
-//   padding: 1rem .5rem 1rem 2rem;
-//   cursor: pointer;
-//   z-index: 1;
-
-//   &:hover {
-//     background-color: $primary-color-light;
-
-//     h6 {
-//       @extend .highlight-text;
-//     }
-//   }
-
-//   h6 {
-//     margin: 0;
-//     line-height: 1.2rem;
-//   }
-// }
-
-.fa {
-  color: $text-color;
-  font-size: 16px;
-  font-weight: lighter;
+.tab-remove-range {
+  &, .tab, .tab-tree, .tab-title {
+    background-color: $error-color-light !important;
+  }
 }
-
-.fa-spin {
-  color: $primary-color;
-  font-weight: lighter;
-}
-
-.highlight-text {
-  font-weight: bold;
-  letter-spacing: $letter-spacing - 0.006em;
-}
-
