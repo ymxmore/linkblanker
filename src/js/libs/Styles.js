@@ -1,7 +1,11 @@
-var MaterialUi = require('material-ui');
-var Styles = MaterialUi.Styles;
-var Theme = Styles.LightRawTheme;
-var assign = require('object-assign');
+/*
+ * libs/Styles.js
+ */
+
+const MaterialUi = require('material-ui');
+const Styles = MaterialUi.Styles;
+const Theme = Styles.LightRawTheme;
+const assign = require('object-assign');
 
 module.exports = {
   wrapper: {

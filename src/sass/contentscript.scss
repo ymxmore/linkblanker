@@ -1,25 +1,14 @@
 /*
  * contentscript.scss
- *
- * Copyright (c) 2015, aozora-create.com. All rights reserved.
- * Copyrights licensed under the New ISC License.
- * See the accompanying LICENSE file for terms.
  */
 
-// core
-
 @import "variables";
+@import "tags";
 
-// third party
+#linkblanker-canvas, #linkblanker-notify, #linkblanker-navigation {
+  @include tags;
 
-@import "compass";
-@import "compass/reset/utilities";
-@import "compass/utilities/general/clearfix";
-@import "compass/css3/selection";
-
-#linkblanker-canvas, #linkblanker-notify {
-  @include nested-reset;
-  html, body, div, span, applet, object, iframe,
+  &, html, body, div, span, applet, object, iframe,
   h1, h2, h3, h4, h5, h6, p, blockquote, pre,
   a, abbr, acronym, address, big, cite, code,
   del, dfn, em, img, ins, kbd, q, s, samp,
@@ -33,22 +22,19 @@
   menu, nav, output, ruby, section, summary,
   time, mark, audio, video, input, textarea, select, option {
     box-sizing: border-box;
-    font-family: Roboto, Helvetica, 'Hiragino Kaku Gothic Pro', sans-serif;
-    font-size: $base-font-size;
+    font-family: $font-family;
+    font-size: $font-size;
     line-height: $line-height;
     letter-spacing: $letter-spacing;
     color: $text-color;
     background-color: transparent;
     overflow: visible;
-    @include selection($primary-color-light, null);
   }
-
-  box-sizing: border-box;
 }
 
 #linkblanker-canvas {
   position: absolute;
-  z-index: 2999999999;
+  z-index: $max-z-index;
   background-color:rgba(0,0,0,.8);
   opacity: 0;
 
@@ -65,7 +51,7 @@
   position: fixed;
   top: 8px;
   right: 8px;
-  z-index: 2999999999;
+  z-index: $max-z-index;
   opacity: 0;
   padding: 6px;
   border-radius: 1px;
@@ -73,13 +59,14 @@
   background-color: $background-color;
   box-shadow: $border-color-dark 0px 0px 21px;
   width: 350px;
-  height: 66px;
-
+  height: 60px;
 
   .linkblanker-icon {
     position: absolute;
     top: 6px;
     left: 6px;
+    width: 48px;
+    height: 48px;
     border-radius: 3px;
   }
 
@@ -89,16 +76,19 @@
     left: 64px;
     font-size: 16px;
     line-height: 1.5em;
-    top: 10px;
-    font-weight: bold;
+    top: 8px;
+    font-weight: normal;
+    margin: 0;
   }
 
   .linkblanker-linkbox {
     position: absolute;
     left: 64px;
-    bottom: 14px;
+    bottom: 10px;
     right: 6px;
     text-align: left;
+    margin: 0;
+    padding: 0;
 
     &, li, li > a {
       font-size: 12px;
@@ -126,24 +116,87 @@
   }
 
   &.show, &.hide {
-    @include animation-fill-mode(forwards);
-    @include animation-delay(0);
-    @include animation-duration(.3s);
-    @include animation-direction(normal);
-    @include animation-iteration-count(1);
-    @include animation-timing-function(linear);
+    animation-fill-mode: forwards;
+    animation-delay: 0;
+    animation-duration: .3s;
+    animation-direction: normal;
+    animation-iteration-count: 1;
+    animation-timing-function: linear;
   }
 
   &.show {
-    @include animation-name(fadeInDown);
+    animation-name: fade-in-down;
   }
 
   &.hide {
-    @include animation-name(fadeOutRight);
+    animation-name: fade-out-right;
   }
 }
 
-@keyframes fadeInDown {
+#linkblanker-navigation, #linkblanker-navigation-balloon {
+  z-index: $max-z-index;
+  position: absolute;
+}
+
+#linkblanker-navigation {
+  top: 0;
+  right: initial;
+  bottom: initial;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+}
+
+#linkblanker-navigation-balloon {
+  top: 0;
+  left: 0;
+  width: 50px;
+  height: 50px;
+  background-color: $background-color !important;
+  box-shadow: $border-color-dark 0px 0px 21px;
+  border-radius: 3px;
+  padding: 5px;
+  display: none;
+  opacity: 0;
+  transition: opacity .1s;
+  overflow: hidden;
+
+  &.show {
+    opacity: 1;
+  }
+
+  &.hide {
+    opacity: 0;
+  }
+}
+
+#linkblanker-status-text {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+#linkblanker-status-text-enabled, #linkblanker-status-text-disabled {
+  color: #fff !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  padding: 2px 0 !important;
+  font-size: 9px !important;
+  border-radius: 0 0 3px 3px !important;
+}
+
+#linkblanker-status-text-enabled {
+  background-color: rgba(48,201,221,.5) !important;
+}
+
+#linkblanker-status-text-disabled {
+  background-color: rgba(0,0,0,.25) !important;
+}
+
+@keyframes fade-in-down {
   from {
     opacity: 0;
     transform: translate3d(0, -100%, 0);
@@ -155,7 +208,7 @@
   }
 }
 
-@keyframes fadeOutRight {
+@keyframes fade-out-right {
   from {
     opacity: 1;
   }

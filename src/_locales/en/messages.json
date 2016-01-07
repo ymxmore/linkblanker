@@ -30,13 +30,13 @@
     "message": "Close tabs by triple-click"
   },
   "title_open_settings": {
-    "message": "Disable setting"
+    "message": "Open setting"
   },
   "title_close_settings": {
     "message": "Close Settings"
   },
   "title_whole_setting": {
-    "message": "Operation setting"
+    "message": "Whole setting"
   },
   "title_link_help": {
     "message": "click here for how to,help,etc.."
@@ -57,7 +57,7 @@
     "message": "Shortcut key"
   },
   "title_enable_toggle_key": {
-    "message": "Exchange key"
+    "message": "Operation state switching key"
   },
   "title_disabled_same_domain": {
     "message": "In the case of the same domain, a link invalidates it"
@@ -67,5 +67,11 @@
   },
   "notify_remove": {
     "message": "Remove notify"
+  },
+  "title_other": {
+    "message": "Other"
+  },
+  "title_visible_link_state": {
+    "message": "Display the operating status of each link"
   }
 }

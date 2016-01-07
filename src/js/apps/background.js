@@ -1,11 +1,7 @@
 /*
- * background.js
- *
- * Copyright (c) 2015, aozora-create.com. All rights reserved.
- * Copyrights licensed under the New ISC License.
- * See the accompanying LICENSE file for terms.
+ * apps/background.js
  */
 
-var LinkBlanker = require('../utils/LinkBlanker');
+import LinkBlanker from '../libs/LinkBlanker';
 
 window.LinkBlanker = new LinkBlanker(chrome);
