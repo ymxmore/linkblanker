@@ -1,9 +1,5 @@
 /*
- * Tabs.js
- *
- * Copyright (c) 2015, aozora-create.com. All rights reserved.
- * Copyrights licensed under the New ISC License.
- * See the accompanying LICENSE file for terms.
+ * libs/Tabs.js
  */
 
 /**
@@ -23,7 +19,7 @@ function Tabs (canvas) {
   this.PADDING = 5;
   this.REMOVE = {
     LEFT_TO_RIGHT: 1,
-    RIGHT_TO_LEFT: 2,
+    RIGHT_TO_LEFT: 2
   };
 
   this.canvas = canvas;

@@ -1,22 +1,19 @@
 /*
  * _variables.scss
- *
- * Copyright (c) 2015, aozora-create.com. All rights reserved.
- * Copyrights licensed under the New ISC License.
- * See the accompanying LICENSE file for terms.
  */
 
 // sizes
 
-$base-font-size:   13px;
-$line-height:      1.4em;
-$letter-spacing:   .05em;
+$font-size:        13.5px;
+$line-height:      1.6;
+$letter-spacing:   .025em;
+$font-family:      'ヒラギノ角ゴシック Pro', 'Hiragino Kaku Gothic Pro', メイリオ, Meiryo, Osaka, 'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif !important;
 
 // colors
 
 $primary-color:          #00bcd4;
 $primary-color-dark:     darken($primary-color, 10%);
-$primary-color-light:    lighten($primary-color, 50%);
+$primary-color-light:    lighten($primary-color, 20%);
 
 $text-color:             #757575;
 $text-color-dark:        darken($text-color, 10%);
@@ -47,3 +44,6 @@ $overlay-color:          rgba(10, 10, 10, 0.7);
 $highlight-color:        #ffffff;
 $accent-color:           #ff4081;
 $disabled-color:         #e8e8e8;
+
+// other
+$max-z-index: 2147483647;

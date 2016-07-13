@@ -30,13 +30,13 @@
     "message": "トリプルクリッククローズ機能"
   },
   "title_open_settings": {
-    "message": "無効設定"
+    "message": "オープン設定"
   },
   "title_close_settings": {
     "message": "クローズ設定"
   },
   "title_whole_setting": {
-    "message": "動作設定"
+    "message": "全体設定"
   },
   "title_link_help": {
     "message": "機能・使い方・ヘルプ等はこちら"
@@ -57,7 +57,7 @@
     "message": "ショートカットキー"
   },
   "title_enable_toggle_key": {
-    "message": "切替キー"
+    "message": "動作状態切替キー"
   },
   "title_disabled_same_domain": {
     "message": "リンク先が同一ドメインの場合は無効にする"
@@ -67,5 +67,11 @@
   },
   "notify_remove": {
     "message": "通知を消去"
+  },
+  "title_other": {
+    "message": "その他"
+  },
+  "title_visible_link_state": {
+    "message": "リンク毎の動作状態を表示"
   }
 }

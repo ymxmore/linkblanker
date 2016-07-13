@@ -1,22 +1,17 @@
 /*
- * PreferenceAction.js
- *
- * Copyright (c) 2015, aozora-create.com. All rights reserved.
- * Copyrights licensed under the New ISC License.
- * See the accompanying LICENSE file for terms.
+ * actions/PreferenceAction.js
  */
 
-var AppDispatcher = require('../dispatcher/AppDispatcher');
-var LinkBlankerConstants = require('../constants/LinkBlankerConstants');
-var Types = LinkBlankerConstants.Types;
+import AppDispatcher from '../dispatcher/AppDispatcher';
+import { Types } from '../constants/LinkBlankerConstants';
 
-var PopupActions = {
+const PopupActions = {
 
   /**
    * Save Preference
    */
-  save: function (key, value) {
-    var data = {};
+  save(key, value) {
+    let data = {};
 
     if ('object' === typeof key){
       data = key;
@@ -29,7 +24,6 @@ var PopupActions = {
       data: data
     });
   }
-
 };
 
 module.exports = PopupActions;

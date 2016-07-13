@@ -1,8 +1,9 @@
 {
 	"manifest_version": 2,
-	"version": "2.3.4",
+	"version": "2.4.0",
 	"name": "Link Blanker",
 	"description": "Open link in new tab.",
+  "homepage_url": "https://www.aozora-create.com/service/linkblanker",
 	"icons": {
 		"128": "img/icon.png",
 		"16": "img/icon16.png",
@@ -16,7 +17,8 @@
 		"tabs"
 	],
 	"web_accessible_resources": [
-		"img/icon48.png"
+    "img/icon-disabled.svgz",
+		"img/icon-enabled.svgz"
 	],
 	"background": {
 		"scripts": [

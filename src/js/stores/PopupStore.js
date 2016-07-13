@@ -1,41 +1,43 @@
 /*
- * PopupStore.js
- *
- * Copyright (c) 2015, aozora-create.com. All rights reserved.
- * Copyrights licensed under the New ISC License.
- * See the accompanying LICENSE file for terms.
+ * stores/PopupStore.js
  */
 
-var LinkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
-var AppDispatcher = require('../dispatcher/AppDispatcher');
-var EventEmitter = require('events').EventEmitter;
-var LinkBlankerConstants = require('../constants/LinkBlankerConstants');
-var Events = LinkBlankerConstants.Events;
-var Types = LinkBlankerConstants.Types;
-var assign = require('object-assign');
+import { EventEmitter } from 'events';
+import { Events, Types } from '../constants/LinkBlankerConstants';
+import AppDispatcher from '../dispatcher/AppDispatcher';
+import Logger from '../libs/Logger';
 
-var disableds = [ 'disabled-domain', 'disabled-directory', 'disabled-page' ];
+const LinkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
 
-var PreferenceStore = assign({}, EventEmitter.prototype, {
+const DISABLEDS = [ 'disabled-domain', 'disabled-directory', 'disabled-page', 'disabled-on' ];
 
-  getAll: function (callback) {
-    var data = LinkBlanker.getData();
+const PreferenceStore = Object.assign({}, EventEmitter.prototype, {
 
-    LinkBlanker.currentData(function (result) {
-      Object.keys(data).forEach(function (k) {
-        var v = data[k];
+  getAll: (callback) => {
+    let data = LinkBlanker.getData();
+
+    LinkBlanker.getCurrentData((error, result) => {
+      if (error) {
+        if (callback) {
+          callback(error, null);
+        }
+        return;
+      }
+
+      Object.keys(data).forEach((k) => {
+        let v = data[k];
 
         switch (k) {
           case 'disabled-domain':
           case 'disabled-directory':
-          case 'disabled-page':
-            var item = LinkBlanker.preferenceValueFromId(k, result);
+          case 'disabled-page': {
+            let item = LinkBlanker.preferenceValueFromId(k, result);
 
             if ('disabled-directory' === k) {
-              var exist = false;
+              let exist = false;
 
-              for (var i = 0; i < v.length; i++) {
-                if (item.match(new RegExp('^' + v[i] + '.*$'))) {
+              for (let i = 0; i < v.length; i++) {
+                if (item.match(new RegExp(`^${v[i]}.*$`))) {
                   exist = true;
                   break;
                 }
@@ -47,10 +49,13 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
             }
 
             break;
+          }
           case 'enabled-extension':
           case 'enabled-background-open':
           case 'enabled-multiclick-close':
           case 'disabled-same-domain':
+          case 'disabled-on':
+          case 'visible-link-state':
             data[k] = Boolean(v);
             break;
           default:
@@ -60,10 +65,10 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
       });
 
       // build virtual fileld
-      data['system-enabled-state'] = Boolean(LinkBlanker.enableFromUrl(result.url));
+      data['system-enabled-state'] = Boolean(LinkBlanker.isEnableFromUrl(result.url));
       data['disabled-state'] = 'disabled-off';
 
-      disableds.forEach(function (value) {
+      DISABLEDS.forEach((value) => {
         if (data[value]) {
           data['disabled-state'] = value;
         }
@@ -72,47 +77,50 @@ var PreferenceStore = assign({}, EventEmitter.prototype, {
       });
 
       if (callback) {
-        callback(data);
+        callback(null, data);
       }
     });
   },
 
-  emitChange: function () {
-    this.emit(Events.CHANGE);
+  emitChange: () => {
+    PreferenceStore.emit(Events.CHANGE);
   },
 
   /**
    * @param {function} callback
    */
-  addChangeListener: function (callback) {
-    this.on(Events.CHANGE, callback);
+  addChangeListener: (callback) => {
+    PreferenceStore.on(Events.CHANGE, callback);
   },
 
   /**
    * @param {function} callback
    */
-  removeChangeListener: function (callback) {
-    this.removeListener(Events.CHANGE, callback);
+  removeChangeListener: (callback) => {
+    PreferenceStore.removeListener(Events.CHANGE, callback);
   }
 });
 
-AppDispatcher.register(function (action) {
+AppDispatcher.register((action) => {
   switch(action.type) {
-    case Types.SAVE:
-      if (action.data['disabled-state']) {
-        disableds.forEach(function (value) {
-          action.data[value] = (value === action.data['disabled-state']) ? true : false;
+    case Types.SAVE: {
+      let data = Object.assign({}, action.data);
+
+      if (data['disabled-state']) {
+        DISABLEDS.forEach((value) => {
+          data[value] = (value === data['disabled-state']);
         });
 
         // delete virtual fileld
-        delete action.data['disabled-state'];
+        delete data['disabled-state'];
       }
 
-      LinkBlanker.setData(action.data, function () {
+      LinkBlanker.setData(data, () => {
         PreferenceStore.emitChange();
       });
 
       break;
+    }
   }
 });
 
