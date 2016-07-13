@@ -62,8 +62,10 @@ module.exports = {
     new webpack.NoErrorsPlugin(),
     new webpack.optimize.DedupePlugin(),
     new webpack.DefinePlugin({
-      __BUILD_DATE_AT__: JSON.stringify(new Date().toString()),
-      __NODE_ENV__: JSON.stringify(process.env.NODE_ENV)
+      "process.env": {
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV)
+      },
+      __BUILD_DATE_AT__: JSON.stringify(new Date().toString())
     }),
     new webpack.optimize.UglifyJsPlugin({
       preserveComments: 'some',

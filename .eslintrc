@@ -30,7 +30,7 @@
 		"clearTimeout": false,
 		"module": false,
 		"XMLHttpRequest": false,
-		"__NODE_ENV__": false
+		"process": false
 	},
 
 	"extends": "eslint:recommended",

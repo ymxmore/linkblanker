@@ -6,7 +6,7 @@ const cli = window.console;
 
 const Logger = {
   debug: (() => {
-    if (__NODE_ENV__ !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       return cli.log.bind(cli, '[debug]:');
     }
 

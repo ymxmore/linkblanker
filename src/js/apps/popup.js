@@ -373,7 +373,7 @@ const Popup = React.createClass({
 
             <ul className="popup-list">
               <li>
-                <a href="http://www.aozora-create.com/service/linkblanker" title="Link Blanker" target="_blank">
+                <a href={LinkBlanker.manifest.homepage_url} title={LinkBlanker.manifest.name} target="_blank">
                   {chrome.i18n.getMessage('title_link_help')}
                 </a>
               </li>

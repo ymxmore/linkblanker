@@ -20,6 +20,7 @@
   "bugs": {
     "url": "https://github.com/ym-aozora/linkblanker/issues"
   },
+  "homepage": "https://www.aozora-create.com/service/linkblanker",
   "devDependencies": {
     "async": "^2.0.0-rc.6",
     "babel-core": "^6.10.4",
