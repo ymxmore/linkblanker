@@ -146,7 +146,7 @@ export default class Agent {
             nd.removeEventListener(ae, this.events[ae]);
 
             if (enabled[ae]) {
-              if (!nd.dataset.lbOrigHref && nd.href) {
+              if (!nd.dataset.lbOrigHref && nd.href && nd.href !== '') {
                 nd.dataset.lbOrigHref = nd.href;
               }
 
