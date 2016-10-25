@@ -146,6 +146,10 @@ export default class Agent {
             nd.removeEventListener(ae, this.events[ae]);
 
             if (enabled[ae]) {
+              if (!nd.dataset.lbOrigHref && nd.href) {
+                nd.dataset.lbOrigHref = nd.href;
+              }
+
               nd.addEventListener(ae, this.events[ae]);
             }
           });
@@ -174,15 +178,21 @@ export default class Agent {
   }
 
   isNeedOpenTabFromDOM(dom) {
-    if (!dom) {
+    if (!dom || dom.onclick) {
       return false;
     }
 
+    let url = null;
+
+    if (dom.dataset.lbOrigHref) {
+      url = dom.dataset.lbOrigHref;
+    } else if (dom.href) {
+      url = dom.href;
+    }
+
     return (
-      dom &&
-      !dom.onclick &&
-      dom.href &&
-      this.isNeedOpenTabFromUrl(this.absPath(dom.href))
+      url &&
+      this.isNeedOpenTabFromUrl(this.absPath(url))
     );
   }
 
