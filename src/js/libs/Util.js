@@ -3,18 +3,35 @@
  */
 
 import url from 'url';
-import Logger from './Logger';
 
 const PARSE_URL_CACHE_MAX = 50;
 const _parseUrlCache = {};
 
+/**
+ * Util
+ *
+ * @class
+ * @classdesc ユーティリティクラス
+ */
 export default class Util {
 
+  /**
+   * URLの解析結果をキャッシュから取得
+   *
+   * @param {string} key URL
+   * @return {Object|boolean} URL解析結果
+   */
   static getParseUrlCache(key) {
     let cache = _parseUrlCache[key];
     return cache ? cache.value : false;
   }
 
+  /**
+   * URLの解析結果をキャッシュ
+   *
+   * @param {string} key キー
+   * @param {Object} value URL解析結果
+   */
   static setParseUrlCache(key, value) {
     let keys = Object.keys(_parseUrlCache);
 
@@ -37,10 +54,16 @@ export default class Util {
     _parseUrlCache[key] = {
       key,
       value,
-      time: new Date()
+      time: new Date(),
     };
   }
 
+  /**
+   * URLを解析
+   *
+   * @param {string} urlstr URL
+   * @return {Object} URL解析結果
+   */
   static parseUrl(urlstr) {
     let cache = Util.getParseUrlCache(urlstr);
 
@@ -80,6 +103,12 @@ export default class Util {
     return parsed;
   }
 
+  /**
+   * 指定されたオブジェクトの値の配列を返却
+   *
+   * @param {Object} obj 対象オブジェクト
+   * @return {Array} オブジェクトの値の配列
+   */
   static objectValues(obj) {
     if (!obj) {
       return [];
@@ -88,7 +117,30 @@ export default class Util {
     return Object.keys(obj).map((k) => obj[k]);
   }
 
+  /**
+   * 指定された引数が配列かどうか
+   *
+   * @param {*} obj 検証対象
+   * @return {boolean} 配列の場合: true
+   */
   static isArray(obj) {
-    return '[object Array]' === Object.prototype.toString.call(obj);
+    return Object.prototype.toString.call(obj) === '[object Array]';
+  }
+
+  /**
+   * 全てのコンテキストを変更
+   *
+   * @param {Object} obj オブジェクト
+   * @param {Object} context コンテキスト
+   * @return {Object} 配列の場合: true
+   */
+  static bindAll(obj, context) {
+    let result = {};
+
+    Object.keys(obj).forEach((key) => {
+      result[key] = obj[key].bind(context);
+    });
+
+    return result;
   }
 }

@@ -3,7 +3,7 @@
  */
 
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
-import InjectTapEventPlugin from 'react-tap-event-plugin';
+import injectTapEventPlugin from 'react-tap-event-plugin';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import PopupActions from '../actions/PopupActions';
 import PopupStore from '../stores/PopupStore';
@@ -16,14 +16,14 @@ import Toggle from 'material-ui/Toggle';
 // Can go away when react 1.0 release
 // Check this repo:
 // https://github.com/zilverline/react-tap-event-plugin
-InjectTapEventPlugin();
+injectTapEventPlugin();
 
 const LinkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
 
 const keyMappings = {
-  3:  'cancel',
-  8:  'backspace',
-  9:  'tab',
+  3: 'cancel',
+  8: 'backspace',
+  9: 'tab',
   12: 'clear',
   13: 'enter',
   16: 'shift',
@@ -89,9 +89,9 @@ const keyMappings = {
   89: 'Y',
   90: 'Z',
 
-  91:  'command',
-  92:  'command',
-  93:  'command',
+  91: 'command',
+  92: 'command',
+  93: 'command',
   145: 'scrolllock',
   186: 'colon',
   187: 'semicolon',
@@ -109,10 +109,10 @@ const keyMappings = {
   243: 'zenkaku',
   244: 'hankaku',
 
-  96:  '0(num)',
-  97:  '1(num)',
-  98:  '2(num)',
-  99:  '3(num)',
+  96: '0(num)',
+  97: '1(num)',
+  98: '2(num)',
+  99: '3(num)',
   100: '4(num)',
   101: '5(num)',
   102: '6(num)',
@@ -137,7 +137,7 @@ const keyMappings = {
   120: 'f9',
   121: 'f10',
   122: 'f11',
-  123: 'f12'
+  123: 'f12',
 };
 
 const Popup = React.createClass({
@@ -152,7 +152,7 @@ const Popup = React.createClass({
       'enabled-multiclick-close': false,
       'shortcut-key-toggle-enabled': '',
       'shortcut-key-toggle-enabled-restore': true,
-      'shortcut-key-toggle-enabled-value': ''
+      'shortcut-key-toggle-enabled-value': '',
     };
   },
 
@@ -166,8 +166,6 @@ const Popup = React.createClass({
   },
 
   handleChange(event) {
-    let state = {};
-
     switch (event.target.name) {
       case 'disabled-state':
         this.save(event.target.name, event.target.value);
@@ -188,7 +186,7 @@ const Popup = React.createClass({
         let state = {
           'shortcut-key-toggle-enabled': '',
           'shortcut-key-toggle-enabled-restore': false,
-          'shortcut-key-toggle-enabled-value': ''
+          'shortcut-key-toggle-enabled-value': '',
         };
 
         if (46 !== event.keyCode && 8 !== event.keyCode) {
@@ -221,7 +219,7 @@ const Popup = React.createClass({
     switch (event.target.name) {
       case 'shortcut-key-toggle-enabled': {
         this.setState({
-          'shortcut-key-toggle-enabled-restore': true
+          'shortcut-key-toggle-enabled-restore': true,
         });
 
         this.save('shortcut-key-toggle-enabled', this.state['shortcut-key-toggle-enabled-value']);
@@ -382,11 +380,17 @@ const Popup = React.createClass({
         </div>
       </MuiThemeProvider>
     );
-  }
+  },
 });
 
 ReactDOM.render(<Popup/>, window.document.getElementById('popup'));
 
+/**
+ * キーマップを返却
+ *
+ * @param {number} keyCode
+ * @return {Object} キーマップ
+ */
 function getKeyMapping(keyCode) {
   keyCode = keyCode || '';
 
@@ -400,5 +404,5 @@ function getKeyMapping(keyCode) {
     return keyMappings[val];
   });
 
-  return { keyCodes: keyCodes, keyNames: keyNames };
+  return {keyCodes, keyNames};
 }

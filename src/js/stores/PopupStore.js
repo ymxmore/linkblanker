@@ -2,17 +2,26 @@
  * stores/PopupStore.js
  */
 
-import { EventEmitter } from 'events';
-import { Events, Types } from '../constants/LinkBlankerConstants';
+import {EventEmitter} from 'events';
+import {Events, Types} from '../constants/LinkBlankerConstants';
 import AppDispatcher from '../dispatcher/AppDispatcher';
-import Logger from '../libs/Logger';
 
 const LinkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
 
-const DISABLEDS = [ 'disabled-domain', 'disabled-directory', 'disabled-page', 'disabled-on' ];
+const DISABLEDS = [
+  'disabled-domain',
+  'disabled-directory',
+  'disabled-page',
+  'disabled-on',
+];
 
 const PreferenceStore = Object.assign({}, EventEmitter.prototype, {
 
+  /**
+   * 全データを返却
+   *
+   * @param {function(Error, Object)} callback
+   */
   getAll: (callback) => {
     let data = LinkBlanker.getData();
 
@@ -82,23 +91,30 @@ const PreferenceStore = Object.assign({}, EventEmitter.prototype, {
     });
   },
 
+  /**
+   * チェンジイベントを発火
+   */
   emitChange: () => {
     PreferenceStore.emit(Events.CHANGE);
   },
 
   /**
-   * @param {function} callback
+   * 指定されたチェンジイベントを追加
+   *
+   * @param {function(Object)} callback
    */
   addChangeListener: (callback) => {
     PreferenceStore.on(Events.CHANGE, callback);
   },
 
   /**
-   * @param {function} callback
+   * 指定されたチェンジイベントを削除
+   *
+   * @param {function(Object)} callback
    */
   removeChangeListener: (callback) => {
     PreferenceStore.removeListener(Events.CHANGE, callback);
-  }
+  },
 });
 
 AppDispatcher.register((action) => {

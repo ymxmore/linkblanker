@@ -6,10 +6,10 @@ const banner = [
   `${pkg.name} - ${pkg.description}`,
   `@version v${pkg.version}`,
   `@link ${pkg.homepage}`,
-  `@license ${pkg.license}`
-].join("\n");
-
-const inproduction = ('production' === process.env.NODE_ENV);
+  `@license ${pkg.license}`,
+].join('\n');
+const env = process.env.NODE_ENV || 'development';
+const inproduction = (process.env.NODE_ENV === 'production');
 
 module.exports = {
   context: __dirname,
@@ -17,63 +17,65 @@ module.exports = {
   entry: {
     background: './src/js/apps/background.js',
     contentscript: './src/js/apps/contentscript.js',
-    popup: './src/js/apps/popup.js'
+    popup: './src/js/apps/popup.js',
   },
   output: {
     path: __dirname + '/dist',
     filename: 'js/bundle.[name].min.js',
-    sourceMapFilename: 'js/bundle.[name].min.js.map'
-  },
-  eslint: {
-    configFile: './.eslintrc'
+    sourceMapFilename: 'js/bundle.[name].min.js.map',
   },
   resolve: {
-    extensions: ['', '.js', '.json'],
-    modulesDirectories: [
+    modules: [
       'src/js',
-      'node_modules'
-    ]
+      'node_modules',
+    ],
   },
   module: {
-    preLoaders: [
+    rules: [
       {
-        test: /\.js$/,
+        enforce: 'pre',
+        test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'eslint'
-      }
-    ],
-    loaders: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'babel',
-        query: {
-          presets: ['es2015', 'react'],
-          plugins: [
-            'transform-class-properties',
-            'transform-react-jsx'
-          ]
-        }
+        use: ['eslint-loader'],
       },
-    ]
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        use: ['babel-loader'],
+      },
+    ],
   },
   plugins: [
     new webpack.BannerPlugin(banner),
-    new webpack.NoErrorsPlugin(),
-    new webpack.optimize.DedupePlugin(),
-    new webpack.DefinePlugin({
-      "process.env": {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV)
+    new webpack.LoaderOptionsPlugin({
+      test: /\.jsx?$/,
+      options: {
+        eslint: {
+          configFile: './.eslintrc.yml',
+        },
+        babel: {
+          presets: ['es2015', 'react'],
+          plugins: [
+            'transform-class-properties',
+            'transform-react-jsx',
+          ],
+        },
       },
-      __BUILD_DATE_AT__: JSON.stringify(new Date().toString())
+    }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify(env),
+      },
+      '__BUILD_DATE_AT__': JSON.stringify(new Date().toString()),
     }),
     new webpack.optimize.UglifyJsPlugin({
       preserveComments: 'some',
+      sourceMap: !inproduction,
       compress: {
-        warnings: false
-      }
+        warnings: false,
+      },
     }),
-    new webpack.optimize.OccurenceOrderPlugin(),
-    new webpack.optimize.AggressiveMergingPlugin()
-  ]
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.optimize.AggressiveMergingPlugin(),
+  ],
 };

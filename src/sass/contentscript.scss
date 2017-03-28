@@ -22,7 +22,7 @@
   menu, nav, output, ruby, section, summary,
   time, mark, audio, video, input, textarea, select, option {
     box-sizing: border-box;
-    font-family: $font-family;
+    font-family: $font-family !important;
     font-size: $font-size;
     line-height: $line-height;
     letter-spacing: $letter-spacing;

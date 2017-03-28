@@ -17,7 +17,7 @@ const Logger = {
 
   warn: cli.warn.bind(cli, '[warn]:'),
 
-  error: cli.error.bind(cli, '[error]:')
+  error: cli.error.bind(cli, '[error]:'),
 };
 
 module.exports = Logger;
