@@ -21,7 +21,9 @@
   menu, nav, output, ruby, section, summary,
   time, mark, audio, video, input, textarea, select, option {
     box-sizing: border-box;
-    font-family: $font-family !important;
+    font-family: $font-family;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
   }
 
   :root, html, body {
@@ -34,7 +36,7 @@
   }
 
   ::selection {
-    background: rgba($primary-color-light, .3);
+    background: rgba($primary-color-light, .1);
   }
 
   html, body {

@@ -35,12 +35,15 @@ export default class Agent {
     this.disabledSameDomain = false;
     this.ports = {};
     this.keys = [];
-    this.events = {};
-    this.receiveMessages = {};
+    this.operationEventHandler = {};
+    this.receiveEventHandler = {};
     this.navigation = null;
     this.navigationTarget = null;
     this.mutationObserver = null;
     this.bindNodeTypes = [];
+    this.navPrefix = null;
+    this.navTargets = [];
+    this.navStatuses = [];
     this.init();
   }
 
@@ -57,20 +60,24 @@ export default class Agent {
       'mousemove',
     ];
 
+    this.navPrefix = 'linkblanker-status-';
+    this.navTargets = ['icon', 'text'];
+    this.navStatuses = ['enabled', 'disabled'];
+
     this.bindNodeTypes = [
       this.window.Node.DOCUMENT_NODE,
       this.window.Node.ELEMENT_NODE,
     ];
 
-    this.events = this.getOperationEventHandler();
-    this.receiveMessages = this.getReceiveEventHandler();
+    this.operationEventHandler = this.getOperationEventHandler();
+    this.receiveEventHandler = this.getReceiveEventHandler();
 
     this.chrome.extension.onMessage.addListener((response, sender) => {
-      if ('name' in response &&
-        response.name in this.receiveMessages &&
-        typeof this.receiveMessages[response.name] === 'function') {
+      if ('name' in response
+        && response.name in this.receiveEventHandler
+        && typeof this.receiveEventHandler[response.name] === 'function') {
         // call receiver
-        this.receiveMessages[response.name](response);
+        this.receiveEventHandler[response.name](response);
       }
     });
 
@@ -135,8 +142,8 @@ export default class Agent {
    * @private
    */
   bindEvents() {
-    Object.keys(this.events).forEach((e) => {
-      this.window.removeEventListener(e, this.events[e]);
+    Object.keys(this.operationEventHandler).forEach((e) => {
+      this.window.removeEventListener(e, this.operationEventHandler[e]);
     });
 
     this.bindAnchorEvents(this.window.document);
@@ -165,12 +172,12 @@ export default class Agent {
     }
 
     if (this.multiClickClose) {
-      this.window.addEventListener('click', this.events.click);
+      this.window.addEventListener('click', this.operationEventHandler.click);
     }
 
     if (this.shortcutKeyTobbleEnabled.length > 0) {
-      this.window.addEventListener('keydown', this.events.keydown);
-      this.window.addEventListener('keyup', this.events.keyup);
+      this.window.addEventListener('keydown', this.operationEventHandler.keydown);
+      this.window.addEventListener('keyup', this.operationEventHandler.keyup);
     }
   }
 
@@ -207,7 +214,7 @@ export default class Agent {
           );
         } else {
           this.anchorEvents.forEach((ae) => {
-            nd.removeEventListener(ae, this.events[ae]);
+            nd.removeEventListener(ae, this.operationEventHandler[ae]);
 
             if (enabled[ae]) {
               if (!nd.dataset.lbOrigHref
@@ -217,7 +224,7 @@ export default class Agent {
                 nd.dataset.lbOrigHref = nd.href;
               }
 
-              nd.addEventListener(ae, this.events[ae]);
+              nd.addEventListener(ae, this.operationEventHandler[ae]);
             }
           });
         }
@@ -280,8 +287,8 @@ export default class Agent {
     }
 
     return (
-      url &&
-      this.isNeedOpenTabFromUrl(this.absPath(url))
+      url
+      && this.isNeedOpenTabFromUrl(this.absPath(url))
     );
   }
 
@@ -298,10 +305,10 @@ export default class Agent {
     }
 
     return (
-      !e.ctrlKey &&
-      !e.metaKey &&
-      !e.shiftKey &&
-      !e.defaultPrevented
+      !e.ctrlKey
+      && !e.metaKey
+      && !e.shiftKey
+      && !e.defaultPrevented
     );
   }
 
@@ -318,9 +325,9 @@ export default class Agent {
     }
 
     return (
-      e.button === 0 &&
-      this.isNeedOpenTabFromEvent(e) &&
-      this.isNeedOpenTabFromDOM(this.getParentsNode(e.target, 'a'))
+      e.button === 0
+      && this.isNeedOpenTabFromEvent(e)
+      && this.isNeedOpenTabFromDOM(this.getParentsNode(e.target, 'a'))
     );
   }
 
@@ -352,27 +359,43 @@ export default class Agent {
    * @private
    */
   setNavigation() {
-    let navc = this.window.document.createElement('div');
-    navc.setAttribute('id', 'linkblanker-navigation');
+    if (!this.window.document.body) {
+      return;
+    }
 
-    let navb = this.window.document.createElement('div');
-    navb.setAttribute('id', 'linkblanker-navigation-balloon');
+    let navc = this.window.document.getElementById('linkblanker-navigation');
 
-    navb.innerHTML = `
-      <div id="linkblanker-status-icon">
-        <img id="linkblanker-status-icon-enabled" src="${this.chrome.extension.getURL('/img/icon-enabled.svgz')}"/>
-        <img id="linkblanker-status-icon-disabled" src="${this.chrome.extension.getURL('/img/icon-disabled.svgz')}"/>
-      </div>
-      <div id="linkblanker-status-text">
-        <span id="linkblanker-status-text-enabled">ON</span>
-        <span id="linkblanker-status-text-disabled">OFF</span>
-      </div>
-    `;
+    if (this.isVisibleLinkState) {
+      if (navc) {
+        return;
+      }
 
-    navc.appendChild(navb);
+      navc = this.window.document.createElement('div');
+      navc.setAttribute('id', 'linkblanker-navigation');
 
-    this.window.document.body.appendChild(navc);
-    this.navigation = navb;
+      let navb = this.window.document.createElement('div');
+      navb.setAttribute('id', 'linkblanker-navigation-balloon');
+
+      navb.innerHTML = `
+        <div id="linkblanker-status-icon">
+          <img id="linkblanker-status-icon-enabled" src="${this.chrome.extension.getURL('/img/icon-enabled.svgz')}"/>
+          <img id="linkblanker-status-icon-disabled" src="${this.chrome.extension.getURL('/img/icon-disabled.svgz')}"/>
+        </div>
+        <div id="linkblanker-status-text">
+          <span id="linkblanker-status-text-enabled">ON</span>
+          <span id="linkblanker-status-text-disabled">OFF</span>
+        </div>
+      `;
+
+      navc.appendChild(navb);
+
+      this.window.document.body.appendChild(navc);
+      this.navigation = navb;
+    } else {
+      if (navc) {
+        this.window.document.body.removeChild(navc);
+      }
+    }
   }
 
   /**
@@ -382,11 +405,15 @@ export default class Agent {
    * @param {Object} e イベント
    */
   onClick(e) {
+    this.navigation.className = 'hide';
+    this.navigation.style.display = 'none';
+
     let target = this.getParentsNode(e.target, 'a');
 
     if (target) {
-      if (this.isNeedOpenTabFromSystemStatus() &&
-        this.isNeedOpenTabFromClickEvent(e)) {
+      if (this.isNeedOpenTabFromSystemStatus()
+        && this.isNeedOpenTabFromClickEvent(e)
+      ) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -400,7 +427,7 @@ export default class Agent {
       }
     } else if (this.multiClickClose) {
       // multi clicks tab close.
-      if (this.ports.removeTabs && 3 === e.detail) {
+      if (this.ports.removeTabs && e.detail === 3) {
         let align = (e.clientX > this.window.document.documentElement.clientWidth / 2) ? 'right' : 'left';
 
         this.ports.removeTabs.postMessage({
@@ -473,9 +500,14 @@ export default class Agent {
 
     if (target) {
       this.navigationTarget = target;
-      this.setNavigationState(e);
-      this.navigation.className = 'show';
-      this.navigation.style.display = 'block';
+
+      if (this.setNavigationState(e)) {
+        this.navigation.className = 'show';
+        this.navigation.style.display = 'block';
+      } else {
+        this.navigation.className = 'hide';
+        this.navigation.style.display = 'none';
+      }
     }
   }
 
@@ -547,33 +579,39 @@ export default class Agent {
    *
    * @private
    * @param {Object} e イベント
+   * @return {boolean} 正常にセットした場合: true
    */
   setNavigationState(e) {
-    let isNeedOpenTab = this.navigationTarget &&
-      this.isNeedOpenTabFromSystemStatus() &&
-      this.isNeedOpenTabFromEvent(e) &&
-      this.isNeedOpenTabFromDOM(this.navigationTarget);
-    let prefix = 'linkblanker-status-';
-    let enabled = isNeedOpenTab ? 'enabled' : 'disabled';
-    let disabled = isNeedOpenTab ? 'disabled' : 'enabled';
+    if (!this.window.document.body || !this.isVisibleLinkState) {
+      return false;
+    }
 
-    let showIcon = this.window.document.getElementById(
-      `${prefix}icon-${enabled}`
-    );
-    let hideIcon = this.window.document.getElementById(
-      `${prefix}icon-${disabled}`
-    );
-    let onText = this.window.document.getElementById(
-      `${prefix}text-${enabled}`
-    );
-    let offText = this.window.document.getElementById(
-      `${prefix}text-${disabled}`
-    );
+    if (e && e.target) {
+      if (this.getParentsNode(e.target, '#linkblanker-notify')) {
+        return false;
+      }
+    }
 
-    showIcon.style.display = 'block';
-    hideIcon.style.display = 'none';
-    onText.style.display = 'block';
-    offText.style.display = 'none';
+    let isNeedOpenTab = this.navigationTarget
+      && this.isNeedOpenTabFromSystemStatus()
+      && this.isNeedOpenTabFromEvent(e)
+      && this.isNeedOpenTabFromDOM(this.navigationTarget);
+
+    for(let target of this.navTargets) {
+      for(let status of this.navStatuses) {
+        let elem = this.window.document.getElementById(
+          `${this.navPrefix}${target}-${status}`
+        );
+
+        elem.style.display = (
+          (isNeedOpenTab && status === 'enabled')
+          || (!isNeedOpenTab && status === 'disabled'))
+            ? 'block'
+            : 'none';
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -614,6 +652,7 @@ export default class Agent {
       this.disabledSameDomain = Boolean(response.disabledSameDomain);
     }
 
+    this.setNavigation();
     this.bindEvents();
   }
 
@@ -871,23 +910,42 @@ export default class Agent {
    *
    * @private
    * @param {Object} node ノード
-   * @param {string} tag 対象のタグ名
+   * @param {string} target 対象のID or Class or タグ
    * @param {boolean} normalized 正規化済フラグ
    * @return {Object} 親ノード
    */
-  getParentsNode(node, tag, normalized) {
-    if (!node || !tag) {
+  getParentsNode(node, target, normalized) {
+    if (!node || !target) {
       return false;
     }
 
-    if (!normalized) {
-      tag = (tag || '').toLowerCase();
+    let regexp = null;
+    let nodeprop = null;
+
+    target = target.trim();
+
+    if (/^#/.test(target)) {
+      // id
+      regexp = new RegExp(`^${target.slice(1)}$`);
+      nodeprop = (node.id || '').trim();
+    } else if (/^\./.test(target)) {
+      // class
+      regexp = new RegExp(`(^|\s)${target.slice(1)}($|\s)`);
+      nodeprop = (node.className || '').trim();
+    } else {
+      // tag
+      if (!normalized) {
+        target = target.toLowerCase();
+      }
+
+      regexp = new RegExp(`^${target}$`);
+      nodeprop = node.nodeName.toLowerCase();
     }
 
-    if (tag === node.nodeName.toLowerCase()) {
+    if (nodeprop !== '' && regexp.test(nodeprop)) {
       return node;
     } else if (node.parentNode) {
-      return this.getParentsNode(node.parentNode, tag, true);
+      return this.getParentsNode(node.parentNode, target, true);
     }
 
     return false;

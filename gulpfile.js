@@ -22,6 +22,19 @@ ${pkg.name} - ${pkg.description}
 */
 `;
 
+gulp.task('archive', (callback) => {
+  if (!inproduction) {
+    $.util.log('Archive should be in the production environment');
+  }
+
+  runsequence(
+    ['zip'],
+    () => {
+      notifier.notify({title: 'Task done', message: 'Archive done.'}, callback);
+    }
+  );
+});
+
 gulp.task('build', (callback) => {
   runsequence(
     ['clean', 'htmlhint'],
@@ -130,19 +143,6 @@ gulp.task('zip', ['build'], () => {
     .pipe($.plumber({errorHandler: $.notify.onError('<%= error.message %>')}))
     .pipe($.zip(filename))
     .pipe(gulp.dest('./archive'));
-});
-
-gulp.task('archive', (callback) => {
-  if (!inproduction) {
-    $.util.log('Archive should be in the production environment');
-  }
-
-  runsequence(
-    ['zip'],
-    () => {
-      notifier.notify({title: 'Task done', message: 'Archive done.'}, callback);
-    }
-  );
 });
 
 gulp.task('watch', ['build'], () => {
