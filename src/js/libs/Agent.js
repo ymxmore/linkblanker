@@ -239,7 +239,9 @@ export default class Agent {
    * @return {boolean} 別タブで開く必要がある: true
    */
   isNeedOpenTabFromSystemStatus() {
-    return this.enabled && this.ports.openTab;
+    return this.enabled
+      && this.ports.openTab
+      && this.window.opener === null;
   }
 
   /**
