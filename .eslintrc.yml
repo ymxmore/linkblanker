@@ -1,0 +1,36 @@
+extends: google
+
+parser: babel-eslint
+
+env:
+  browser: true
+  node: true
+  es6: true
+
+plugins:
+  - react
+
+ecmaFeatures:
+  modules: true
+  jsx: true
+
+globals:
+  console: false
+  window: false
+  chrome: false
+  require: false
+  localStorage: false
+  sessionStorage: false
+  setInterval: false
+  setTimeout: false
+  createjs: false
+  clearInterval: false
+  clearTimeout: false
+  module: false
+  XMLHttpRequest: false
+  process: false
+
+rules:
+  max-len: [1, 80, 4, {ignoreComments: true, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true}]
+  react/jsx-uses-vars: 1
+  # no-unused-vars: 0

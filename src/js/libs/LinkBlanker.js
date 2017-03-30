@@ -6,50 +6,36 @@ import async from 'async';
 import Logger from './Logger';
 import Util from './Util';
 
+/**
+ * LinkBlanker
+ *
+ * @class
+ * @classdesc コアモジュール
+ */
 export default class LinkBlanker {
 
+  /**
+   * コンストラクタ
+   *
+   * @constructor
+   * @public
+   * @param {Chrome} chrome Chromeオブジェクト
+   */
   constructor(chrome) {
     this.chrome = chrome;
     this.manifest = chrome.runtime.getManifest();
     this.tabLog = {};
     this.receiveMessages = {};
     this.currentWindowId = -1;
-    this.initialize(this);
+    this.init();
   }
 
-  initialize() {
-    this.dataMigration();
-
-    this.chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-      this.updateTabStatus(tab);
-    });
-
-    this.chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-      this.deleteTabLog(tabId);
-    });
-
-    this.chrome.windows.onFocusChanged.addListener((windowId) => {
-      this.currentWindowId = windowId;
-    });
-
-    this.setReceiveMessages();
-
-    this.chrome.extension.onConnect.addListener((port) => {
-      port.onMessage.addListener(this.receiveMessages[port.name]);
-    });
-
-    this.updateTabStatusAll();
-  }
-
-  dataMigration() {
-    // 反転する
-    if ('disabled-extension' in localStorage) {
-      let value = Number(localStorage['disabled-extension'] || '0');
-      localStorage['enabled-extension'] = (0 === value) ? 1 : 0;
-      delete localStorage['disabled-extension'];
-    }
-  }
-
+  /**
+   * 全てのデータを取得
+   *
+   * @public
+   * @return {Object} 全てのデータ
+   */
   getData() {
     return {
       'enabled-extension': Number(localStorage['enabled-extension'] || '1'),
@@ -61,12 +47,20 @@ export default class LinkBlanker {
       'disabled-same-domain': Number(localStorage['disabled-same-domain'] || '0'),
       'enabled-multiclick-close': Number(localStorage['enabled-multiclick-close'] || '0'),
       'visible-link-state': Number(localStorage['visible-link-state'] || '0'),
-      'shortcut-key-toggle-enabled': localStorage['shortcut-key-toggle-enabled'] || ''
+      'shortcut-key-toggle-enabled': localStorage['shortcut-key-toggle-enabled'] || '',
     };
   }
 
+  /**
+   * データを保存
+   *
+   * @public
+   * @param {string} key キー
+   * @param {*} value 値
+   * @param {function(Error,Object)} callback 結果のコールバック関数
+   */
   setData(key, value, callback) {
-    let all  = this.getData();
+    let all = this.getData();
     let data = {};
 
     if ('object' === typeof key) {
@@ -88,11 +82,11 @@ export default class LinkBlanker {
             case 'disabled-domain':
             case 'disabled-directory':
             case 'disabled-page': {
-              let item  = this.preferenceValueFromId(k, result);
+              let item = this.preferenceValueFromId(k, result);
               let index = all[k].indexOf(item);
 
               if (v) {
-                if (-1 === index) {
+                if (index === -1) {
                   all[k].push(item);
                 }
               } else {
@@ -127,11 +121,17 @@ export default class LinkBlanker {
     });
   }
 
+  /**
+   * 全てののタブを返却
+   *
+   * @public
+   * @param {function(Error,Object)} callback 結果のコールバック関数
+   */
   getAllTabs(callback) {
     async.waterfall([
       (cbw) => {
-        this.chrome.windows.getAll({ populate: true, windowTypes: [ 'normal' ] }, (windows) => {
-          cbw(this.hasRuntimeError(), windows);
+        this.chrome.windows.getAll({populate: true, windowTypes: ['normal']}, (windows) => {
+          cbw(this.getRuntimeError(), windows);
         });
       },
       (windows, cbw) => {
@@ -146,7 +146,7 @@ export default class LinkBlanker {
       (tabs, cbw) => {
         async.map(tabs, (tab, cbm) => {
           this.chrome.tabs.get(tab.id, (tab) => {
-            if (this.hasRuntimeError()) {
+            if (this.getRuntimeError()) {
               cbm(null, null);
               return;
             }
@@ -158,42 +158,100 @@ export default class LinkBlanker {
         async.filter(tabs, (tab, cbf) => {
           cbf(null, null !== tab);
         }, cbw);
-      }
+      },
     ], callback);
   }
 
-  getCurrentTab(callback) {
-    if (callback) {
-      async.waterfall([
-        (cbw) => {
-          if (this.currentWindowId > -1) {
-            cbw(null, this.currentWindowId);
-          } else {
-            this.chrome.windows.getCurrent({ populate: true, windowTypes: [ 'normal' ] }, (win) => {
-              this.currentWindowId = win.id;
-              cbw(this.hasRuntimeError(), win.id);
-            });
-          }
-        },
-        (windowId, cbw) => {
-          this.chrome.tabs.query({ windowId: windowId, active: true }, (tabs) => {
-            cbw(this.hasRuntimeError(), tabs);
-          });
-        },
-        (tabs, cbw) => {
-          if (tabs && tabs.length > 0) {
-            cbw(null, tabs[0]);
-          } else {
-            cbw(new Error('Target tab is none.'), null);
-          }
-        }
-      ], callback);
-    } else {
-      Logger.error(new Error('Callback is undefined.'));
+  /**
+   * 初期化処理
+   *
+   * @private
+   */
+  init() {
+    this.dataMigration();
+
+    this.chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+      this.updateTabStatus(tab);
+    });
+
+    this.chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+      this.deleteTabLog(tabId);
+    });
+
+    this.chrome.windows.onFocusChanged.addListener((windowId) => {
+      this.currentWindowId = windowId;
+    });
+
+    this.setReceiveMessages();
+
+    this.chrome.extension.onConnect.addListener((port) => {
+      port.onMessage.addListener(this.receiveMessages[port.name]);
+    });
+
+    this.updateTabStatusAll();
+  }
+
+  /**
+   * データのマイグレーション
+   *
+   * @private
+   */
+  dataMigration() {
+    // 反転する
+    if ('disabled-extension' in localStorage) {
+      let value = Number(localStorage['disabled-extension'] || '0');
+      localStorage['enabled-extension'] = (0 === value) ? 1 : 0;
+      delete localStorage['disabled-extension'];
     }
   }
 
-  hasRuntimeError() {
+  /**
+   * 現在のタブを返却
+   *
+   * @private
+   * @param {function(Error,Object)} callback 結果のコールバック関数
+   */
+  getCurrentTab(callback) {
+    if (!callback) {
+      Logger.error(new Error('Callback is undefined.'));
+      return;
+    }
+
+    async.waterfall([
+      (cbw) => {
+        if (this.currentWindowId > -1) {
+          cbw(null, this.currentWindowId);
+        } else {
+          this.chrome.windows.getCurrent({populate: true, windowTypes: ['normal']}, (win) => {
+            this.currentWindowId = win.id;
+            cbw(this.getRuntimeError(), win.id);
+          });
+        }
+      },
+      (windowId, cbw) => {
+        this.chrome.tabs.query({windowId: windowId, active: true}, (tabs) => {
+          cbw(this.getRuntimeError(), tabs);
+        });
+      },
+      (tabs, cbw) => {
+        if (tabs && tabs.length > 0) {
+          cbw(null, tabs[0]);
+        } else {
+          cbw(new Error('Target tab is none.'), null);
+        }
+      },
+    ], callback);
+  }
+
+  /**
+   * ランタイムエラーを返却
+   *
+   * @private
+   * @param {string} id タブオブジェクト
+   * @param {Object} result 結果オブジェクト
+   * @return {string} 結果
+   */
+  getRuntimeError() {
     let error = this.chrome.runtime.lastError;
 
     if (error) {
@@ -203,22 +261,36 @@ export default class LinkBlanker {
     return error;
   }
 
+  /**
+   * 対象のキーを元に結果オブジェクトから適切な値を返却
+   *
+   * @private
+   * @param {string} id タブオブジェクト
+   * @param {Object} result 結果オブジェクト
+   * @return {string} 結果
+   */
   preferenceValueFromId(id, result) {
-    if ('disabled-domain' === id) {
+    if (id === 'disabled-domain') {
       return result.domain;
-    } else if ('disabled-directory' === id) {
+    } else if (id === 'disabled-directory') {
       return result.directory;
     } else {
       return result.url;
     }
   }
 
+  /**
+   * タブの状態を更新
+   *
+   * @private
+   * @param {Object} tab タブオブジェクト
+   */
   updateTabStatus(tab) {
     let enabled = this.isEnableFromUrl(tab.url);
     let data = this.getData();
 
     this.chrome.tabs.get(tab.id, (tab) => {
-      if (this.hasRuntimeError()) {
+      if (this.getRuntimeError()) {
         return;
       }
 
@@ -227,29 +299,38 @@ export default class LinkBlanker {
         parsed: Util.parseUrl(tab.url),
         enabled: enabled,
         isBackground: data['enabled-background-open'],
-        multiClickClose: data['enabled-extension'] === 1 && data['enabled-multiclick-close'] == 1 ? 1 : 0,
+        multiClickClose: data['enabled-extension'] === 1
+          && data['enabled-multiclick-close'] == 1 ? 1 : 0,
         shortcutKeyTobbleEnabled: data['shortcut-key-toggle-enabled'],
         disabledSameDomain: data['disabled-same-domain'],
-        isVisibleLinkState: data['enabled-extension'] === 1 && data['visible-link-state'] == 1 ? 1 : 0
+        isVisibleLinkState: data['enabled-extension'] === 1
+          && data['visible-link-state'] == 1 ? 1 : 0,
       });
 
       this.chrome.browserAction.setBadgeBackgroundColor({
-        color: enabled ? [48,201,221,128] : [0,0,0,64],
-        tabId: tab.id
+        color: enabled ? [48, 201, 221, 128] : [0, 0, 0, 64],
+        tabId: tab.id,
       });
 
       this.chrome.browserAction.setBadgeText({
         text: enabled ? ' ON ' : 'OFF',
-        tabId: tab.id
+        tabId: tab.id,
       });
 
       this.chrome.browserAction.setIcon({
         path: 'img/icon32' + (enabled ? '' : '-disabled') + '.png',
-        tabId: tab.id
+        tabId: tab.id,
       });
     });
   }
 
+  /**
+   * 指定されたURLデータは当拡張機能の制御が有効かどうかを返却
+   *
+   * @private
+   * @param {Object} info URLデータ
+   * @return {number} 1: 有効, 0: 無効
+   */
   isEnableFromData(info) {
     let data = this.getData();
 
@@ -275,23 +356,43 @@ export default class LinkBlanker {
     return result ? 1 : 0;
   }
 
+  /**
+   * 指定されたURLは当拡張機能の制御が有効かどうかを返却
+   *
+   * @private
+   * @param {string} url URL
+   * @return {number} 1: 有効, 0: 無効
+   */
   isEnableFromUrl(url) {
     return this.isEnableFromData(Util.parseUrl(url));
   }
 
+  /**
+   * 現在のタブのURLデータを返却
+   *
+   * @private
+   * @param {Function} callback コールバック関数
+   */
   getCurrentData(callback) {
-    if (callback) {
-      this.getCurrentTab((error, tab) => {
-        if (error) {
-          callback(error, null);
-          return;
-        }
-
-        callback(null, Util.parseUrl(tab.url));
-      });
+    if (!callback) {
+      return;
     }
+
+    this.getCurrentTab((error, tab) => {
+      if (error) {
+        callback(error, null);
+        return;
+      }
+
+      callback(null, Util.parseUrl(tab.url));
+    });
   }
 
+  /**
+   * 全てのタブの状態を更新
+   *
+   * @private
+   */
   updateTabStatusAll() {
     this.getAllTabs((error, tabs) => {
       async.each(tabs, (tab, cbe) => {
@@ -301,8 +402,15 @@ export default class LinkBlanker {
     });
   }
 
+  /**
+   * タブに関するログを削除
+   *
+   *
+   * @private
+   * @param {number} tabId タブID
+   */
   deleteTabLog(tabId) {
-    if ('undefined' === typeof tabId) {
+    if (typeof tabId === 'undefined') {
       this.getCurrentTab((error, tab) => {
         if (error) {
           Logger.error(error);
@@ -319,17 +427,25 @@ export default class LinkBlanker {
     }
   }
 
+  /**
+   * タブに関するログを取得
+   *
+   * @private
+   * @param {string} key キー
+   * @param {Object} [tab=null] タブオブジェクト
+   * @param {Function} [callback=null] コールバック関数
+   */
   getTabLog(key, tab = null, callback = null) {
-    if ('function' === typeof tab) {
+    if (typeof tab === 'function') {
       callback = tab;
       tab = null;
     }
 
-    if (null === callback) {
+    if (callback === null) {
       return;
     }
 
-    if (null === tab) {
+    if (tab === null) {
       this.getCurrentTab((error, tab) => {
         if (error && callback) {
           callback(error, null);
@@ -341,7 +457,7 @@ export default class LinkBlanker {
       return;
     }
 
-    if ('object' !== typeof tab) {
+    if (typeof tab !== 'object') {
       this.chrome.tabs.get(tab, (tab) => {
         this.getTabLog(key, tab, callback);
       });
@@ -355,8 +471,16 @@ export default class LinkBlanker {
     }
   }
 
+  /**
+   * タブに関するログを記録
+   *
+   * @private
+   * @param {string} key キー
+   * @param {Object} value 値
+   * @param {number} tabId タブID
+   */
   setTabLog(key, value, tabId) {
-    if ('undefined' === typeof tabId) {
+    if (typeof tabId === 'undefined') {
       this.getCurrentTab((error, tab) => {
         if (error) {
           Logger.error(error);
@@ -375,81 +499,127 @@ export default class LinkBlanker {
     this.tabLog[tabId][key] = value;
   }
 
-  setReceiveMessages() {
-    this.receiveMessages = {
-      removeTabs: (message) => {
-        this.chrome.windows.getCurrent({ populate: true, windowTypes: [ 'normal' ] }, (win) => {
-          win.tabs.sort((a, b) => {
-            if (a.index < b.index) return 'right' === message.align ? -1 : 1;
-            if (a.index > b.index) return 'right' === message.align ? 1  : -1;
-            return 0;
-          });
-
-          let removeTabs = [];
-          let activeTabId = -1;
-
-          for (let i = 0; i < win.tabs.length; i++) {
-            if (win.tabs[i].active) {
-              activeTabId = win.tabs[i].id;
-              continue;
-            }
-
-            if (activeTabId > -1) {
-              removeTabs.push(win.tabs[i]);
-            }
-          }
-
-          if (removeTabs.length > 0) {
-            this.setTabLog('remove', {
-              align: message.align,
-              tabs: removeTabs
-            });
-
-            this.chrome.tabs.remove(removeTabs.map((item) => {
-              return item.id;
-            }));
-
-            message.name = 'norifyRemoveTabs';
-            message.removeTabsLength = removeTabs.length;
-
-            this.chrome.tabs.sendMessage(activeTabId, message);
-          }
-        });
-      },
-
-      undoRemoveTabs: () => {
-        this.getTabLog('remove', (log, tab) => {
-          if (log && log.tabs) {
-            this.deleteTabLog();
-
-            log.tabs.map((item, i) => {
-              this.chrome.tabs.create({
-                url: item.url,
-                selected: false,
-                index: ('right' === log.align ? tab.index + 1 + i : tab.index)
-              });
-            });
-          }
-        });
-      },
-
-      openTab: (params) => {
-        if (params) {
-          this.getCurrentTab((error, tab) => {
-            if (error) {
-              Logger.error(error);
-              return;
-            }
-
-            params.index = tab.index + 1;
-            this.chrome.tabs.create(params);
-          });
+  /**
+   * タブ削除のイベントハンドラ
+   *
+   * @private
+   * @param {Object} message パラメータ
+   */
+  onRemoveTabs(message) {
+    this.chrome.windows.getCurrent({
+      populate: true,
+      windowTypes: ['normal'],
+    }, (win) => {
+      win.tabs.sort((a, b) => {
+        if (a.index < b.index) {
+          return message.align === 'right' ? -1 : 1;
         }
-      },
 
-      toggleEnabled: () => {
-        this.setData('enabled-extension', (0 === this.getData()['enabled-extension']) ? 1 : 0);
+        if (a.index > b.index) {
+          return message.align === 'right' ? 1 : -1;
+        }
+
+        return 0;
+      });
+
+      let removeTabs = [];
+      let activeTabId = -1;
+
+      for (let i = 0; i < win.tabs.length; i++) {
+        if (win.tabs[i].active) {
+          activeTabId = win.tabs[i].id;
+          continue;
+        }
+
+        if (activeTabId > -1) {
+          removeTabs.push(win.tabs[i]);
+        }
       }
-    };
+
+      if (removeTabs.length > 0) {
+        this.setTabLog('remove', {
+          align: message.align,
+          tabs: removeTabs,
+        });
+
+        this.chrome.tabs.remove(removeTabs.map((item) => {
+          return item.id;
+        }));
+
+        message.name = 'norifyRemoveTabs';
+        message.removeTabsLength = removeTabs.length;
+
+        this.chrome.tabs.sendMessage(activeTabId, message);
+      }
+    });
+  }
+
+  /**
+   * タブを元に戻すイベントハンドラ
+   *
+   * @private
+   */
+  onUndoRemoveTabs() {
+    this.getTabLog('remove', (log, tab) => {
+      if (log && log.tabs) {
+        this.deleteTabLog();
+
+        log.tabs.map((item, i) => {
+          this.chrome.tabs.create({
+            url: item.url,
+            selected: false,
+            index: (log.align === 'right'
+              ? tab.index + 1 + i
+              : tab.index),
+          });
+        });
+      }
+    });
+  }
+
+  /**
+   * タブオープンのイベントハンドラ
+   *
+   * @private
+   * @param {Object} param パラメータ
+   */
+  onOpenTab(param) {
+    if (param) {
+      this.getCurrentTab((error, tab) => {
+        if (error) {
+          Logger.error(error);
+          return;
+        }
+
+        param.index = tab.index + 1;
+        this.chrome.tabs.create(param);
+      });
+    }
+  }
+
+  /**
+   * 有効状態変更のイベントハンドラ
+   *
+   * @private
+   */
+  onToggleEnabled() {
+    this.setData(
+      'enabled-extension',
+      (this.getData()['enabled-extension'] === 0) ? 1 : 0
+    );
+  }
+
+  /**
+   * 受信メッセージイベントハンドラをセット
+   *
+   * @private
+   */
+  setReceiveMessages() {
+    this.receiveMessages = Util.bindAll({
+      removeTabs: this.onRemoveTabs,
+      undoRemoveTabs: this.onUndoRemoveTabs,
+      openTab: this.onOpenTab,
+      toggleEnabled: this.onToggleEnabled,
+    }, this);
   }
 }

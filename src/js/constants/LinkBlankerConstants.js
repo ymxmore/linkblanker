@@ -6,10 +6,10 @@ import keyMirror from 'keymirror';
 
 module.exports = {
   Events: keyMirror({
-    CHANGE: null
+    CHANGE: null,
   }),
 
   Types: keyMirror({
-    SAVE: null
-  })
+    SAVE: null,
+  }),
 };

@@ -3,17 +3,20 @@
  */
 
 import AppDispatcher from '../dispatcher/AppDispatcher';
-import { Types } from '../constants/LinkBlankerConstants';
+import {Types} from '../constants/LinkBlankerConstants';
 
 const PopupActions = {
 
   /**
    * Save Preference
+   *
+   * @param {string} key
+   * @param {Object} value
    */
   save(key, value) {
     let data = {};
 
-    if ('object' === typeof key){
+    if ('object' === typeof key) {
       data = key;
     } else {
       data[key] = value;
@@ -21,9 +24,9 @@ const PopupActions = {
 
     AppDispatcher.dispatch({
       type: Types.SAVE,
-      data: data
+      data: data,
     });
-  }
+  },
 };
 
 module.exports = PopupActions;

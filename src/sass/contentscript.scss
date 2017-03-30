@@ -21,29 +21,44 @@
   figure, figcaption, footer, header, hgroup,
   menu, nav, output, ruby, section, summary,
   time, mark, audio, video, input, textarea, select, option {
-    box-sizing: border-box;
-    font-family: $font-family;
+    box-sizing: border-box !important;
+    font-family: $font-family !important;
     font-size: $font-size;
     line-height: $line-height;
     letter-spacing: $letter-spacing;
     color: $text-color;
     background-color: transparent;
     overflow: visible;
+    text-size-adjust: 100% !important;
+    -webkit-font-smoothing: antialiased !important;
   }
 }
 
 #linkblanker-canvas {
   position: absolute;
   z-index: $max-z-index;
-  background-color:rgba(0,0,0,.8);
+  background-color: rgba(0,0,0,.8) !important;
   opacity: 0;
+  transform: scale(0, 0);
+
+  &.show, &.hide {
+    animation-fill-mode: forwards;
+    animation-delay: 0;
+    animation-direction: normal;
+    animation-iteration-count: 1;
+    transform-origin: center center;
+  }
 
   &.show {
-    opacity: 1;
+    animation-duration: .1s;
+    animation-timing-function: ease;
+    animation-name: scale-min-max;
   }
 
   &.hide {
-    opacity: 0;
+    animation-duration: .2s;
+    animation-timing-function: ease-out;
+    animation-name: scale-max-min;
   }
 }
 
@@ -53,11 +68,11 @@
   right: 8px;
   z-index: $max-z-index;
   opacity: 0;
-  padding: 6px;
-  border-radius: 1px;
+  padding: 6px 6px 6px 60px;
+  border-radius: 4px;
   border: 0;
-  background-color: $background-color;
-  box-shadow: $border-color-dark 0px 0px 21px;
+  background-color: $background-color !important;
+  box-shadow: $border-color-dark 0px 0px 12px -2px;
   width: 350px;
   height: 60px;
 
@@ -68,50 +83,44 @@
     width: 48px;
     height: 48px;
     border-radius: 3px;
+    background-color: #fff !important;
   }
 
   .linkblanker-message {
-    position: absolute;
-    color: $text-color;
-    left: 64px;
-    font-size: 16px;
-    line-height: 1.5em;
-    top: 8px;
-    font-weight: normal;
+    color: $text-color !important;
+    font-size: 16px !important;
+    line-height: 1.7em !important;
+    font-weight: bold !important;
     margin: 0;
   }
 
   .linkblanker-linkbox {
-    position: absolute;
-    left: 64px;
-    bottom: 10px;
-    right: 6px;
-    text-align: left;
-    margin: 0;
+    display: flex !important;
+    margin: 2px;
     padding: 0;
 
     &, li, li > a {
-      font-size: 12px;
-      line-height: 1em;
+      font-size: 12px !important;
+      line-height: 1em !important;
     }
 
     li {
-      display: inline-block;
-      vertical-align: middle;
-      padding: 0 6px;
+      padding: 0 5px;
       border-right: 1px solid #8e8e8e;
+      list-style-type: none;
 
       a {
-        color: $primary-color-dark;
+        color: $primary-color-dark !important;
+        text-align: left !important;
       }
-    }
 
-    li:first-child {
-      padding-left: 0;
-    }
+      &:first-child {
+        padding-left: 0;
+      }
 
-    li:last-child {
-      border-right: 0;
+      &:last-child {
+        border-right: 0;
+      }
     }
   }
 
@@ -183,9 +192,9 @@
   color: #fff !important;
   font-weight: bold !important;
   text-align: center !important;
-  padding: 2px 0 !important;
+  padding: 2px 0;
   font-size: 9px !important;
-  border-radius: 0 0 3px 3px !important;
+  border-radius: 0 0 3px 3px;
 }
 
 #linkblanker-status-text-enabled {
@@ -219,3 +228,26 @@
   }
 }
 
+@keyframes scale-min-max {
+  from {
+    opacity: 0;
+    transform: scale(0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+}
+
+@keyframes scale-max-min {
+  from {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0, 0);
+  }
+}
