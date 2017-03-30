@@ -405,8 +405,10 @@ export default class Agent {
    * @param {Object} e イベント
    */
   onClick(e) {
-    this.navigation.className = 'hide';
-    this.navigation.style.display = 'none';
+    if (this.navigation) {
+      this.navigation.className = 'hide';
+      this.navigation.style.display = 'none';
+    }
 
     let target = this.getParentsNode(e.target, 'a');
 
