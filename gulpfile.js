@@ -1,16 +1,14 @@
 /*
  * gulpfile.js
  */
-
-'use strict';
-
 const $ = require('gulp-load-plugins')();
 const gulp = require('gulp');
 const notifier = require('node-notifier');
 const pngquant = require('imagemin-pngquant');
 const runsequence = require('run-sequence');
 const webpack = require('webpack');
-const webpackconfig = require('./webpack.config.js');
+const webpackConfig = require('./webpack.config.js');
+const webpackStream = require('webpack-stream');
 const inproduction = ('production' === process.env.NODE_ENV);
 const pkg = require('./package.json');
 
@@ -103,30 +101,23 @@ gulp.task('optimizeimage', () => {
     .pipe(gulp.dest('./dist/img'));
 });
 
-gulp.task('scripts', (callback) => {
-  webpack(Object.create(webpackconfig), (error, stats) => {
-    if (error) {
-      throw new $.util.PluginError('webpack', error);
-    }
-
-    $.util.log('[webpack]', stats.toString({
-      colors: true,
-    }));
-
-    callback();
-  });
+gulp.task('scripts', () => {
+  return gulp.src('src/js/apps/*.js')
+    .pipe($.plumber({errorHandler: $.notify.onError('<%= error.message %>')}))
+    .pipe(webpackStream(webpackConfig, webpack))
+    .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('styles', () => {
   return gulp.src('./src/sass/**/*.scss')
     .pipe($.plumber({errorHandler: $.notify.onError('<%= error.message %>')}))
-    // .pipe($.if(!inproduction, $.sourcemaps.init()))
+    .pipe($.if(!inproduction, $.sourcemaps.init()))
     .pipe($.sass({
       includePaths: ['node_modules'],
     }))
     .pipe($.header(header))
     .pipe($.csso())
-    // .pipe($.if(!inproduction, $.sourcemaps.write('./')))
+    .pipe($.if(!inproduction, $.sourcemaps.write('./')))
     .pipe($.rename({
       suffix: '.min',
     }))

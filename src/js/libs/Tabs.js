@@ -9,7 +9,6 @@
  * @classdesc タブアニメーションクラス
  */
 export default class Tabs {
-
   /**
    * タブインスタンスを返却
    *

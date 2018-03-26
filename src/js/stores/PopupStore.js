@@ -118,7 +118,7 @@ const PreferenceStore = Object.assign({}, EventEmitter.prototype, {
 });
 
 AppDispatcher.register((action) => {
-  switch(action.type) {
+  switch (action.type) {
     case Types.SAVE: {
       let data = Object.assign({}, action.data);
 

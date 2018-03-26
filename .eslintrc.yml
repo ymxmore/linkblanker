@@ -1,4 +1,6 @@
-extends: google
+extends:
+  - google
+  - plugin:react/recommended
 
 parser: babel-eslint
 
@@ -10,9 +12,11 @@ env:
 plugins:
   - react
 
-ecmaFeatures:
-  modules: true
-  jsx: true
+parserOptions:
+  ecmaVersion: 6
+  sourceType: module
+  ecmaFeatures:
+    jsx: true
 
 globals:
   console: false
@@ -32,5 +36,4 @@ globals:
 
 rules:
   max-len: [1, 80, 4, {ignoreComments: true, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true}]
-  react/jsx-uses-vars: 1
-  # no-unused-vars: 0
+  switch-colon-spacing: 0

@@ -12,7 +12,6 @@ import Util from './Util';
  * @classdesc 各ページで動くエージェントクラス
  */
 export default class Agent {
-
   /**
    * コンストラクタ
    *
@@ -601,8 +600,8 @@ export default class Agent {
       && this.isNeedOpenTabFromEvent(e)
       && this.isNeedOpenTabFromDOM(this.navigationTarget);
 
-    for(let target of this.navTargets) {
-      for(let status of this.navStatuses) {
+    for (let target of this.navTargets) {
+      for (let status of this.navStatuses) {
         let elem = this.window.document.getElementById(
           `${this.navPrefix}${target}-${status}`
         );

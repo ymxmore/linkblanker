@@ -14,7 +14,6 @@ const _parseUrlCache = {};
  * @classdesc ユーティリティクラス
  */
 export default class Util {
-
   /**
    * URLの解析結果をキャッシュから取得
    *

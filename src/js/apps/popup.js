@@ -4,6 +4,7 @@
 
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import injectTapEventPlugin from 'react-tap-event-plugin';
+import createReactClass from 'create-react-class';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import PopupActions from '../actions/PopupActions';
 import PopupStore from '../stores/PopupStore';
@@ -140,7 +141,7 @@ const keyMappings = {
   123: 'f12',
 };
 
-const Popup = React.createClass({
+const Popup = createReactClass({
   getInitialState() {
     return {
       'system-enabled-state': true,

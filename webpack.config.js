@@ -1,5 +1,6 @@
-'use strict';
-
+/*
+ * webpack.config.js
+ */
 const pkg = require('./package.json');
 const webpack = require('webpack');
 const banner = [
@@ -9,10 +10,11 @@ const banner = [
   `@license ${pkg.license}`,
 ].join('\n');
 const env = process.env.NODE_ENV || 'development';
-const inproduction = (process.env.NODE_ENV === 'production');
+const inproduction = (env === 'production');
 
 module.exports = {
   context: __dirname,
+  mode: env,
   devtool: inproduction ? false : 'source-map',
   entry: {
     background: './src/js/apps/background.js',
@@ -36,46 +38,32 @@ module.exports = {
         enforce: 'pre',
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: ['eslint-loader'],
+        loader: 'eslint-loader',
+        options: {
+          configFile: './.eslintrc.yml',
+        },
       },
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: ['babel-loader'],
-      },
-    ],
-  },
-  plugins: [
-    new webpack.BannerPlugin(banner),
-    new webpack.LoaderOptionsPlugin({
-      test: /\.jsx?$/,
-      options: {
-        eslint: {
-          configFile: './.eslintrc.yml',
-        },
-        babel: {
-          presets: ['es2015', 'react'],
+        loader: 'babel-loader',
+        options: {
+          presets: ['env', 'react'],
           plugins: [
             'transform-class-properties',
             'transform-react-jsx',
           ],
         },
       },
-    }),
+    ],
+  },
+  plugins: [
+    new webpack.BannerPlugin(banner),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(env),
       },
       '__BUILD_DATE_AT__': JSON.stringify(new Date().toString()),
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      preserveComments: 'some',
-      sourceMap: !inproduction,
-      compress: {
-        warnings: false,
-      },
-    }),
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.optimize.AggressiveMergingPlugin(),
   ],
 };

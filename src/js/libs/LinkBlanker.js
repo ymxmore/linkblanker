@@ -13,7 +13,6 @@ import Util from './Util';
  * @classdesc コアモジュール
  */
 export default class LinkBlanker {
-
   /**
    * コンストラクタ
    *
