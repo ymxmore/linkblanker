@@ -197,7 +197,7 @@ export default class Agent {
       };
     }
 
-    let nodes = Util.isArray(node) ? node : [node];
+    const nodes = Util.isArray(node) ? node : [node];
 
     nodes.forEach((nd) => {
       if (nd
@@ -212,20 +212,27 @@ export default class Agent {
             enabled
           );
         } else {
+          let isNeedSetOriginHref = false;
+
           this.anchorEvents.forEach((ae) => {
             nd.removeEventListener(ae, this.operationEventHandler[ae]);
 
             if (enabled[ae]) {
-              if (!nd.dataset.lbOrigHref
-                && nd.href
-                && nd.href !== ''
-              ) {
-                nd.dataset.lbOrigHref = nd.href;
-              }
-
               nd.addEventListener(ae, this.operationEventHandler[ae]);
+              isNeedSetOriginHref = true;
             }
           });
+
+          if (isNeedSetOriginHref) {
+            if (!nd.dataset.lbOrigHref
+              && nd.href
+              && nd.href !== ''
+            ) {
+              nd.dataset.lbOrigHref = nd.href;
+            }
+          } else {
+            delete nd.dataset.lbOrigHref;
+          }
         }
       }
     });
