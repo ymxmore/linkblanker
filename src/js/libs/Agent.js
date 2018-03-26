@@ -123,7 +123,7 @@ export default class Agent {
    */
   portInitialize(...methods) {
     methods.forEach((method) => {
-      let port = this.chrome.extension.connect({name: method});
+      const port = this.chrome.extension.connect({name: method});
 
       delete this.ports[method];
 
@@ -259,8 +259,8 @@ export default class Agent {
    */
   isNeedOpenTabFromUrl(url) {
     if (url && !url.match(/javascript:/i)) {
-      let parsed = Util.parseUrl(url);
-      let isSameDomain = (parsed.domain === this.parsed.domain);
+      const parsed = Util.parseUrl(url);
+      const isSameDomain = (parsed.domain === this.parsed.domain);
 
       if ((isSameDomain && '' !== parsed.hash)
         || (this.disabledSameDomain && isSameDomain)
@@ -349,7 +349,7 @@ export default class Agent {
    */
   getUrlFromClickEvent(e, isFullUrl = false) {
     if (e && e.target) {
-      let target = this.getParentsNode(e.target, 'a');
+      const target = this.getParentsNode(e.target, 'a');
 
       if (target && target.href) {
         return isFullUrl
@@ -381,7 +381,7 @@ export default class Agent {
       navc = this.window.document.createElement('div');
       navc.setAttribute('id', 'linkblanker-navigation');
 
-      let navb = this.window.document.createElement('div');
+      const navb = this.window.document.createElement('div');
       navb.setAttribute('id', 'linkblanker-navigation-balloon');
 
       navb.innerHTML = `
@@ -418,7 +418,7 @@ export default class Agent {
       this.navigation.style.display = 'none';
     }
 
-    let target = this.getParentsNode(e.target, 'a');
+    const target = this.getParentsNode(e.target, 'a');
 
     if (target) {
       if (this.isNeedOpenTabFromSystemStatus()
@@ -428,7 +428,7 @@ export default class Agent {
         e.stopPropagation();
         e.stopImmediatePropagation();
 
-        let params = {
+        const params = {
           url: this.getUrlFromClickEvent(e),
           selected: !this.isBackground,
         };
@@ -438,7 +438,7 @@ export default class Agent {
     } else if (this.multiClickClose) {
       // multi clicks tab close.
       if (this.ports.removeTabs && e.detail === 3) {
-        let align = (e.clientX > this.window.document.documentElement.clientWidth / 2) ? 'right' : 'left';
+        const align = (e.clientX > this.window.document.documentElement.clientWidth / 2) ? 'right' : 'left';
 
         this.ports.removeTabs.postMessage({
           align: align,
@@ -462,7 +462,7 @@ export default class Agent {
   onKeydown(e) {
     this.setNavigationState(e);
 
-    let keyCode = Number(e.keyCode);
+    const keyCode = Number(e.keyCode);
 
     if (this.keys.indexOf(keyCode) === -1) {
       this.keys.push(keyCode);
@@ -471,7 +471,7 @@ export default class Agent {
     if (this.keys.length === this.shortcutKeyTobbleEnabled.length) {
       let exist = true;
 
-      for (let i in this.keys) {
+      for (const i in this.keys) {
         if (-1 === this.shortcutKeyTobbleEnabled.indexOf(this.keys[i])) {
           exist = false;
           break;
@@ -506,7 +506,7 @@ export default class Agent {
    * @param {Object} e イベント
    */
   onMouseenter(e) {
-    let target = this.getParentsNode(e.target, 'a');
+    const target = this.getParentsNode(e.target, 'a');
 
     if (target) {
       this.navigationTarget = target;
@@ -602,14 +602,14 @@ export default class Agent {
       }
     }
 
-    let isNeedOpenTab = this.navigationTarget
+    const isNeedOpenTab = this.navigationTarget
       && this.isNeedOpenTabFromSystemStatus()
       && this.isNeedOpenTabFromEvent(e)
       && this.isNeedOpenTabFromDOM(this.navigationTarget);
 
-    for (let target of this.navTargets) {
-      for (let status of this.navStatuses) {
-        let elem = this.window.document.getElementById(
+    for (const target of this.navTargets) {
+      for (const status of this.navStatuses) {
+        const elem = this.window.document.getElementById(
           `${this.navPrefix}${target}-${status}`
         );
 
@@ -673,18 +673,18 @@ export default class Agent {
    * @param {Object} response レスポンス
    */
   onNorifyRemoveTabs(response) {
-    let oldNotify = this.window.document.getElementById('linkblanker-notify');
+    const oldNotify = this.window.document.getElementById('linkblanker-notify');
 
     if (oldNotify) {
       oldNotify.hide(0);
     }
 
-    let canvas = this.getCanvas(response);
+    const canvas = this.getCanvas(response);
 
     this.window.document.body.appendChild(canvas);
 
-    let tabs = new Tabs(canvas);
-    let align = response.align === 'left'
+    const tabs = new Tabs(canvas);
+    const align = response.align === 'left'
       ? tabs.REMOVE.RIGHT_TO_LEFT
       : tabs.REMOVE.LEFT_TO_RIGHT;
 
@@ -694,7 +694,7 @@ export default class Agent {
       tabs.removeAll(align, (removed) => {
         canvas.setAttribute('class', 'hide');
 
-        let notify = this.getNotify(response, removed);
+        const notify = this.getNotify(response, removed);
         this.window.document.body.appendChild(notify);
         notify.show();
 
@@ -732,10 +732,10 @@ export default class Agent {
    * @return {Object} キャンバス
    */
   getCanvas(param) {
-    let canvas = this.window.document.createElement('canvas');
-    let meta = this.getCloseActionMetaInfo(param);
+    const canvas = this.window.document.createElement('canvas');
+    const meta = this.getCloseActionMetaInfo(param);
 
-    let styles = [
+    const styles = [
       `top:${meta.top}px`,
       `left:${meta.left}px`,
       `width:${meta.width}px`,
@@ -779,15 +779,15 @@ export default class Agent {
    * @return {Object} クローズオブジェクトのメタ情報
    */
   getCloseActionMetaInfo(param) {
-    let width = 300;
-    let height = 300;
+    const width = 300;
+    const height = 300;
     let top = Math.floor(param.pageY) - Math.floor(height / 2);
     let left = Math.floor(param.pageX) - Math.floor(width / 2);
-    let scrollTop = window.scrollY;
-    let scrollLeft = window.scrollX;
-    let docElem = this.window.document.documentElement;
+    const scrollTop = window.scrollY;
+    const scrollLeft = window.scrollX;
+    const docElem = this.window.document.documentElement;
 
-    let viewport = {
+    const viewport = {
       top: scrollTop,
       right: scrollLeft + docElem.clientWidth,
       bottom: scrollTop + docElem.clientHeight,
@@ -822,7 +822,7 @@ export default class Agent {
    * @return {Object} フルURL
    */
   getNotify(param) {
-    let notify = this.window.document.createElement('div');
+    const notify = this.window.document.createElement('div');
 
     notify.innerHTML = `
       <img class="linkblanker-icon" src="${this.chrome.extension.getURL('img/icon-enabled.svgz')}" />
@@ -910,7 +910,7 @@ export default class Agent {
    * @return {string} フルURL
    */
   absPath(path) {
-    let e = this.window.document.createElement('div');
+    const e = this.window.document.createElement('div');
     e.innerHTML = `<a href="${path}"/>`;
     return e.firstChild.href;
   }

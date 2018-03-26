@@ -37,3 +37,4 @@ globals:
 rules:
   max-len: [1, 80, 4, {ignoreComments: true, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true}]
   switch-colon-spacing: 0
+  prefer-const: 2

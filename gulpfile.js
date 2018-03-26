@@ -125,8 +125,8 @@ gulp.task('styles', () => {
 });
 
 gulp.task('zip', ['build'], () => {
-  let manifest = require('./src/manifest');
-  let filename = (manifest.name + '-v' + manifest.version + '.zip')
+  const manifest = require('./src/manifest');
+  const filename = (manifest.name + '-v' + manifest.version + '.zip')
     .replace(/\s/, '-')
     .toLowerCase();
 

@@ -16,6 +16,9 @@ module.exports = {
   context: __dirname,
   mode: env,
   devtool: inproduction ? false : 'source-map',
+  performance: {
+    hints: false,
+  },
   entry: {
     background: './src/js/apps/background.js',
     contentscript: './src/js/apps/contentscript.js',

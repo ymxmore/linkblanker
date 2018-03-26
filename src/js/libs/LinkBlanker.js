@@ -59,7 +59,7 @@ export default class LinkBlanker {
    * @param {function(Error,Object)} callback 結果のコールバック関数
    */
   setData(key, value, callback) {
-    let all = this.getData();
+    const all = this.getData();
     let data = {};
 
     if ('object' === typeof key) {
@@ -75,14 +75,14 @@ export default class LinkBlanker {
     this.getCurrentData((error, result) => {
       if (!error) {
         Object.keys(data).forEach((k) => {
-          let v = data[k];
+          const v = data[k];
 
           switch (k) {
             case 'disabled-domain':
             case 'disabled-directory':
             case 'disabled-page': {
-              let item = this.preferenceValueFromId(k, result);
-              let index = all[k].indexOf(item);
+              const item = this.preferenceValueFromId(k, result);
+              const index = all[k].indexOf(item);
 
               if (v) {
                 if (index === -1) {
@@ -198,7 +198,7 @@ export default class LinkBlanker {
   dataMigration() {
     // 反転する
     if ('disabled-extension' in localStorage) {
-      let value = Number(localStorage['disabled-extension'] || '0');
+      const value = Number(localStorage['disabled-extension'] || '0');
       localStorage['enabled-extension'] = (0 === value) ? 1 : 0;
       delete localStorage['disabled-extension'];
     }
@@ -251,7 +251,7 @@ export default class LinkBlanker {
    * @return {string} 結果
    */
   getRuntimeError() {
-    let error = this.chrome.runtime.lastError;
+    const error = this.chrome.runtime.lastError;
 
     if (error) {
       Logger.error(error.message, error);
@@ -285,8 +285,8 @@ export default class LinkBlanker {
    * @param {Object} tab タブオブジェクト
    */
   updateTabStatus(tab) {
-    let enabled = this.isEnableFromUrl(tab.url);
-    let data = this.getData();
+    const enabled = this.isEnableFromUrl(tab.url);
+    const data = this.getData();
 
     this.chrome.tabs.get(tab.id, (tab) => {
       if (this.getRuntimeError()) {
@@ -331,7 +331,7 @@ export default class LinkBlanker {
    * @return {number} 1: 有効, 0: 無効
    */
   isEnableFromData(info) {
-    let data = this.getData();
+    const data = this.getData();
 
     if (info.url.match(/^chrome:\/\/(.*)$/)) {
       return 0;
@@ -521,7 +521,7 @@ export default class LinkBlanker {
         return 0;
       });
 
-      let removeTabs = [];
+      const removeTabs = [];
       let activeTabId = -1;
 
       for (let i = 0; i < win.tabs.length; i++) {

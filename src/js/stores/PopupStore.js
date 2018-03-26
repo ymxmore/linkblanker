@@ -23,7 +23,7 @@ const PreferenceStore = Object.assign({}, EventEmitter.prototype, {
    * @param {function(Error, Object)} callback
    */
   getAll: (callback) => {
-    let data = LinkBlanker.getData();
+    const data = LinkBlanker.getData();
 
     LinkBlanker.getCurrentData((error, result) => {
       if (error) {
@@ -34,13 +34,13 @@ const PreferenceStore = Object.assign({}, EventEmitter.prototype, {
       }
 
       Object.keys(data).forEach((k) => {
-        let v = data[k];
+        const v = data[k];
 
         switch (k) {
           case 'disabled-domain':
           case 'disabled-directory':
           case 'disabled-page': {
-            let item = LinkBlanker.preferenceValueFromId(k, result);
+            const item = LinkBlanker.preferenceValueFromId(k, result);
 
             if ('disabled-directory' === k) {
               let exist = false;
@@ -120,7 +120,7 @@ const PreferenceStore = Object.assign({}, EventEmitter.prototype, {
 AppDispatcher.register((action) => {
   switch (action.type) {
     case Types.SAVE: {
-      let data = Object.assign({}, action.data);
+      const data = Object.assign({}, action.data);
 
       if (data['disabled-state']) {
         DISABLEDS.forEach((value) => {

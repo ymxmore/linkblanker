@@ -21,7 +21,7 @@ export default class Util {
    * @return {Object|boolean} URL解析結果
    */
   static getParseUrlCache(key) {
-    let cache = _parseUrlCache[key];
+    const cache = _parseUrlCache[key];
     return cache ? cache.value : false;
   }
 
@@ -32,10 +32,10 @@ export default class Util {
    * @param {Object} value URL解析結果
    */
   static setParseUrlCache(key, value) {
-    let keys = Object.keys(_parseUrlCache);
+    const keys = Object.keys(_parseUrlCache);
 
     if (keys.length > PARSE_URL_CACHE_MAX) {
-      let values = Util.objectValues(_parseUrlCache);
+      const values = Util.objectValues(_parseUrlCache);
 
       values.sort((a, b) => {
         if (a.time < b.time) return -1;
@@ -43,7 +43,10 @@ export default class Util {
         return 0;
       });
 
-      let removeValues = values.splice(0, Math.floor(PARSE_URL_CACHE_MAX / 2));
+      const removeValues = values.splice(
+        0,
+        Math.floor(PARSE_URL_CACHE_MAX / 2)
+      );
 
       removeValues.forEach((value) => {
         delete _parseUrlCache[value.key];
@@ -64,13 +67,13 @@ export default class Util {
    * @return {Object} URL解析結果
    */
   static parseUrl(urlstr) {
-    let cache = Util.getParseUrlCache(urlstr);
+    const cache = Util.getParseUrlCache(urlstr);
 
     if (cache) {
       return cache;
     }
 
-    let parsed = url.parse(urlstr);
+    const parsed = url.parse(urlstr);
 
     Object.keys(parsed).forEach((key) => {
       if (!parsed[key]) {
@@ -81,7 +84,7 @@ export default class Util {
     // domain
     parsed.domain = parsed.host;
 
-    let dirs = parsed.pathname
+    const dirs = parsed.pathname
       .split('/')
       .filter((value) => value && '' !== value);
 
@@ -134,7 +137,7 @@ export default class Util {
    * @return {Object} 配列の場合: true
    */
   static bindAll(obj, context) {
-    let result = {};
+    const result = {};
 
     Object.keys(obj).forEach((key) => {
       result[key] = obj[key].bind(context);

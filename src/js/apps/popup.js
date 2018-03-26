@@ -184,14 +184,14 @@ const Popup = createReactClass({
   handleKeyDown(event) {
     switch (event.target.name) {
       case 'shortcut-key-toggle-enabled': {
-        let state = {
+        const state = {
           'shortcut-key-toggle-enabled': '',
           'shortcut-key-toggle-enabled-restore': false,
           'shortcut-key-toggle-enabled-value': '',
         };
 
         if (46 !== event.keyCode && 8 !== event.keyCode) {
-          let keyMap = getKeyMapping(
+          const keyMap = getKeyMapping(
             (this.state['shortcut-key-toggle-enabled-restore']) ?
               '' :
               this.state['shortcut-key-toggle-enabled-value']
@@ -236,7 +236,7 @@ const Popup = createReactClass({
   setAllState() {
     PopupStore.getAll((e, state) => {
       state['shortcut-key-toggle-enabled-value'] = state['shortcut-key-toggle-enabled'];
-      let keyMap = getKeyMapping(state['shortcut-key-toggle-enabled']);
+      const keyMap = getKeyMapping(state['shortcut-key-toggle-enabled']);
       state['shortcut-key-toggle-enabled'] = keyMap.keyNames.join(' + ');
       this.setState(state);
     });
@@ -395,13 +395,13 @@ ReactDOM.render(<Popup/>, window.document.getElementById('popup'));
 function getKeyMapping(keyCode) {
   keyCode = keyCode || '';
 
-  let keyCodes = keyCode.split(',').filter((val) => {
+  const keyCodes = keyCode.split(',').filter((val) => {
     return val !== '';
   }).map((val) => {
     return Number(val);
   });
 
-  let keyNames = keyCodes.map((val) => {
+  const keyNames = keyCodes.map((val) => {
     return keyMappings[val];
   });
 

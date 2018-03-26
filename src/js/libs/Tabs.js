@@ -63,7 +63,7 @@ export default class Tabs {
     this.removed = 0;
 
     this.stage.children.forEach((tab, i) => {
-      let time = this.REMOVE.LEFT_TO_RIGHT === align
+      const time = this.REMOVE.LEFT_TO_RIGHT === align
         ? i
         : this.stage.children.length - i;
 
@@ -109,18 +109,18 @@ export default class Tabs {
    * @return {Object} タブインスタンス
    */
   getTabInstance(width, height) {
-    let tab = new createjs.Container();
+    const tab = new createjs.Container();
 
     tab.shadow = new createjs.Shadow('#fff', 0, 0, 2);
 
-    let round = Math.floor(width / 10);
+    const round = Math.floor(width / 10);
 
-    let g = new createjs.Graphics();
+    const g = new createjs.Graphics();
     g.beginFill('#ffffff')
       .drawRoundRectComplex(0, 0, width, height, round, round, 2, 2)
       .endFill();
 
-    let s = new createjs.Shape(g);
+    const s = new createjs.Shape(g);
     tab.addChild(s);
 
     return tab;
@@ -136,16 +136,16 @@ export default class Tabs {
     this.tabWidth = 150 - (this.PADDING / 2);
     this.tabHeight = 50 - (this.PADDING / 2);
 
-    let tabX = Math.floor(this.width / 2)
+    const tabX = Math.floor(this.width / 2)
       - Math.floor(this.tabWidth / 2)
       + this.PADDING;
 
-    let tabY = Math.floor(this.height / 2)
+    const tabY = Math.floor(this.height / 2)
       - Math.floor(this.tabHeight / 2)
       + this.PADDING;
 
     for (let i = number - 1; i >= 0; i--) {
-      let tab = this.getTabInstance(this.tabWidth, this.tabHeight);
+      const tab = this.getTabInstance(this.tabWidth, this.tabHeight);
       tab.x = tabX;
       tab.y = tabY;
       this.stage.addChild(tab);
