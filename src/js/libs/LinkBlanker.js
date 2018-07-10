@@ -37,16 +37,16 @@ export default class LinkBlanker {
    */
   getData() {
     return {
-      'enabled-extension': Number(localStorage['enabled-extension'] || '1'),
-      'disabled-domain': JSON.parse(localStorage['disabled-domain'] || '[]'),
       'disabled-directory': JSON.parse(localStorage['disabled-directory'] || '[]'),
-      'disabled-page': JSON.parse(localStorage['disabled-page'] || '[]'),
+      'disabled-domain': JSON.parse(localStorage['disabled-domain'] || '[]'),
       'disabled-on': JSON.parse(localStorage['disabled-on'] || '0'),
-      'enabled-background-open': Number(localStorage['enabled-background-open'] || '0'),
+      'disabled-page': JSON.parse(localStorage['disabled-page'] || '[]'),
       'disabled-same-domain': Number(localStorage['disabled-same-domain'] || '0'),
+      'enabled-background-open': Number(localStorage['enabled-background-open'] || '0'),
+      'enabled-extension': Number(localStorage['enabled-extension'] || '1'),
       'enabled-multiclick-close': Number(localStorage['enabled-multiclick-close'] || '0'),
-      'visible-link-state': Number(localStorage['visible-link-state'] || '0'),
       'shortcut-key-toggle-enabled': localStorage['shortcut-key-toggle-enabled'] || '',
+      'visible-link-state': Number(localStorage['visible-link-state'] || '0'),
     };
   }
 

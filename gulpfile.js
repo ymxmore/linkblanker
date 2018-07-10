@@ -3,14 +3,15 @@
  */
 const $ = require('gulp-load-plugins')();
 const gulp = require('gulp');
+const inproduction = ('production' === process.env.NODE_ENV);
+const log = require('fancy-log');
 const notifier = require('node-notifier');
+const pkg = require('./package.json');
 const pngquant = require('imagemin-pngquant');
 const runsequence = require('run-sequence');
 const webpack = require('webpack');
 const webpackConfig = require('./webpack.config.js');
 const webpackStream = require('webpack-stream');
-const inproduction = ('production' === process.env.NODE_ENV);
-const pkg = require('./package.json');
 
 const header = `/*!
 ${pkg.name} - ${pkg.description}
@@ -22,7 +23,7 @@ ${pkg.name} - ${pkg.description}
 
 gulp.task('archive', (callback) => {
   if (!inproduction) {
-    $.util.log('Archive should be in the production environment');
+    log('Archive should be in the production environment');
   }
 
   runsequence(

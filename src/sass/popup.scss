@@ -7,8 +7,9 @@
 
 @include tags;
 
-$logo-x: 60px;
-$icon-size: 48px;
+$icon-size: 40px;
+$logo-x: 52px;
+$logo-height: ($icon-size * 0.75);
 
 #wrapper {
   padding: 1em;
@@ -17,7 +18,11 @@ $icon-size: 48px;
 #extension-name {
   width: 100%;
   height: $icon-size + $base-font-size;
-  background: url("/img/logo.svgz") $logo-x 0 scroll no-repeat;
+  background-image: url("/img/logo.svgz");
+  background-position: $logo-x 0;
+  background-attachment: scroll;
+  background-repeat: no-repeat;
+  background-size: auto $logo-height;
   position: relative;
 
   .icon {
@@ -32,8 +37,9 @@ $icon-size: 48px;
 #version-name {
   display: inline-block;
   position: absolute;
-  bottom: 0;
+  top: $logo-height + 3px;
   left: $logo-x + 3px;
+  font-size: 0.9em;
 }
 
 .popup-header {

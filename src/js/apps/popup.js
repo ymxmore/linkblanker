@@ -2,22 +2,20 @@
  * apps/popup.js
  */
 
-import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
-import injectTapEventPlugin from 'react-tap-event-plugin';
-import createReactClass from 'create-react-class';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import PopupActions from '../actions/PopupActions';
 import PopupStore from '../stores/PopupStore';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TextField from 'material-ui/TextField';
-import Toggle from 'material-ui/Toggle';
-
-// Needed for onTouchTap
-// Can go away when react 1.0 release
-// Check this repo:
-// https://github.com/zilverline/react-tap-event-plugin
-injectTapEventPlugin();
+import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
+import createReactClass from 'create-react-class';
+import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import cyan from '@material-ui/core/colors/cyan';
+import blueGrey from '@material-ui/core/colors/blueGrey';
+import grey from '@material-ui/core/colors/grey';
 
 const LinkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
 
@@ -141,19 +139,59 @@ const keyMappings = {
   123: 'f12',
 };
 
+const theme = createMuiTheme({
+  'typography': {
+    fontFamily: [
+      'ヒラギノ角ゴシック Pro',
+      'Hiragino Kaku Gothic Pro',
+      'メイリオ',
+      'Meiryo',
+      'Osaka',
+      'ＭＳ Ｐゴシック',
+      'MS PGothic',
+      'sans-serif',
+    ].join(','),
+    color: '#757575',
+  },
+  'palette': {
+    type: 'light',
+    primary: {
+      light: cyan['300'],
+      main: cyan['500'],
+      dark: cyan['700'],
+      contrastText: '#fff',
+    },
+    secondary: {
+      light: cyan['300'],
+      main: cyan['500'],
+      dark: cyan['700'],
+      contrastText: blueGrey['900'],
+    },
+    text: {
+      primary: grey['800'],
+      secondary: grey['700'],
+      disabled: grey['400'],
+      hint: grey['400'],
+      divider: grey['300'],
+    },
+  },
+  'overrides': {
+  },
+});
+
 const Popup = createReactClass({
   getInitialState() {
     return {
-      'system-enabled-state': true,
-      'enabled-extension': false,
-      'disabled-state': 'disabled-off',
       'disabled-same-domain': false,
-      'visible-link-state': false,
+      'disabled-state': 'disabled-off',
       'enabled-background-open': false,
+      'enabled-extension': false,
       'enabled-multiclick-close': false,
       'shortcut-key-toggle-enabled': '',
       'shortcut-key-toggle-enabled-restore': true,
       'shortcut-key-toggle-enabled-value': '',
+      'system-enabled-state': true,
+      'visible-link-state': false,
     };
   },
 
@@ -244,7 +282,7 @@ const Popup = createReactClass({
 
   render() {
     return (
-      <MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>
         <div id="wrapper">
           <header id="extension-name">
             <img
@@ -264,11 +302,14 @@ const Popup = createReactClass({
 
             <ul className="popup-list">
               <li className="support">
-                <Toggle
-                  name="enabled-extension"
-                  label={chrome.i18n.getMessage('title_operating_state')}
-                  toggled={this.state['enabled-extension']}
-                  onToggle={this.handleChange}/>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="enabled-extension"
+                      checked={this.state['enabled-extension']}
+                      onChange={this.handleChange} />
+                  }
+                  label={chrome.i18n.getMessage('title_operating_state')} />
               </li>
             </ul>
           </section>
@@ -279,48 +320,58 @@ const Popup = createReactClass({
 
             <ul className="popup-list">
               <li>
-                <RadioButtonGroup
+                <RadioGroup
                   name="disabled-state"
-                  defaultSelected="disabled-off"
-                  valueSelected={this.state['disabled-state']}
+                  value={this.state['disabled-state']}
                   onChange={this.handleChange}>
-                  <RadioButton
+                  <FormControlLabel
                     disabled={!this.state['enabled-extension']}
                     value="disabled-off"
-                    label={chrome.i18n.getMessage('title_disabled_off')}/>
-                  <RadioButton
+                    control={<Radio/>}
+                    label={chrome.i18n.getMessage('title_disabled_off')} />
+                  <FormControlLabel
                     disabled={!this.state['enabled-extension']}
                     value="disabled-domain"
-                    label={chrome.i18n.getMessage('title_disabled_domain')}/>
-                  <RadioButton
+                    control={<Radio />}
+                    label={chrome.i18n.getMessage('title_disabled_domain')} />
+                  <FormControlLabel
                     disabled={!this.state['enabled-extension']}
                     value="disabled-directory"
-                    label={chrome.i18n.getMessage('title_disabled_directory')}/>
-                  <RadioButton
+                    control={<Radio />}
+                    label={chrome.i18n.getMessage('title_disabled_directory')} />
+                  <FormControlLabel
                     disabled={!this.state['enabled-extension']}
                     value="disabled-page"
-                    label={chrome.i18n.getMessage('title_disabled_page')}/>
-                  <RadioButton
+                    control={<Radio />}
+                    label={chrome.i18n.getMessage('title_disabled_page')} />
+                  <FormControlLabel
                     disabled={!this.state['enabled-extension']}
                     value="disabled-on"
-                    label={chrome.i18n.getMessage('title_disabled_on')}/>
-                </RadioButtonGroup>
+                    control={<Radio />}
+                    label={chrome.i18n.getMessage('title_disabled_on')} />
+                </RadioGroup>
               </li>
               <li className="split">
-                <Toggle
-                  name="enabled-background-open"
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="enabled-background-open"
+                      checked={this.state['enabled-background-open']}
+                      onChange={this.handleChange} />
+                  }
                   disabled={!this.state['enabled-extension']}
-                  label={chrome.i18n.getMessage('title_background_open')}
-                  toggled={this.state['enabled-background-open']}
-                  onToggle={this.handleChange}/>
+                  label={chrome.i18n.getMessage('title_background_open')} />
               </li>
               <li>
-                <Toggle
-                  name="disabled-same-domain"
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="disabled-same-domain"
+                      checked={this.state['disabled-same-domain']}
+                      onChange={this.handleChange} />
+                  }
                   disabled={!this.state['enabled-extension']}
-                  label={chrome.i18n.getMessage('title_disabled_same_domain')}
-                  toggled={this.state['disabled-same-domain']}
-                  onToggle={this.handleChange}/>
+                  label={chrome.i18n.getMessage('title_disabled_same_domain')} />
               </li>
             </ul>
           </section>
@@ -331,12 +382,15 @@ const Popup = createReactClass({
 
             <ul className="popup-list">
               <li>
-                <Toggle
-                  name="enabled-multiclick-close"
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="enabled-multiclick-close"
+                      checked={this.state['enabled-multiclick-close']}
+                      onChange={this.handleChange} />
+                  }
                   disabled={!this.state['enabled-extension']}
-                  label={chrome.i18n.getMessage('title_multiclick_close')}
-                  toggled={this.state['enabled-multiclick-close']}
-                  onToggle={this.handleChange}/>
+                  label={chrome.i18n.getMessage('title_multiclick_close')} />
               </li>
             </ul>
           </section>
@@ -347,19 +401,22 @@ const Popup = createReactClass({
 
             <ul className="popup-list">
               <li className="support">
-                <Toggle
-                  name="visible-link-state"
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="visible-link-state"
+                      checked={this.state['visible-link-state']}
+                      onChange={this.handleChange} />
+                  }
                   disabled={!this.state['enabled-extension']}
-                  label={chrome.i18n.getMessage('title_visible_link_state')}
-                  toggled={this.state['visible-link-state']}
-                  onToggle={this.handleChange}/>
+                  label={chrome.i18n.getMessage('title_visible_link_state')} />
               </li>
               <li className="nmt">
                 <TextField
                   name="shortcut-key-toggle-enabled"
-                  hintText="Enter the shortcut key"
+                  placeholder="Enter the shortcut key"
                   fullWidth={true}
-                  floatingLabelText={chrome.i18n.getMessage('title_enable_toggle_key')}
+                  label={chrome.i18n.getMessage('title_enable_toggle_key')}
                   value={this.state['shortcut-key-toggle-enabled']}
                   onChange={this.handleChange}
                   onKeyDown={this.handleKeyDown}
@@ -372,7 +429,7 @@ const Popup = createReactClass({
 
             <ul className="popup-list">
               <li>
-                <a href={LinkBlanker.manifest.homepage_url} title={LinkBlanker.manifest.name} target="_blank">
+                <a href={LinkBlanker.manifest.homepage_url} title={LinkBlanker.manifest.name} target="_blank" rel="noreferrer noopener">
                   {chrome.i18n.getMessage('title_link_help')}
                 </a>
               </li>
