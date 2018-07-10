@@ -1,77 +1,89 @@
 {
-  "title_operating_state": {
-    "message": "動作状態"
-  },
-  "operating": {
-    "message": "動作中"
-  },
-  "pause": {
-    "message": "停止中"
-  },
-  "title_disabled_off": {
-    "message": "通常"
-  },
-  "title_disabled_on": {
-    "message": "無効"
-  },
-  "title_disabled_domain": {
-    "message": "現在のドメインでは無効にする"
-  },
-  "title_disabled_directory": {
-    "message": "現在のディレクトリ以下では無効にする"
-  },
-  "title_disabled_page": {
-    "message": "現在のページでは無効にする"
-  },
-  "title_background_open": {
-    "message": "バックグラウンドで開く"
-  },
-  "title_multiclick_close": {
-    "message": "トリプルクリッククローズ機能"
-  },
-  "title_open_settings": {
-    "message": "オープン設定"
-  },
-  "title_close_settings": {
-    "message": "クローズ設定"
-  },
-  "title_whole_setting": {
-    "message": "全体設定"
-  },
-  "title_link_help": {
-    "message": "機能・使い方・ヘルプ等はこちら"
-  },
-  "message_cannot_use": {
-    "message": "このページでは無効です"
-  },
-  "message_drop_tabs": {
-    "message": "{REMOVE_TAB_ALIGN}側のタブを{REMOVE_TAB_LENGTH}個落としました"
-  },
-  "title_right": {
-    "message": "右"
-  },
-  "title_left": {
-    "message": "左"
-  },
-  "title_shortcut_key": {
-    "message": "ショートカットキー"
-  },
-  "title_enable_toggle_key": {
-    "message": "動作状態切替キー"
-  },
-  "title_disabled_same_domain": {
-    "message": "リンク先が同一ドメインの場合は無効にする"
-  },
-  "undo": {
-    "message": "元に戻す"
-  },
-  "notify_remove": {
-    "message": "通知を消去"
-  },
-  "title_other": {
-    "message": "その他"
-  },
-  "title_visible_link_state": {
-    "message": "リンク毎の動作状態を表示"
-  }
+    "title_operating_state": {
+        "message": "動作状態"
+    },
+    "operating": {
+        "message": "動作中"
+    },
+    "pause": {
+        "message": "停止中"
+    },
+    "title_disabled_off": {
+        "message": "通常"
+    },
+    "title_disabled_on": {
+        "message": "無効"
+    },
+    "title_disabled_domain": {
+        "message": "現在のドメインでは無効にする"
+    },
+    "title_disabled_directory": {
+        "message": "現在のディレクトリ以下では無効にする"
+    },
+    "title_disabled_page": {
+        "message": "現在のページでは無効にする"
+    },
+    "title_background_open": {
+        "message": "バックグラウンドで開く"
+    },
+    "title_multiclick_close": {
+        "message": "トリプルクリッククローズ機能"
+    },
+    "title_open_settings": {
+        "message": "オープン設定"
+    },
+    "title_close_settings": {
+        "message": "クローズ設定"
+    },
+    "title_whole_setting": {
+        "message": "全体設定"
+    },
+    "title_link_help": {
+        "message": "機能・使い方・ヘルプ等はこちら"
+    },
+    "message_cannot_use": {
+        "message": "このページでは無効です"
+    },
+    "message_drop_tabs": {
+        "message": "{REMOVE_TAB_ALIGN}側のタブを{REMOVE_TAB_LENGTH}個落としました"
+    },
+    "title_right": {
+        "message": "右"
+    },
+    "title_left": {
+        "message": "左"
+    },
+    "title_shortcut_key": {
+        "message": "ショートカットキー"
+    },
+    "title_enable_toggle_key": {
+        "message": "動作状態切替キー"
+    },
+    "title_disabled_same_domain": {
+        "message": "リンク先が同一ドメインの場合は無効にする"
+    },
+    "undo": {
+        "message": "元に戻す"
+    },
+    "notify_remove": {
+        "message": "通知を消去"
+    },
+    "title_other": {
+        "message": "その他"
+    },
+    "title_visible_link_state": {
+        "message": "リンク毎の動作状態を表示"
+    },
+    "title_left_click": {
+        "message": "左クリック"
+    },
+    "title_middle_click": {
+        "message": "中クリック(フォアグラウンドで開きます)"
+    },
+    "title_right_click": {
+        "message": "右クリック"
+    },
+    "title_no_close_fixed_tab": {
+        "message": "固定タブは閉じない"
+    }
 }

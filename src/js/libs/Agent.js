@@ -23,18 +23,21 @@ export default class Agent {
   constructor(window, chrome) {
     this.window = window;
     this.chrome = chrome;
-    this.anchorEvents = [];
     this.domContentLoaded = false;
     this.parsed = {};
     this.enabled = false;
     this.multiClickClose = false;
     this.isBackground = false;
     this.isVisibleLinkState = false;
+    this.isLeftClick = true;
+    this.isMiddleClick = false;
+    this.isRightClick = false;
     this.shortcutKeyTobbleEnabled = false;
     this.disabledSameDomain = false;
     this.ports = {};
     this.keys = [];
-    this.operationEventHandler = {};
+    this.anchorEventHandler = {};
+    this.windowEventHandler = {};
     this.receiveEventHandler = {};
     this.navigation = null;
     this.navigationTarget = null;
@@ -52,13 +55,6 @@ export default class Agent {
    * @private
    */
   init() {
-    this.anchorEvents = [
-      'click',
-      'mouseenter',
-      'mouseleave',
-      'mousemove',
-    ];
-
     this.navPrefix = 'linkblanker-status-';
     this.navTargets = ['icon', 'text'];
     this.navStatuses = ['enabled', 'disabled'];
@@ -68,8 +64,25 @@ export default class Agent {
       this.window.Node.ELEMENT_NODE,
     ];
 
-    this.operationEventHandler = this.getOperationEventHandler();
-    this.receiveEventHandler = this.getReceiveEventHandler();
+    this.anchorEventHandler = Util.bindAll({
+      click: this.onAnchorClick,
+      contextmenu: this.onAnchorContextmenu,
+      mousedown: this.onAnchorMousedown,
+      mouseenter: this.onAnchorMouseenter,
+      mousemove: this.onAnchorMousemove,
+      mouseleave: this.onAnchorMouseleave,
+    }, this);
+
+    this.windowEventHandler = Util.bindAll({
+      click: this.onWindowClick,
+      keydown: this.onWindowKeydown,
+      keyup: this.onWindowKeyup,
+    }, this);
+
+    this.receiveEventHandler = Util.bindAll({
+      updateTabStatus: this.onUpdateTabStatus,
+      norifyRemoveTabs: this.onNorifyRemoveTabs,
+    }, this);
 
     this.chrome.extension.onMessage.addListener((response, sender) => {
       if ('name' in response
@@ -112,7 +125,7 @@ export default class Agent {
     this.domContentLoaded = true;
 
     this.setNavigation();
-    this.bindEvents();
+    this.bindAllEvents();
   }
 
   /**
@@ -136,13 +149,13 @@ export default class Agent {
   }
 
   /**
-   * イベントをバインド
+   * 全てのイベントをバインド
    *
    * @private
    */
-  bindEvents() {
-    Object.keys(this.operationEventHandler).forEach((e) => {
-      this.window.removeEventListener(e, this.operationEventHandler[e]);
+  bindAllEvents() {
+    Object.keys(this.windowEventHandler).forEach((e) => {
+      this.window.removeEventListener(e, this.windowEventHandler[e]);
     });
 
     this.bindAnchorEvents(this.window.document);
@@ -171,12 +184,12 @@ export default class Agent {
     }
 
     if (this.multiClickClose) {
-      this.window.addEventListener('click', this.operationEventHandler.click);
+      this.window.addEventListener('click', this.windowEventHandler.click);
     }
 
     if (this.shortcutKeyTobbleEnabled.length > 0) {
-      this.window.addEventListener('keydown', this.operationEventHandler.keydown);
-      this.window.addEventListener('keyup', this.operationEventHandler.keyup);
+      this.window.addEventListener('keydown', this.windowEventHandler.keydown);
+      this.window.addEventListener('keyup', this.windowEventHandler.keyup);
     }
   }
 
@@ -191,6 +204,8 @@ export default class Agent {
     if (typeof enabled === 'undefined') {
       enabled = {
         click: this.enabled,
+        contextmenu: this.enabled,
+        mousedown: this.enabled,
         mouseenter: this.enabled && this.isVisibleLinkState,
         mouseleave: this.enabled && this.isVisibleLinkState,
         mousemove: this.enabled && this.isVisibleLinkState,
@@ -214,12 +229,16 @@ export default class Agent {
         } else {
           let isNeedSetOriginHref = false;
 
-          this.anchorEvents.forEach((ae) => {
-            nd.removeEventListener(ae, this.operationEventHandler[ae]);
+          Object.keys(this.anchorEventHandler).forEach((ae) => {
+            nd.removeEventListener(ae, this.anchorEventHandler[ae]);
 
             if (enabled[ae]) {
-              nd.addEventListener(ae, this.operationEventHandler[ae]);
+              nd.addEventListener(ae, this.anchorEventHandler[ae]);
               isNeedSetOriginHref = true;
+            }
+
+            if (nd.dataset.lbOpenNewTab) {
+              delete nd.dataset.lbOpenNewTab;
             }
           });
 
@@ -286,18 +305,8 @@ export default class Agent {
       return false;
     }
 
-    let url = null;
-
-    if (dom.dataset.lbOrigHref) {
-      url = dom.dataset.lbOrigHref;
-    } else if (dom.href) {
-      url = dom.href;
-    }
-
-    return (
-      url
-      && this.isNeedOpenTabFromUrl(this.absPath(url))
-    );
+    const url = this.getUrlFromDOM(dom);
+    return (url && this.isNeedOpenTabFromUrl(this.absPath(url)));
   }
 
   /**
@@ -333,10 +342,57 @@ export default class Agent {
     }
 
     return (
-      e.button === 0
+      this.isNeedOpenTabFromButton(e.button)
       && this.isNeedOpenTabFromEvent(e)
       && this.isNeedOpenTabFromDOM(this.getParentsNode(e.target, 'a'))
     );
+  }
+
+  /**
+   * クリックボタンから別タブで開く必要があるか返却
+   *
+   * @private
+   * @param {number} button マウスボタン番号(0: 左, 1: 中, 2: 右)
+   * @return {boolean} 別タブで開く必要がある: true
+   */
+  isNeedOpenTabFromButton(button) {
+    return (
+      (button === 0 && this.isLeftClick)
+      || (button === 1 && this.isMiddleClick)
+      || (button === 2 && this.isRightClick)
+    );
+  }
+
+  /**
+   * 新しいタブを選択する必要があるか
+   *
+   * @private
+   * @param {*} e イベント
+   * @return {boolean} 新しいタブを選択する必要がある: true
+   */
+  isNeedNewTabSelect(e) {
+    // バックグラウンドで開かない設定の場合
+    // 又は、中クリックかつ中クリック設定が有効の場合
+    return (
+      !this.isBackground
+      || (e.button === 1 && this.isMiddleClick)
+    );
+  }
+
+  /**
+   * DOMオブジェクトから開くべきURLを返却
+   *
+   * @param {Object} dom DOMオブジェクト
+   * @return {boolean} 別タブで開く必要がある: true
+   */
+  getUrlFromDOM(dom) {
+    if (dom.dataset.lbOrigHref) {
+      return dom.dataset.lbOrigHref;
+    } else if (dom.href) {
+      return dom.href;
+    }
+
+    return '';
   }
 
   /**
@@ -351,10 +407,12 @@ export default class Agent {
     if (e && e.target) {
       const target = this.getParentsNode(e.target, 'a');
 
-      if (target && target.href) {
+      if (target) {
+        const url = this.getUrlFromDOM(target);
+
         return isFullUrl
-          ? this.absPath(target.href)
-          : target.href;
+          ? this.absPath(url)
+          : url;
       }
     }
 
@@ -412,44 +470,25 @@ export default class Agent {
    * @private
    * @param {Object} e イベント
    */
-  onClick(e) {
+  onWindowClick(e) {
     if (this.navigation) {
       this.navigation.className = 'hide';
       this.navigation.style.display = 'none';
     }
 
-    const target = this.getParentsNode(e.target, 'a');
+    // multi clicks tab close.
+    if (this.ports.removeTabs && e.detail === 3) {
+      const align = (e.clientX > this.window.document.documentElement.clientWidth / 2) ? 'right' : 'left';
 
-    if (target) {
-      if (this.isNeedOpenTabFromSystemStatus()
-        && this.isNeedOpenTabFromClickEvent(e)
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+      this.ports.removeTabs.postMessage({
+        align: align,
+        clientX: e.clientX,
+        clientY: e.clientY,
+        pageX: e.pageX,
+        pageY: e.pageY,
+      });
 
-        const params = {
-          url: this.getUrlFromClickEvent(e),
-          selected: !this.isBackground,
-        };
-
-        this.ports.openTab.postMessage(params);
-      }
-    } else if (this.multiClickClose) {
-      // multi clicks tab close.
-      if (this.ports.removeTabs && e.detail === 3) {
-        const align = (e.clientX > this.window.document.documentElement.clientWidth / 2) ? 'right' : 'left';
-
-        this.ports.removeTabs.postMessage({
-          align: align,
-          clientX: e.clientX,
-          clientY: e.clientY,
-          pageX: e.pageX,
-          pageY: e.pageY,
-        });
-
-        this.window.getSelection().collapse(this.window.document.body, 0);
-      }
+      this.window.getSelection().collapse(this.window.document.body, 0);
     }
   }
 
@@ -459,7 +498,7 @@ export default class Agent {
    * @private
    * @param {Object} e イベント
    */
-  onKeydown(e) {
+  onWindowKeydown(e) {
     this.setNavigationState(e);
 
     const keyCode = Number(e.keyCode);
@@ -472,7 +511,7 @@ export default class Agent {
       let exist = true;
 
       for (const i in this.keys) {
-        if (-1 === this.shortcutKeyTobbleEnabled.indexOf(this.keys[i])) {
+        if (this.shortcutKeyTobbleEnabled.indexOf(this.keys[i]) === -1) {
           exist = false;
           break;
         }
@@ -494,9 +533,82 @@ export default class Agent {
    * @private
    * @param {Object} e イベント
    */
-  onKeyup(e) {
+  onWindowKeyup(e) {
     this.setNavigationState(e);
     this.keys = [];
+  }
+
+  /**
+   * クリックイベントハンドラ
+   *
+   * @private
+   * @param {Object} e イベント
+   */
+  onAnchorClick(e) {
+    if (this.navigation) {
+      this.navigation.className = 'hide';
+      this.navigation.style.display = 'none';
+    }
+
+    const target = this.getParentsNode(e.target, 'a');
+
+    if (!target) {
+      return;
+    }
+
+    if (target.dataset.lbOpenNewTab) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      this.window.getSelection().collapse(this.window.document.body, 0);
+      delete target.dataset.lbOpenNewTab;
+    }
+  }
+
+  /**
+   * コンテキストメニューイベントハンドラ
+   *
+   * @private
+   * @param {Object} e イベント
+   */
+  onAnchorContextmenu(e) {
+    this.onAnchorClick(e);
+  }
+
+  /**
+   * マウスダウンイベントハンドラ
+   *
+   * @private
+   * @param {Object} e イベント
+   */
+  onAnchorMousedown(e) {
+    if (this.navigation) {
+      this.navigation.className = 'hide';
+      this.navigation.style.display = 'none';
+    }
+
+    const target = this.getParentsNode(e.target, 'a');
+
+    if (!target) {
+      return;
+    }
+
+    if (this.isNeedOpenTabFromSystemStatus()
+      && this.isNeedOpenTabFromClickEvent(e)
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      target.dataset.lbOpenNewTab = true;
+
+      const params = {
+        url: this.getUrlFromClickEvent(e),
+        selected: this.isNeedNewTabSelect(e),
+      };
+
+      this.ports.openTab.postMessage(params);
+    }
   }
 
   /**
@@ -505,7 +617,7 @@ export default class Agent {
    * @private
    * @param {Object} e イベント
    */
-  onMouseenter(e) {
+  onAnchorMouseenter(e) {
     const target = this.getParentsNode(e.target, 'a');
 
     if (target) {
@@ -527,7 +639,7 @@ export default class Agent {
    * @private
    * @param {Object} e イベント
    */
-  onMousemove(e) {
+  onAnchorMousemove(e) {
     if (this.navigation.className === 'show') {
       let top = e.pageY - this.navigation.clientHeight - 20;
       let left = e.pageX + 20;
@@ -551,7 +663,7 @@ export default class Agent {
    * @private
    * @param {Object} e イベント
    */
-  onMouseleave(e) {
+  onAnchorMouseleave(e) {
     this.navigationTarget = null;
 
     setTimeout(() => {
@@ -565,23 +677,6 @@ export default class Agent {
         }, 110);
       }
     }, 20);
-  }
-
-  /**
-   * 操作イベントハンドラを返却
-   *
-   * @private
-   * @return {Object} 操作イベントハンドラ
-   */
-  getOperationEventHandler() {
-    return Util.bindAll({
-      click: this.onClick,
-      keydown: this.onKeydown,
-      keyup: this.onKeyup,
-      mouseenter: this.onMouseenter,
-      mousemove: this.onMousemove,
-      mouseleave: this.onMouseleave,
-    }, this);
   }
 
   /**
@@ -651,6 +746,18 @@ export default class Agent {
       this.isVisibleLinkState = Boolean(response.isVisibleLinkState);
     }
 
+    if ('isLeftClick' in response) {
+      this.isLeftClick = Boolean(response.isLeftClick);
+    }
+
+    if ('isMiddleClick' in response) {
+      this.isMiddleClick = Boolean(response.isMiddleClick);
+    }
+
+    if ('isRightClick' in response) {
+      this.isRightClick = Boolean(response.isRightClick);
+    }
+
     if ('shortcutKeyTobbleEnabled' in response) {
       this.shortcutKeyTobbleEnabled = response.shortcutKeyTobbleEnabled
         .split(',')
@@ -663,7 +770,7 @@ export default class Agent {
     }
 
     this.setNavigation();
-    this.bindEvents();
+    this.bindAllEvents();
   }
 
   /**
@@ -709,19 +816,6 @@ export default class Agent {
         }, 210);
       });
     }, this.getWait(response));
-  }
-
-  /**
-   * 受信ハンドラを返却
-   *
-   * @private
-   * @return {Object} 受信ハンドラ
-   */
-  getReceiveEventHandler() {
-    return Util.bindAll({
-      updateTabStatus: this.onUpdateTabStatus,
-      norifyRemoveTabs: this.onNorifyRemoveTabs,
-    }, this);
   }
 
   /**

@@ -44,7 +44,11 @@ export default class LinkBlanker {
       'disabled-same-domain': Number(localStorage['disabled-same-domain'] || '0'),
       'enabled-background-open': Number(localStorage['enabled-background-open'] || '0'),
       'enabled-extension': Number(localStorage['enabled-extension'] || '1'),
+      'enabled-left-click': Number(localStorage['enabled-left-click'] || '1'),
+      'enabled-middle-click': Number(localStorage['enabled-middle-click'] || '0'),
       'enabled-multiclick-close': Number(localStorage['enabled-multiclick-close'] || '0'),
+      'enabled-right-click': Number(localStorage['enabled-right-click'] || '0'),
+      'no-close-fixed-tab': Number(localStorage['no-close-fixed-tab'] || '1'),
       'shortcut-key-toggle-enabled': localStorage['shortcut-key-toggle-enabled'] || '',
       'visible-link-state': Number(localStorage['visible-link-state'] || '0'),
     };
@@ -103,9 +107,13 @@ export default class LinkBlanker {
             case 'enabled-extension':
             case 'enabled-background-open':
             case 'enabled-multiclick-close':
+            case 'enabled-left-click':
+            case 'enabled-middle-click':
+            case 'enabled-right-click':
             case 'disabled-same-domain':
             case 'disabled-on':
             case 'visible-link-state':
+            case 'no-close-fixed-tab':
               localStorage[k] = v ? 1 : 0;
               break;
           }
@@ -304,6 +312,12 @@ export default class LinkBlanker {
         disabledSameDomain: data['disabled-same-domain'],
         isVisibleLinkState: data['enabled-extension'] === 1
           && data['visible-link-state'] == 1 ? 1 : 0,
+        isLeftClick: data['enabled-extension'] === 1
+          && data['enabled-left-click'] == 1 ? 1 : 0,
+        isMiddleClick: data['enabled-extension'] === 1
+          && data['enabled-middle-click'] == 1 ? 1 : 0,
+        isRightClick: data['enabled-extension'] === 1
+          && data['enabled-right-click'] == 1 ? 1 : 0,
       });
 
       this.chrome.browserAction.setBadgeBackgroundColor({
@@ -333,7 +347,9 @@ export default class LinkBlanker {
   isEnableFromData(info) {
     const data = this.getData();
 
-    if (info.url.match(/^chrome:\/\/(.*)$/)) {
+    if (info.url.match(/^chrome:\/\/(.*)$/)
+      || info.url.match(/^https:\/\/chrome\.google\.com\/webstore(.*)$/)
+    ) {
       return 0;
     }
 
@@ -403,7 +419,6 @@ export default class LinkBlanker {
 
   /**
    * タブに関するログを削除
-   *
    *
    * @private
    * @param {number} tabId タブID
@@ -505,6 +520,8 @@ export default class LinkBlanker {
    * @param {Object} message パラメータ
    */
   onRemoveTabs(message) {
+    const data = this.getData();
+
     this.chrome.windows.getCurrent({
       populate: true,
       windowTypes: ['normal'],
@@ -527,6 +544,11 @@ export default class LinkBlanker {
       for (let i = 0; i < win.tabs.length; i++) {
         if (win.tabs[i].active) {
           activeTabId = win.tabs[i].id;
+          continue;
+        }
+
+        // 固定タブは閉じない=ONの場合は固定タブは除外
+        if (data['no-close-fixed-tab'] === 1 && win.tabs[i].pinned) {
           continue;
         }
 

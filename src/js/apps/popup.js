@@ -186,7 +186,11 @@ const Popup = createReactClass({
       'disabled-state': 'disabled-off',
       'enabled-background-open': false,
       'enabled-extension': false,
+      'enabled-left-click': true,
+      'enabled-middle-click': false,
       'enabled-multiclick-close': false,
+      'enabled-right-click': false,
+      'no-close-fixed-tab': true,
       'shortcut-key-toggle-enabled': '',
       'shortcut-key-toggle-enabled-restore': true,
       'shortcut-key-toggle-enabled-value': '',
@@ -212,8 +216,12 @@ const Popup = createReactClass({
       case 'enabled-extension':
       case 'enabled-background-open':
       case 'enabled-multiclick-close':
+      case 'enabled-left-click':
+      case 'enabled-middle-click':
+      case 'enabled-right-click':
       case 'disabled-same-domain':
       case 'visible-link-state':
+      case 'no-close-fixed-tab':
         this.save(event.target.name, event.target.checked);
         break;
     }
@@ -228,7 +236,7 @@ const Popup = createReactClass({
           'shortcut-key-toggle-enabled-value': '',
         };
 
-        if (46 !== event.keyCode && 8 !== event.keyCode) {
+        if (event.keyCode !== 46 && event.keyCode !== 8) {
           const keyMap = getKeyMapping(
             (this.state['shortcut-key-toggle-enabled-restore']) ?
               '' :
@@ -355,6 +363,39 @@ const Popup = createReactClass({
                 <FormControlLabel
                   control={
                     <Switch
+                      name="enabled-left-click"
+                      checked={this.state['enabled-left-click']}
+                      onChange={this.handleChange} />
+                  }
+                  disabled={!this.state['enabled-extension']}
+                  label={chrome.i18n.getMessage('title_left_click')} />
+              </li>
+              <li>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="enabled-middle-click"
+                      checked={this.state['enabled-middle-click']}
+                      onChange={this.handleChange} />
+                  }
+                  disabled={!this.state['enabled-extension']}
+                  label={chrome.i18n.getMessage('title_middle_click')} />
+              </li>
+              <li>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="enabled-right-click"
+                      checked={this.state['enabled-right-click']}
+                      onChange={this.handleChange} />
+                  }
+                  disabled={!this.state['enabled-extension']}
+                  label={chrome.i18n.getMessage('title_right_click')} />
+              </li>
+              <li className="split">
+                <FormControlLabel
+                  control={
+                    <Switch
                       name="enabled-background-open"
                       checked={this.state['enabled-background-open']}
                       onChange={this.handleChange} />
@@ -392,6 +433,17 @@ const Popup = createReactClass({
                   disabled={!this.state['enabled-extension']}
                   label={chrome.i18n.getMessage('title_multiclick_close')} />
               </li>
+              <li>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="no-close-fixed-tab"
+                      checked={this.state['no-close-fixed-tab']}
+                      onChange={this.handleChange} />
+                  }
+                  disabled={!this.state['enabled-extension']}
+                  label={chrome.i18n.getMessage('title_no_close_fixed_tab')} />
+                </li>
             </ul>
           </section>
           <section>

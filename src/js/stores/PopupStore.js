@@ -62,9 +62,13 @@ const PreferenceStore = Object.assign({}, EventEmitter.prototype, {
           case 'enabled-extension':
           case 'enabled-background-open':
           case 'enabled-multiclick-close':
+          case 'enabled-left-click':
+          case 'enabled-middle-click':
+          case 'enabled-right-click':
           case 'disabled-same-domain':
           case 'disabled-on':
           case 'visible-link-state':
+          case 'no-close-fixed-tab':
             data[k] = Boolean(v);
             break;
           default:
