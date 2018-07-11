@@ -2,6 +2,8 @@
  * apps/popup.js
  */
 
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Logger from '../libs/Logger';
 import PopupActions from '../actions/PopupActions';
 import PopupStore from '../stores/PopupStore';
 import Radio from '@material-ui/core/Radio';
@@ -10,14 +12,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
-import createReactClass from 'create-react-class';
-import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import cyan from '@material-ui/core/colors/cyan';
 import blueGrey from '@material-ui/core/colors/blueGrey';
+import createReactClass from 'create-react-class';
+import cyan from '@material-ui/core/colors/cyan';
 import grey from '@material-ui/core/colors/grey';
-
-const LinkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
+import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 
 const keyMappings = {
   3: 'cancel',
@@ -190,11 +189,14 @@ const Popup = createReactClass({
       'enabled-middle-click': false,
       'enabled-multiclick-close': false,
       'enabled-right-click': false,
+      'extention-work': false,
+      'manifest': {},
       'no-close-fixed-tab': true,
       'shortcut-key-toggle-enabled': '',
       'shortcut-key-toggle-enabled-restore': true,
       'shortcut-key-toggle-enabled-value': '',
-      'system-enabled-state': true,
+      'url-data': {},
+      'url-enabled-state': true,
       'visible-link-state': false,
     };
   },
@@ -280,29 +282,67 @@ const Popup = createReactClass({
   },
 
   setAllState() {
-    PopupStore.getAll((e, state) => {
-      state['shortcut-key-toggle-enabled-value'] = state['shortcut-key-toggle-enabled'];
-      const keyMap = getKeyMapping(state['shortcut-key-toggle-enabled']);
-      state['shortcut-key-toggle-enabled'] = keyMap.keyNames.join(' + ');
-      this.setState(state);
-    });
+    PopupStore.getAll()
+      .then((state) => {
+        state['shortcut-key-toggle-enabled-value'] = state['shortcut-key-toggle-enabled'];
+        const keyMap = getKeyMapping(state['shortcut-key-toggle-enabled']);
+        state['shortcut-key-toggle-enabled'] = keyMap.keyNames.join(' + ');
+        this.setState(state);
+      })
+      .catch((e) => Logger.error(e));
+  },
+
+  getHeader() {
+    return (
+      <header id="extension-name">
+        <img
+          className="icon"
+          src={this.state['url-enabled-state'] ?
+            '/img/icon-enabled.svgz' :
+            '/img/icon-disabled.svgz'}
+        />
+        <span id="version-name">
+          Version {this.state.manifest.version}
+        </span>
+      </header>
+    );
+  },
+
+  getFooter() {
+    return (
+      <footer>
+        <h2 className="popup-header">Links</h2>
+
+        <ul className="popup-list">
+          <li>
+            <a href={this.state.manifest.homepage_url} title={this.state.manifest.name} target="_blank" rel="noreferrer noopener">
+              {chrome.i18n.getMessage('title_link_help')}
+            </a>
+          </li>
+        </ul>
+      </footer>
+    );
   },
 
   render() {
+    if (!this.state['extention-work']) {
+      return (
+        <MuiThemeProvider theme={theme}>
+          <div id="wrapper">
+            {this.getHeader()}
+            <section>
+              <p>{chrome.i18n.getMessage('warn_extention_work')}</p>
+            </section>
+            {this.getFooter()}
+          </div>
+        </MuiThemeProvider>
+      );
+    }
+
     return (
       <MuiThemeProvider theme={theme}>
         <div id="wrapper">
-          <header id="extension-name">
-            <img
-              className="icon"
-              src={this.state['system-enabled-state'] ?
-                '/img/icon-enabled.svgz' :
-                '/img/icon-disabled.svgz'}
-            />
-            <span id="version-name">
-              Version {LinkBlanker.manifest.version}
-            </span>
-          </header>
+          {this.getHeader()}
           <section>
             <h2 className="popup-header">
               {chrome.i18n.getMessage('title_whole_setting')}
@@ -317,6 +357,7 @@ const Popup = createReactClass({
                       checked={this.state['enabled-extension']}
                       onChange={this.handleChange} />
                   }
+                  disabled={!this.state['extention-work']}
                   label={chrome.i18n.getMessage('title_operating_state')} />
               </li>
             </ul>
@@ -343,7 +384,7 @@ const Popup = createReactClass({
                     control={<Radio />}
                     label={chrome.i18n.getMessage('title_disabled_domain')} />
                   <FormControlLabel
-                    disabled={!this.state['enabled-extension']}
+                    disabled={!this.state['enabled-extension'] || this.state['url-data'].directory === ''}
                     value="disabled-directory"
                     control={<Radio />}
                     label={chrome.i18n.getMessage('title_disabled_directory')} />
@@ -470,23 +511,14 @@ const Popup = createReactClass({
                   fullWidth={true}
                   label={chrome.i18n.getMessage('title_enable_toggle_key')}
                   value={this.state['shortcut-key-toggle-enabled']}
+                  disabled={!this.state['enabled-extension']}
                   onChange={this.handleChange}
                   onKeyDown={this.handleKeyDown}
                   onKeyUp={this.handleKeyUp}/>
               </li>
             </ul>
           </section>
-          <footer>
-            <h2 className="popup-header">Links</h2>
-
-            <ul className="popup-list">
-              <li>
-                <a href={LinkBlanker.manifest.homepage_url} title={LinkBlanker.manifest.name} target="_blank" rel="noreferrer noopener">
-                  {chrome.i18n.getMessage('title_link_help')}
-                </a>
-              </li>
-            </ul>
-          </footer>
+          {this.getFooter()}
         </div>
       </MuiThemeProvider>
     );

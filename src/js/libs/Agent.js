@@ -32,7 +32,7 @@ export default class Agent {
     this.isLeftClick = true;
     this.isMiddleClick = false;
     this.isRightClick = false;
-    this.shortcutKeyTobbleEnabled = false;
+    this.shortcutKeyToggleEnabled = false;
     this.disabledSameDomain = false;
     this.ports = {};
     this.keys = [];
@@ -187,7 +187,7 @@ export default class Agent {
       this.window.addEventListener('click', this.windowEventHandler.click);
     }
 
-    if (this.shortcutKeyTobbleEnabled.length > 0) {
+    if (this.shortcutKeyToggleEnabled.length > 0) {
       this.window.addEventListener('keydown', this.windowEventHandler.keydown);
       this.window.addEventListener('keyup', this.windowEventHandler.keyup);
     }
@@ -507,11 +507,11 @@ export default class Agent {
       this.keys.push(keyCode);
     }
 
-    if (this.keys.length === this.shortcutKeyTobbleEnabled.length) {
+    if (this.keys.length === this.shortcutKeyToggleEnabled.length) {
       let exist = true;
 
       for (const i in this.keys) {
-        if (this.shortcutKeyTobbleEnabled.indexOf(this.keys[i]) === -1) {
+        if (this.shortcutKeyToggleEnabled.indexOf(this.keys[i]) === -1) {
           exist = false;
           break;
         }
@@ -758,8 +758,8 @@ export default class Agent {
       this.isRightClick = Boolean(response.isRightClick);
     }
 
-    if ('shortcutKeyTobbleEnabled' in response) {
-      this.shortcutKeyTobbleEnabled = response.shortcutKeyTobbleEnabled
+    if ('shortcutKeyToggleEnabled' in response) {
+      this.shortcutKeyToggleEnabled = response.shortcutKeyToggleEnabled
         .split(',')
         .filter((val) => '' !== val)
         .map((val) => Number(val));

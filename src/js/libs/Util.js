@@ -63,17 +63,17 @@ export default class Util {
   /**
    * URLを解析
    *
-   * @param {string} urlstr URL
+   * @param {string} urlStr URL
    * @return {Object} URL解析結果
    */
-  static parseUrl(urlstr) {
-    const cache = Util.getParseUrlCache(urlstr);
+  static parseUrl(urlStr) {
+    const cache = Util.getParseUrlCache(urlStr);
 
     if (cache) {
       return cache;
     }
 
-    const parsed = url.parse(urlstr);
+    const parsed = url.parse(urlStr);
 
     Object.keys(parsed).forEach((key) => {
       if (!parsed[key]) {
@@ -86,12 +86,12 @@ export default class Util {
 
     const dirs = parsed.pathname
       .split('/')
-      .filter((value) => value && '' !== value);
+      .filter((value) => value && value !== '');
 
     let directory = '';
 
     if (dirs.length >= 2) {
-      directory = `${parsed.protocol}//${parsed.auth}${'' !== parsed.auth ? '@' : ''}${parsed.host}/${dirs.splice(0, dirs.length - 1).join('/')}`;
+      directory = `${parsed.protocol}//${parsed.auth}${parsed.auth !== '' ? '@' : ''}${parsed.host}/${dirs.splice(0, dirs.length - 1).join('/')}`;
     }
 
     // directory
@@ -100,7 +100,7 @@ export default class Util {
     // url
     parsed.url = parsed.href;
 
-    Util.setParseUrlCache(urlstr, parsed);
+    Util.setParseUrlCache(urlStr, parsed);
 
     return parsed;
   }

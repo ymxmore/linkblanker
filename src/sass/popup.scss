@@ -48,13 +48,17 @@ $logo-height: ($icon-size * 0.75);
 
 .popup-list {
   padding: 0;
-  margin: 1.2rem 0;
+  margin: 1.2rem 0 0;
 
   li {
     list-style-type: none;
     display: block;
     padding: 0 0 .3em .6em;
-    margin: 0 0 .6em 0;
+    margin: .6em 0 0;
+
+    &:first-child {
+      margin-top: 0;
+    }
 
     > div {
       width: 100%;

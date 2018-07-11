@@ -85,5 +85,8 @@
     },
     "title_no_close_fixed_tab": {
         "message": "固定タブは閉じない"
+    },
+    "warn_extention_work": {
+        "message": "このページでは拡張機能を使用することが出来ません。"
     }
 }

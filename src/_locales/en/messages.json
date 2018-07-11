@@ -85,5 +85,8 @@
     },
     "title_no_close_fixed_tab": {
         "message": "Fixed tab is not closed"
+    },
+    "warn_extention_work": {
+        "message": "The extension can not be used on this page."
     }
 }

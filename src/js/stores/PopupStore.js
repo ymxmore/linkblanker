@@ -2,11 +2,12 @@
  * stores/PopupStore.js
  */
 
+import AppDispatcher from '../dispatcher/AppDispatcher';
+import Logger from '../libs/Logger';
 import {EventEmitter} from 'events';
 import {Events, Types} from '../constants/LinkBlankerConstants';
-import AppDispatcher from '../dispatcher/AppDispatcher';
 
-const LinkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
+const linkBlanker = chrome.extension.getBackgroundPage().LinkBlanker;
 
 const DISABLEDS = [
   'disabled-domain',
@@ -15,84 +16,87 @@ const DISABLEDS = [
   'disabled-on',
 ];
 
+/**
+ * 設定ストア
+ */
 const PreferenceStore = Object.assign({}, EventEmitter.prototype, {
-
   /**
    * 全データを返却
    *
-   * @param {function(Error, Object)} callback
+   * @return {Promise} 全データ
    */
-  getAll: (callback) => {
-    const data = LinkBlanker.getData();
+  getAll: () => {
+    const proms = [
+      linkBlanker.getData(),
+      linkBlanker.getCurrentTabUrlData(),
+      linkBlanker.isExtensionWork(),
+      linkBlanker.isEnable(),
+    ];
 
-    LinkBlanker.getCurrentData((error, result) => {
-      if (error) {
-        if (callback) {
-          callback(error, null);
-        }
-        return;
-      }
+    return Promise.all(proms)
+      .then(([data, urlData, extWork, enabled]) => {
+        Object.keys(data).forEach((k) => {
+          const v = data[k];
 
-      Object.keys(data).forEach((k) => {
-        const v = data[k];
+          switch (k) {
+            case 'disabled-domain':
+            case 'disabled-directory':
+            case 'disabled-page': {
+              const item = linkBlanker.urlDataValueFromKey(k, urlData);
 
-        switch (k) {
-          case 'disabled-domain':
-          case 'disabled-directory':
-          case 'disabled-page': {
-            const item = LinkBlanker.preferenceValueFromId(k, result);
+              if (k === 'disabled-directory') {
+                let exist = false;
 
-            if ('disabled-directory' === k) {
-              let exist = false;
-
-              for (let i = 0; i < v.length; i++) {
-                if (item.match(new RegExp(`^${v[i]}.*$`))) {
-                  exist = true;
-                  break;
+                for (let i = 0; i < v.length; i++) {
+                  if (item.match(new RegExp(`^${v[i]}.*$`))) {
+                    exist = true;
+                    break;
+                  }
                 }
+
+                data[k] = exist;
+              } else {
+                data[k] = (v.indexOf(item) > -1);
               }
 
-              data[k] = exist;
-            } else {
-              data[k] = (v.indexOf(item) > -1);
+              break;
             }
-
-            break;
+            case 'enabled-extension':
+            case 'enabled-background-open':
+            case 'enabled-multiclick-close':
+            case 'enabled-left-click':
+            case 'enabled-middle-click':
+            case 'enabled-right-click':
+            case 'disabled-same-domain':
+            case 'disabled-on':
+            case 'visible-link-state':
+            case 'no-close-fixed-tab':
+              data[k] = Boolean(v);
+              break;
+            default:
+              data[k] = v;
+              break;
           }
-          case 'enabled-extension':
-          case 'enabled-background-open':
-          case 'enabled-multiclick-close':
-          case 'enabled-left-click':
-          case 'enabled-middle-click':
-          case 'enabled-right-click':
-          case 'disabled-same-domain':
-          case 'disabled-on':
-          case 'visible-link-state':
-          case 'no-close-fixed-tab':
-            data[k] = Boolean(v);
-            break;
-          default:
-            data[k] = v;
-            break;
-        }
+        });
+
+        // build virtual fileld
+        data['url-enabled-state'] = Boolean(enabled);
+        data['disabled-state'] = 'disabled-off';
+
+        DISABLEDS.forEach((value) => {
+          if (data[value]) {
+            data['disabled-state'] = value;
+          }
+
+          delete data[value];
+        });
+
+        data['url-data'] = urlData;
+        data['extention-work'] = Boolean(extWork);
+        data['manifest'] = linkBlanker.manifest;
+
+        return data;
       });
-
-      // build virtual fileld
-      data['system-enabled-state'] = Boolean(LinkBlanker.isEnableFromUrl(result.url));
-      data['disabled-state'] = 'disabled-off';
-
-      DISABLEDS.forEach((value) => {
-        if (data[value]) {
-          data['disabled-state'] = value;
-        }
-
-        delete data[value];
-      });
-
-      if (callback) {
-        callback(null, data);
-      }
-    });
   },
 
   /**
@@ -135,9 +139,9 @@ AppDispatcher.register((action) => {
         delete data['disabled-state'];
       }
 
-      LinkBlanker.setData(data, () => {
-        PreferenceStore.emitChange();
-      });
+      linkBlanker.setData(data)
+        .then(() => PreferenceStore.emitChange())
+        .catch((e) => Logger.error(e));
 
       break;
     }
