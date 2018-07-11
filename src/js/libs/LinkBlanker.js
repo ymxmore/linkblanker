@@ -118,7 +118,7 @@ export default class LinkBlanker {
           }
         });
 
-        return this.updateTabStatusAll()
+        return this.updateAllTabStatus()
           .then(() => this.getData());
       });
   }
@@ -188,7 +188,7 @@ export default class LinkBlanker {
       port.onMessage.addListener(this.receiveMessages[port.name]);
     });
 
-    this.updateTabStatusAll();
+    this.updateAllTabStatus();
   }
 
   /**
@@ -348,7 +348,7 @@ export default class LinkBlanker {
    * @private
    * @return {Promise} 結果
    */
-  updateTabStatusAll() {
+  updateAllTabStatus() {
     return this.getAllTabs()
       .then((tabs) => Promise.all(
         tabs.map((tab) => this.updateTabStatus(tab))
@@ -482,8 +482,9 @@ export default class LinkBlanker {
   deleteTabLogIfExist(tabId) {
     if (this.tabLog[tabId]) {
       delete this.tabLog[tabId];
-      return Promise.resolve(tabId);
     }
+
+    return Promise.resolve(tabId);
   }
 
   /**

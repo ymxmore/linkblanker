@@ -531,7 +531,7 @@ ReactDOM.render(<Popup/>, window.document.getElementById('popup'));
  * キーマップを返却
  *
  * @param {number} keyCode
- * @return {Object} キーマップ
+ * @return {object} キーマップ
  */
 function getKeyMapping(keyCode) {
   keyCode = keyCode || '';

@@ -115,7 +115,7 @@ export default class Agent {
    * DOM構築完了のイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onCompleted(e) {
     if (this.domContentLoaded) {
@@ -197,8 +197,8 @@ export default class Agent {
    * 指定されたノードに属するアンカーに対しイベントをバインド
    *
    * @private
-   * @param {Object} node ノード
-   * @param {Object} enabled イベントの有効状態
+   * @param {object} node ノード
+   * @param {object} enabled イベントの有効状態
    */
   bindAnchorEvents(node, enabled) {
     if (typeof enabled === 'undefined') {
@@ -297,7 +297,7 @@ export default class Agent {
    * DOMオブジェクトから別タブで開く必要があるかを返却
    *
    * @private
-   * @param {Object} dom DOMオブジェクト
+   * @param {object} dom DOMオブジェクト
    * @return {boolean} 別タブで開く必要がある: true
    */
   isNeedOpenTabFromDOM(dom) {
@@ -313,7 +313,7 @@ export default class Agent {
    * イベントから別タブで開く必要があるかを返却
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    * @return {boolean} 別タブで開く必要がある: true
    */
   isNeedOpenTabFromEvent(e) {
@@ -333,7 +333,7 @@ export default class Agent {
    * クリックイベントから別タブで開く必要があるかを返却
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    * @return {boolean} 別タブで開く必要がある: true
    */
   isNeedOpenTabFromClickEvent(e) {
@@ -382,7 +382,7 @@ export default class Agent {
   /**
    * DOMオブジェクトから開くべきURLを返却
    *
-   * @param {Object} dom DOMオブジェクト
+   * @param {object} dom DOMオブジェクト
    * @return {boolean} 別タブで開く必要がある: true
    */
   getUrlFromDOM(dom) {
@@ -399,7 +399,7 @@ export default class Agent {
    * クリックイベントからURLを返却
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    * @param {boolean} [isFullUrl=false] フルURLが欲しい場合: true
    * @return {string} URL
    */
@@ -468,7 +468,7 @@ export default class Agent {
    * クリックイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onWindowClick(e) {
     if (this.navigation) {
@@ -496,7 +496,7 @@ export default class Agent {
    * キーダウンイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onWindowKeydown(e) {
     this.setNavigationState(e);
@@ -531,7 +531,7 @@ export default class Agent {
    * キーアップイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onWindowKeyup(e) {
     this.setNavigationState(e);
@@ -542,7 +542,7 @@ export default class Agent {
    * クリックイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onAnchorClick(e) {
     if (this.navigation) {
@@ -569,7 +569,7 @@ export default class Agent {
    * コンテキストメニューイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onAnchorContextmenu(e) {
     this.onAnchorClick(e);
@@ -579,7 +579,7 @@ export default class Agent {
    * マウスダウンイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onAnchorMousedown(e) {
     if (this.navigation) {
@@ -615,7 +615,7 @@ export default class Agent {
    * マウスエンターイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onAnchorMouseenter(e) {
     const target = this.getParentsNode(e.target, 'a');
@@ -637,7 +637,7 @@ export default class Agent {
    * マウスムーブイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onAnchorMousemove(e) {
     if (this.navigation.className === 'show') {
@@ -661,7 +661,7 @@ export default class Agent {
    * マウスリーブイベントハンドラ
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    */
   onAnchorMouseleave(e) {
     this.navigationTarget = null;
@@ -683,7 +683,7 @@ export default class Agent {
    * ナビゲーションの状態をセット
    *
    * @private
-   * @param {Object} e イベント
+   * @param {object} e イベント
    * @return {boolean} 正常にセットした場合: true
    */
   setNavigationState(e) {
@@ -723,7 +723,7 @@ export default class Agent {
    * 状態を更新
    *
    * @private
-   * @param {Object} response レスポンス
+   * @param {object} response レスポンス
    */
   onUpdateTabStatus(response) {
     if ('parsed' in response) {
@@ -777,7 +777,7 @@ export default class Agent {
    * タブの消去を通知
    *
    * @private
-   * @param {Object} response レスポンス
+   * @param {object} response レスポンス
    */
   onNorifyRemoveTabs(response) {
     const oldNotify = this.window.document.getElementById('linkblanker-notify');
@@ -822,8 +822,8 @@ export default class Agent {
    * キャンバスを返却
    *
    * @private
-   * @param {Object} param パラメータ
-   * @return {Object} キャンバス
+   * @param {object} param パラメータ
+   * @return {object} キャンバス
    */
   getCanvas(param) {
     const canvas = this.window.document.createElement('canvas');
@@ -850,7 +850,7 @@ export default class Agent {
    * ウェイト値
    *
    * @private
-   * @param {Object} param パラメータ
+   * @param {object} param パラメータ
    * @return {number} ウェイト値
    */
   getWait(param) {
@@ -869,8 +869,8 @@ export default class Agent {
    * クローズオブジェクトのメタ情報を返却
    *
    * @private
-   * @param {Object} param パラメータ
-   * @return {Object} クローズオブジェクトのメタ情報
+   * @param {object} param パラメータ
+   * @return {object} クローズオブジェクトのメタ情報
    */
   getCloseActionMetaInfo(param) {
     const width = 300;
@@ -912,8 +912,8 @@ export default class Agent {
    * 通知オブジェクトを作成し返却
    *
    * @private
-   * @param {Object} param パラメータ
-   * @return {Object} フルURL
+   * @param {object} param パラメータ
+   * @return {object} フルURL
    */
   getNotify(param) {
     const notify = this.window.document.createElement('div');
@@ -1013,10 +1013,10 @@ export default class Agent {
    * 親ノードを返却
    *
    * @private
-   * @param {Object} node ノード
+   * @param {object} node ノード
    * @param {string} target 対象のID or Class or タグ
    * @param {boolean} normalized 正規化済フラグ
-   * @return {Object} 親ノード
+   * @return {object} 親ノード
    */
   getParentsNode(node, target, normalized) {
     if (!node || !target) {

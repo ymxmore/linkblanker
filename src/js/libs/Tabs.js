@@ -13,7 +13,7 @@ export default class Tabs {
    * タブインスタンスを返却
    *
    * @constructor
-   * @param {Object} canvas キャンバス
+   * @param {object} canvas キャンバス
    */
   constructor(canvas) {
     this.PADDING = 5;
@@ -106,7 +106,7 @@ export default class Tabs {
    * @private
    * @param {number} width 幅
    * @param {number} height 高さ
-   * @return {Object} タブインスタンス
+   * @return {object} タブインスタンス
    */
   getTabInstance(width, height) {
     const tab = new createjs.Container();
@@ -156,7 +156,7 @@ export default class Tabs {
    * リムーブイベントハンドラ
    *
    * @private
-   * @param {Object} tab タブオブジェクト
+   * @param {object} tab タブオブジェクト
    */
   onRemove(tab) {
     this.destroy(tab);
@@ -173,7 +173,7 @@ export default class Tabs {
    * 指定されたタブを削除
    *
    * @private
-   * @param {Object} tab タブオブジェクト
+   * @param {object} tab タブオブジェクト
    */
   destroy(tab) {
     this.stage.removeChild(tab);

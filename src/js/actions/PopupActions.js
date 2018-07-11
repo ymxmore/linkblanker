@@ -11,7 +11,7 @@ const PopupActions = {
    * Save Preference
    *
    * @param {string} key
-   * @param {Object} value
+   * @param {object} value
    */
   save(key, value) {
     let data = {};

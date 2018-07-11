@@ -29,7 +29,7 @@ export default class Util {
    * URLの解析結果をキャッシュ
    *
    * @param {string} key キー
-   * @param {Object} value URL解析結果
+   * @param {object} value URL解析結果
    */
   static setParseUrlCache(key, value) {
     const keys = Object.keys(_parseUrlCache);
@@ -64,7 +64,7 @@ export default class Util {
    * URLを解析
    *
    * @param {string} urlStr URL
-   * @return {Object} URL解析結果
+   * @return {object} URL解析結果
    */
   static parseUrl(urlStr) {
     const cache = Util.getParseUrlCache(urlStr);
@@ -108,7 +108,7 @@ export default class Util {
   /**
    * 指定されたオブジェクトの値の配列を返却
    *
-   * @param {Object} obj 対象オブジェクト
+   * @param {object} obj 対象オブジェクト
    * @return {Array} オブジェクトの値の配列
    */
   static objectValues(obj) {
@@ -132,9 +132,9 @@ export default class Util {
   /**
    * 全てのコンテキストを変更
    *
-   * @param {Object} obj オブジェクト
-   * @param {Object} context コンテキスト
-   * @return {Object} 配列の場合: true
+   * @param {object} obj オブジェクト
+   * @param {object} context コンテキスト
+   * @return {object} 配列の場合: true
    */
   static bindAll(obj, context) {
     const result = {};
