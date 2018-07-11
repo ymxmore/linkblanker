@@ -138,37 +138,37 @@ gulp.task('zip', ['build'], () => {
 });
 
 gulp.task('watch', ['build'], () => {
-  gulp.watch('./src/manifest.json', () => {
+  gulp.watch('src/manifest.json', () => {
     runsequence('manifest', () => {
       notifier.notify({title: 'Task done', message: 'manifest done.'});
     });
   });
 
-  gulp.watch('./src/_locales/**/*', () => {
+  gulp.watch('src/_locales/**/*', () => {
     runsequence('locale', () => {
       notifier.notify({title: 'Task done', message: 'locale done.'});
     });
   });
 
-  gulp.watch('./src/html/**/*', () => {
+  gulp.watch('src/html/**/*', () => {
     runsequence('htmlhint', 'htmlmin', () => {
       notifier.notify({title: 'Task done', message: 'build done.'});
     });
   });
 
-  gulp.watch('./src/img/**/*', () => {
+  gulp.watch('src/img/**/*', () => {
     runsequence('optimizeimage', () => {
       notifier.notify({title: 'Task done', message: 'optimize image done.'});
     });
   });
 
-  gulp.watch('./src/js/**/*', () => {
+  gulp.watch('src/js/**/*', () => {
     runsequence('scripts', () => {
       notifier.notify({title: 'Task done', message: 'scripts done.'});
     });
   });
 
-  gulp.watch('./src/sass/**/*', () => {
+  gulp.watch('src/sass/**/*', () => {
     runsequence('styles', () => {
       notifier.notify({title: 'Task done', message: 'styles done.'});
     });
