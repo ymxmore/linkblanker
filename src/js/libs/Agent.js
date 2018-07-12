@@ -236,10 +236,6 @@ export default class Agent {
               nd.addEventListener(ae, this.anchorEventHandler[ae]);
               isNeedSetOriginHref = true;
             }
-
-            if (nd.dataset.lbOpenNewTab) {
-              delete nd.dataset.lbOpenNewTab;
-            }
           });
 
           if (isNeedSetOriginHref) {
@@ -342,7 +338,7 @@ export default class Agent {
     }
 
     return (
-      this.isNeedOpenTabFromButton(e.button)
+      this.isNeedOpenTabFromButton(e)
       && this.isNeedOpenTabFromEvent(e)
       && this.isNeedOpenTabFromDOM(this.getParentsNode(e.target, 'a'))
     );
@@ -352,14 +348,14 @@ export default class Agent {
    * クリックボタンから別タブで開く必要があるか返却
    *
    * @private
-   * @param {number} button マウスボタン番号(0: 左, 1: 中, 2: 右)
+   * @param {object} e イベント
    * @return {boolean} 別タブで開く必要がある: true
    */
-  isNeedOpenTabFromButton(button) {
+  isNeedOpenTabFromButton(e) {
     return (
-      (button === 0 && this.isLeftClick)
-      || (button === 1 && this.isMiddleClick)
-      || (button === 2 && this.isRightClick)
+      (this.isLeftClick && e.button === 0 && e.type === 'click')
+      || (this.isMiddleClick && e.button === 1 && e.type === 'mousedown')
+      || (this.isRightClick && e.button === 2 && e.type === 'contextmenu')
     );
   }
 
@@ -465,6 +461,44 @@ export default class Agent {
   }
 
   /**
+   * 別タブで開く
+   *
+   * @param {object} e イベント
+   */
+  openNewTab(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    const params = {
+      url: this.getUrlFromClickEvent(e),
+      selected: this.isNeedNewTabSelect(e),
+    };
+
+    this.ports.openTab.postMessage(params);
+  }
+
+  /**
+   * 必要があれば別タブで開く
+   *
+   * @param {object} e イベント
+   */
+  openNewTabIfNeeded(e) {
+    const target = this.getParentsNode(e.target, 'a');
+
+    if (!target) {
+      return;
+    }
+
+    if (this.isNeedOpenTabFromSystemStatus()
+      && this.isNeedOpenTabFromClickEvent(e)
+    ) {
+      this.openNewTab(e);
+      this.window.getSelection().collapse(this.window.document.body, 0);
+    }
+  }
+
+  /**
    * クリックイベントハンドラ
    *
    * @private
@@ -550,19 +584,7 @@ export default class Agent {
       this.navigation.style.display = 'none';
     }
 
-    const target = this.getParentsNode(e.target, 'a');
-
-    if (!target) {
-      return;
-    }
-
-    if (target.dataset.lbOpenNewTab) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      this.window.getSelection().collapse(this.window.document.body, 0);
-      delete target.dataset.lbOpenNewTab;
-    }
+    this.openNewTabIfNeeded(e);
   }
 
   /**
@@ -572,7 +594,7 @@ export default class Agent {
    * @param {object} e イベント
    */
   onAnchorContextmenu(e) {
-    this.onAnchorClick(e);
+    this.openNewTabIfNeeded(e);
   }
 
   /**
@@ -587,28 +609,7 @@ export default class Agent {
       this.navigation.style.display = 'none';
     }
 
-    const target = this.getParentsNode(e.target, 'a');
-
-    if (!target) {
-      return;
-    }
-
-    if (this.isNeedOpenTabFromSystemStatus()
-      && this.isNeedOpenTabFromClickEvent(e)
-    ) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-
-      target.dataset.lbOpenNewTab = true;
-
-      const params = {
-        url: this.getUrlFromClickEvent(e),
-        selected: this.isNeedNewTabSelect(e),
-      };
-
-      this.ports.openTab.postMessage(params);
-    }
+    this.openNewTabIfNeeded(e);
   }
 
   /**
