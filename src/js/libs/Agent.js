@@ -440,8 +440,8 @@ export default class Agent {
 
       navb.innerHTML = `
         <div id="linkblanker-status-icon">
-          <img id="linkblanker-status-icon-enabled" src="${this.chrome.extension.getURL('/img/icon-enabled.svgz')}"/>
-          <img id="linkblanker-status-icon-disabled" src="${this.chrome.extension.getURL('/img/icon-disabled.svgz')}"/>
+          <img id="linkblanker-status-icon-enabled" src="${this.chrome.extension.getURL('/img/icon-enabled.svg')}"/>
+          <img id="linkblanker-status-icon-disabled" src="${this.chrome.extension.getURL('/img/icon-disabled.svg')}"/>
         </div>
         <div id="linkblanker-status-text">
           <span id="linkblanker-status-text-enabled">ON</span>
@@ -555,7 +555,7 @@ export default class Agent {
         this.keys = [];
 
         if (this.ports.toggleEnabled) {
-          this.ports.toggleEnabled.postMessage();
+          this.ports.toggleEnabled.postMessage({});
         }
       }
     }
@@ -920,7 +920,7 @@ export default class Agent {
     const notify = this.window.document.createElement('div');
 
     notify.innerHTML = `
-      <img class="linkblanker-icon" src="${this.chrome.extension.getURL('img/icon-enabled.svgz')}" />
+      <img class="linkblanker-icon" src="${this.chrome.extension.getURL('img/icon-enabled.svg')}" />
       <p class="linkblanker-message">
       ${this.chrome.i18n.getMessage('message_drop_tabs')
         .replace(
@@ -985,7 +985,7 @@ export default class Agent {
       notify.hide();
 
       if (this.ports.undoRemoveTabs) {
-        this.ports.undoRemoveTabs.postMessage();
+        this.ports.undoRemoveTabs.postMessage({});
       }
     };
 

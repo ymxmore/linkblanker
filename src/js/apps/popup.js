@@ -298,8 +298,8 @@ const Popup = createReactClass({
         <img
           className="icon"
           src={this.state['url-enabled-state'] ?
-            '/img/icon-enabled.svgz' :
-            '/img/icon-disabled.svgz'}
+            '/img/icon-enabled.svg' :
+            '/img/icon-disabled.svg'}
         />
         <span id="version-name">
           Version {this.state.manifest.version}
