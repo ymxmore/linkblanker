@@ -1,0 +1,28 @@
+// sizes
+
+$font-size: 13.5px;
+$line-height: 1.6;
+$letter-spacing: .025em;
+$font-family: 'ヒラギノ角ゴシック Pro', 'Hiragino Kaku Gothic Pro', 'メイリオ', 'Meiryo', 'Osaka', 'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif;
+$space: 1rem;
+
+// colors
+
+$primary-color: #00bcd4;
+$primary-color-dark: #0097a7;
+$primary-color-light: #4dd0e1;
+
+$text-color: #757575;
+$text-color-dark: darken($text-color, 10%);
+$text-color-light: lighten($text-color, 30%);
+
+$grey-50: #fafafa;
+$grey-100: #f5f5f5;
+$grey-200: #eeeeee;
+$grey-300: #e0e0e0;
+$grey-400: #bdbdbd;
+$grey-500: #9e9e9e;
+$grey-600: #757575;
+$grey-700: #616161;
+$grey-800: #424242;
+$grey-900: #212121;

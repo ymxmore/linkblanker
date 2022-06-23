@@ -1,7 +1,4 @@
 .DS_Store
-.node-version
-.sass-cache/
-.tmp/
 node_modules/
 archive/
 dist/

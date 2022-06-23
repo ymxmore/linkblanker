@@ -1,9 +1,9 @@
 {
-    "manifest_version": 2,
-    "version": "2.5.4",
+    "manifest_version": 3,
+    "version": "3.0.0",
     "name": "Link Blanker",
     "description": "Open link in new tab.",
-    "homepage_url": "https://www.aozora-create.com/service/linkblanker",
+    "homepage_url": "https://www.x-more.co.jp/app/link-blanker/",
     "icons": {
         "128": "img/icon.png",
         "16": "img/icon16.png",
@@ -13,17 +13,12 @@
         "64": "img/icon64.png"
     },
     "permissions": [
-        "background",
-        "tabs"
-    ],
-    "web_accessible_resources": [
-        "img/icon-disabled.svg",
-        "img/icon-enabled.svg"
+        "storage",
+        "tabs",
+        "unlimitedStorage"
     ],
     "background": {
-        "scripts": [
-            "js/bundle.background.min.js"
-        ]
+        "service_worker": "background.js"
     },
     "content_scripts": [
         {
@@ -132,16 +127,14 @@
                 "*.xpi",
                 "*.zip"
             ],
-            "css": ["css/contentscript.min.css"],
             "js": [
-                "vendor/easeljs-NEXT.min.js",
-                "vendor/tweenjs-NEXT.min.js",
-                "js/bundle.contentscript.min.js"
+                "contentscript.js"
             ],
-            "run_at": "document_start"
+            "run_at": "document_start",
+            "all_frames": true
         }
     ],
-    "browser_action": {
+    "action": {
         "default_icon": {
             "19": "img/icon19.png",
             "32": "img/icon32.png"
@@ -149,5 +142,11 @@
         "default_title": "Link Blanker",
         "default_popup": "html/popup.html"
     },
-    "default_locale":"en"
+    "default_locale":"en",
+    "web_accessible_resources": [
+        {
+            "resources": ["html/notify-close-tabs.html"],
+            "matches": ["http://*/*", "https://*/*"]
+        }
+    ]
 }

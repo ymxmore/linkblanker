@@ -1,0 +1,15 @@
+export const ACTION = {
+  GET_TAB: 1,
+  UPDATE_TAB: 2,
+  SYNC_TAB: 3,
+  OPEN_TAB: 4,
+  CLOSE_TABS: 5,
+  NOTIFY_CLOSE_TABS: 6,
+  SET_PREFERENCE: 7,
+  UPDATE_NOTIFY_CONTAINER: 8,
+  DELETE_NOTIFY_CONTAINER: 9,
+} as const;
+
+export type ACTION = typeof ACTION[keyof typeof ACTION];
+
+export const MINIMUM_TAB_BUNDLE_TIME = 10000;

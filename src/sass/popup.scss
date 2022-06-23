@@ -1,78 +1,50 @@
-/*
- * popup.scss
- */
+@import 'normalize';
+@import 'variable';
+@import 'tag';
 
-@import "variables";
-@import "tags";
-
-@include tags;
-
-$icon-size: 40px;
-$logo-x: 52px;
-$logo-height: ($icon-size * 0.75);
-
-#wrapper {
-  padding: 1em;
+html, body {
+  background-color: #fff;
 }
 
-#extension-name {
-  width: 100%;
-  height: $icon-size + $base-font-size;
-  background-image: url("/img/logo.svg");
-  background-position: $logo-x 0;
-  background-attachment: scroll;
-  background-repeat: no-repeat;
-  background-size: auto $logo-height;
-  position: relative;
-
-  .icon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: $icon-size;
-    height: $icon-size;
-  }
+#app {
+  padding: $space * 2;
+  width: 408px;
 }
 
-#version-name {
-  display: inline-block;
-  position: absolute;
-  top: $logo-height + 3px;
-  left: $logo-x + 3px;
-  font-size: 0.9em;
+.global-header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
 }
 
-.popup-header {
-  border-bottom: 1px solid $border-color;
+.icon {
+  width: 50px;
+}
+
+.app-info {
+  padding: 0 0 0 $space * 2;
+}
+
+.version-name {
+  margin: 0;
 }
 
 .popup-list {
+  list-style-type: none;
   padding: 0;
-  margin: 1.2rem 0 0;
+  margin-top: $space;
+  padding: 0 0 0 $space;
 
   li {
-    list-style-type: none;
-    display: block;
-    padding: 0 0 .3em .6em;
-    margin: .6em 0 0;
-
-    &:first-child {
-      margin-top: 0;
-    }
-
-    > div {
-      width: 100%;
-    }
+    margin-top: $space;
   }
 
-  .split {
-    border-top: 1px solid $border-color-light;
-    padding-top: .9em;
+  label {
+    padding: $space * 0.4 0;
   }
 }
 
-.nmt {
-  & > * {
-    margin-top: -1em;
-  }
+.border-top {
+  border-top: 1px solid $grey-300;
 }

@@ -1,72 +1,85 @@
-/*
- * webpack.config.js
- */
-const pkg = require('./package.json');
-const webpack = require('webpack');
-const banner = [
-  `${pkg.name} - ${pkg.description}`,
-  `@version v${pkg.version}`,
-  `@link ${pkg.homepage}`,
-  `@license ${pkg.license}`,
-].join('\n');
-const env = process.env.NODE_ENV || 'development';
-const inproduction = (env === 'production');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  context: __dirname,
-  mode: env,
-  devtool: inproduction ? false : 'source-map',
-  performance: {
-    hints: false,
-  },
-  entry: {
-    background: './src/js/apps/background.js',
-    contentscript: './src/js/apps/contentscript.js',
-    popup: './src/js/apps/popup.js',
-  },
-  output: {
-    path: __dirname + '/dist',
-    filename: 'js/bundle.[name].min.js',
-    sourceMapFilename: 'js/bundle.[name].min.js.map',
-  },
-  resolve: {
-    modules: [
-      'src/js',
-      'node_modules',
-    ],
-  },
-  module: {
-    rules: [
-      {
-        enforce: 'pre',
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loader: 'eslint-loader',
-        options: {
-          configFile: './.eslintrc.yml',
+    devtool: process.env.NODE_ENV === 'production' ? false : 'inline-source-map',
+    context: __dirname,
+    mode: process.env.NODE_ENV,
+    entry: {
+        background: './src/ts/app/background.ts',
+        contentscript: './src/ts/app/contentscript.ts',
+        popup: './src/ts/app/popup.tsx',
+        'notify-close-tabs': './src/ts/app/notify-close-tabs.tsx',
+    },
+    output: {
+        path: `${__dirname}/dist`,
+        filename: '[name].js',
+    },
+    module: {
+        rules: [
+            {
+                test: /\.scss/,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            url: false,
+                            sourceMap: true,
+                            importLoaders: 2,
+                        },
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    [
+                                        'autoprefixer',
+                                        {
+                                            grid: true
+                                        }
+                                    ],
+                                ],
+                            },
+                        },
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sourceMap: true,
+                        },
+                    },
+                ],
+            },
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
+        ],
+    },
+    resolve: {
+        extensions: [
+            '.ts',
+            '.tsx',
+            '.js',
+            '.jsx',
+            '.json',
+        ],
+        alias: {
+            '@': [`${__dirname}/src/ts/`, `${__dirname}/test/ts/`],
         },
-      },
-      {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader',
-        options: {
-          presets: ['env', 'react'],
-          plugins: [
-            'transform-class-properties',
-            'transform-react-jsx',
-          ],
-        },
-      },
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: './src/html/popup.html',
+            filename: 'html/popup.html',
+            chunks: ['popup'],
+        }),
+        new HtmlWebpackPlugin({
+            template: './src/html/notify-close-tabs.html',
+            filename: 'html/notify-close-tabs.html',
+            chunks: ['notify-close-tabs'],
+        }),
     ],
-  },
-  plugins: [
-    new webpack.BannerPlugin(banner),
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(env),
-      },
-      '__BUILD_DATE_AT__': JSON.stringify(new Date().toString()),
-    }),
-  ],
 };

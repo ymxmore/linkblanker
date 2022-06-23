@@ -1,0 +1,100 @@
+@import 'normalize';
+@import 'variable';
+@import 'tag';
+
+@keyframes fade-in-down {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -100%, 0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-out-right {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+.notify-container {
+  list-style-type: none;
+  padding: $space $space $space * 2 $space * 2;
+  margin: 0;
+  width: 400px;
+}
+
+.notify-card {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  box-shadow: 0 8px 40px -12px rgb(0 0 0 / 30%);
+  padding: $space;
+  margin: 0 0 $space * 3;
+  opacity: 0;
+  position: relative;
+  top: 0;
+  left: 0;
+  transition: top 0.5s;
+  background-color: #fff;
+}
+
+.icon {
+  width: 48px;
+}
+
+.info {
+  padding: 0 0 0 $space;
+}
+
+.message {
+  padding: 0;
+  margin: 0;
+  font-size: $font-size * 1.1;
+  font-weight: bold;
+  line-height: $line-height;
+}
+
+.linkbox {
+  list-style-type: none;
+  padding: 0;
+  margin: $space * 0.25 0 0 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+
+  li {
+    padding: 0 $space 0 0;
+  }
+}
+
+.show, .hide, .undo {
+  animation-fill-mode: forwards;
+  animation-delay: 0;
+  animation-duration: .3s;
+  animation-direction: normal;
+  animation-iteration-count: 1;
+  animation-timing-function: linear;
+}
+
+.show {
+  animation-name: fade-in-down;
+}
+
+.hide, .undo {
+  animation-name: fade-out-right;
+}
+
+.none {
+  display: none;
+}
