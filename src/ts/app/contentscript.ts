@@ -330,9 +330,9 @@ const getContainerId = (extId: string) => `${extId}-notify`;
  * @param target 対象のID or Class or タグ
  * @return 親ノード
  */
-const getParentsNode = (node: any, target: string): Node | boolean => {
+const getParentsNode = (node: unknown, target: string): Element | undefined => {
   if (!node || !target || !(node instanceof Element)) {
-    return false;
+    return undefined;
   }
 
   let rexp: RegExp = null;
@@ -360,7 +360,7 @@ const getParentsNode = (node: any, target: string): Node | boolean => {
     return getParentsNode(node.parentNode as Element, target);
   }
 
-  return false;
+  return undefined;
 };
 
 /**
@@ -386,8 +386,8 @@ const getAbsPath = (path: any): string => {
  * @param node ノード
  * @returns 結果
  */
-const hasOnClick = (node: any): boolean => {
-  return node instanceof Notification && !!node.onclick;
+const hasOnClick = (node: Element): boolean => {
+  return node.hasAttribute('onclick');
 };
 
 start();

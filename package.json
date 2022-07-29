@@ -1,7 +1,7 @@
 {
   "name": "linkblanker",
   "description": "Open link in new tab.",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": "X-MORE LTD",
   "bugs": {
     "url": "https://github.com/ymxmore/linkblanker/issues"
